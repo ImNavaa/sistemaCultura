@@ -1,0 +1,24 @@
+[phases.build]
+cmds = [
+    "composer install --no-dev --optimize-autoloader",
+    "php artisan config:cache",
+    "php artisan route:cache",
+    "php artisan migrate --force",
+    "php artisan storage:link"
+]
+
+[start]
+cmd = "php artisan serve --host=0.0.0.0 --port=$PORT"
+```
+
+---
+
+## Paso 3 — Revisar el `.gitignore`
+
+Abre `.gitignore` y asegúrate de que tenga estas líneas:
+```
+.env
+/vendor
+/node_modules
+/storage/*.key
+/public/storage
