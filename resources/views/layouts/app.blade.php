@@ -44,6 +44,16 @@
                             <i class="bi bi-people"></i> Empleados
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ route('almacen.index') }}">
+                            <i class="bi bi-box-seam"></i> Almacén
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ route('entregas.index') }}">
+                            <i class="bi bi-box-arrow-right"></i> Entregas
+                        </a>
+                    </li>
                 </ul>
 
             </div>
