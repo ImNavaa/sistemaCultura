@@ -21,6 +21,13 @@
                         value="{{ old('fecha') }}">
                     @error('fecha') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>
+                <div class="col-md-6">
+                    <label class="form-label">Número de Recibo</label>
+                    <input type="text" name="numero_recibo" class="form-control @error('numero_recibo') is-invalid @enderror"
+                        value="{{ old('numero_recibo', $recibo->numero_recibo ?? '') }}"
+                        placeholder="Ej: REC-2024-001">
+                    @error('numero_recibo') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                </div>
 
                 <div class="col-md-6">
                     <label class="form-label">Importe <span class="text-danger">*</span></label>

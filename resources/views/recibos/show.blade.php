@@ -21,6 +21,9 @@
             <dt class="col-sm-3">Fecha</dt>
             <dd class="col-sm-9">{{ $recibo->fecha->format('d/m/Y') }}</dd>
 
+            <dt class="col-sm-3">Número de Recibo</dt>
+            <dd class="col-sm-9">{{ $recibo->numero_recibo ?? '—' }}</dd>
+            
             <dt class="col-sm-3">Nombre del Evento</dt>
             <dd class="col-sm-9">{{ $recibo->nombre_evento }}</dd>
 

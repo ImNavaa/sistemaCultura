@@ -17,6 +17,7 @@
                 <tr>
                     <th>#</th>
                     <th>Fecha</th>
+                    <th>N° Recibo</th>
                     <th>Nombre del Evento</th>
                     <th>Concepto</th>
                     <th>Importe</th>
@@ -29,6 +30,7 @@
                 <tr>
                     <td>{{ $recibo->id }}</td>
                     <td>{{ $recibo->fecha->format('d/m/Y') }}</td>
+                    <td>{{ $recibo->numero_recibo ?? '—' }}</td>
                     <td>{{ $recibo->nombre_evento }}</td>
                     <td>{{ Str::limit($recibo->concepto, 50) }}</td>
                     <td>${{ number_format($recibo->importe, 2) }}</td>

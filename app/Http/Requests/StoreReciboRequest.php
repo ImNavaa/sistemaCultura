@@ -15,6 +15,7 @@ class StoreReciboRequest extends FormRequest
     {
         return [
             'fecha'         => 'required|date',
+            'numero_recibo'  => 'nullable|string|max:100',
             'nombre_evento' => 'required|string|max:255',
             'importe'       => 'required|numeric|min:0',
             'organizador'   => 'required|string|max:255',

@@ -29,7 +29,7 @@ class ReciboController extends Controller
 
         Recibo::create($datos);
         return redirect()->route('recibos.index')
-            ->with('success', 'recibo creado correctamente.');
+            ->with('success', 'Recibo creado correctamente.');
     }
 
     public function show(Recibo $recibo)
@@ -42,7 +42,7 @@ class ReciboController extends Controller
         return view('recibos.edit', compact('recibo'));
     }
 
-    public function update(UpdateReciboRequest $request, recibo $recibo)
+    public function update(UpdateReciboRequest $request, Recibo $recibo) // <-- R mayúscula
     {
         $datos = $request->validated();
 
@@ -55,7 +55,7 @@ class ReciboController extends Controller
 
         $recibo->update($datos);
         return redirect()->route('recibos.index')
-            ->with('success', 'Oficio actualizado correctamente.');
+            ->with('success', 'Recibo actualizado correctamente.'); // <-- corregido
     }
 
     public function destroy(Recibo $recibo)

@@ -14,7 +14,38 @@ class EventoController extends Controller
     {
         return view('eventos.calendario');
     }
+    public function update(Request $request, Evento $evento)
+    {
+        $request->validate([
+            'fecha'         => 'required|date',
+            'nombre_evento' => 'sometimes|string|max:255',
+            'organizador'   => 'sometimes|string|max:255',
+            'tipo'          => 'sometimes|in:oficio,recibo,ambos,ninguno',
+            'hora_inicio'   => 'nullable|date_format:H:i',
+            'hora_fin'      => 'nullable|date_format:H:i',
+        ]);
 
+        $evento->update($request->only([
+            'fecha',
+            'nombre_evento',
+            'organizador',
+            'autoriza',
+            'tipo'
+        ]));
+
+        // Actualiza horas en el oficio relacionado si existe
+        if ($request->has('hora_inicio')) {
+            \App\Models\Oficio::where('nombre_evento', $evento->nombre_evento)
+                ->where('fecha', $evento->fecha)
+                ->update([
+                    'hora_inicio' => $request->hora_inicio,
+                    'hora_fin'    => $request->hora_fin,
+                    'fecha'       => $request->fecha,
+                ]);
+        }
+
+        return response()->json(['success' => true]);
+    }
     // Devuelve eventos en formato JSON para FullCalendar
     public function getEventos()
     {
@@ -48,11 +79,13 @@ class EventoController extends Controller
                 'end'             => $end,
                 'backgroundColor' => $color,
                 'borderColor'     => $color,
-                'extendedProps'   => [
+                'extendedProps' => [
                     'organizador' => $evento->organizador,
+                    'autoriza'    => $evento->autoriza,   // <-- agregar
                     'tipo'        => $evento->tipo,
                     'hora_inicio' => $oficio->hora_inicio ?? null,
                     'hora_fin'    => $oficio->hora_fin ?? null,
+                    'numero_recibo' => $recibo->numero_recibo ?? null,
                 ],
             ];
         });
@@ -70,7 +103,13 @@ class EventoController extends Controller
             'tipo'          => 'required|in:oficio,recibo,ambos,ninguno',
         ]);
 
-        $evento = Evento::create($request->only(['fecha', 'nombre_evento', 'organizador', 'tipo']));
+        $evento = Evento::create($request->only([
+            'fecha',
+            'nombre_evento',
+            'organizador',
+            'autoriza',
+            'tipo'
+        ]));
 
         // Si tiene oficio, crearlo también
         if (in_array($request->tipo, ['oficio', 'ambos'])) {
@@ -81,8 +120,8 @@ class EventoController extends Controller
                 'numero_oficio' => $request->numero_oficio,
                 'cobrado'       => $request->cobrado === 'si',
                 'monto_cobrado' => $request->monto_cobrado ?? null,
-                'hora_inicio'   => $request->hora_inicio ?? null,  
-                'hora_fin'      => $request->hora_fin ?? null,     
+                'hora_inicio'   => $request->hora_inicio ?? null,
+                'hora_fin'      => $request->hora_fin ?? null,
             ]);
         }
 
@@ -90,6 +129,7 @@ class EventoController extends Controller
         if (in_array($request->tipo, ['recibo', 'ambos'])) {
             Recibo::create([
                 'fecha'         => $request->fecha,
+                'numero_recibo'  => $request->numero_recibo,
                 'nombre_evento' => $request->nombre_evento,
                 'organizador'   => $request->organizador,
                 'importe'       => $request->importe,

@@ -29,5 +29,6 @@ Route::resource('tiempo', TiempoController::class)->only(['index', 'show', 'crea
 
 Route::resource('almacen', AlmacenController::class);
 Route::resource('entregas', EntregaController::class)->only(['index', 'create', 'store', 'destroy']);
+Route::put('/eventos/{evento}', [EventoController::class, 'update'])->name('eventos.update');
 
 require __DIR__.'/settings.php';
