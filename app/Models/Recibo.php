@@ -11,6 +11,7 @@ class Recibo extends Model
     protected $fillable = [
         'fecha',
         'nombre_evento',
+        'numero_recibo',
         'importe',
         'organizador',
         'concepto',

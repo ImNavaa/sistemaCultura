@@ -274,25 +274,6 @@
         document.getElementById('selectMes').value = hoy.getMonth();
         document.getElementById('selectAnio').value = hoy.getFullYear();
 
-        // ✅ POKA-YOKE: Capitalizar automáticamente mientras escribe
-        // ✅ POKA-YOKE: Capitalizar automáticamente mientras escribe
-        ['organizador'].forEach(function(id) {
-            const el = document.getElementById(id);
-            if (el) {
-                el.addEventListener('input', function() {
-                    const pos = this.selectionStart;
-                    const val = this.value.replace(/\b\w/g, l => l.toUpperCase());
-                    if (val !== this.value) {
-                        this.value = val;
-                        try {
-                            this.setSelectionRange(pos, pos);
-                        } catch (e) {
-                            // ignorar si el navegador no lo soporta
-                        }
-                    }
-                });
-            }
-        });
 
         // ✅ POKA-YOKE: Validar hora fin > hora inicio en tiempo real
         document.getElementById('hora_fin').addEventListener('change', validarHoras);
