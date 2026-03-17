@@ -276,7 +276,7 @@
 
         // ✅ POKA-YOKE: Capitalizar automáticamente mientras escribe
         // ✅ POKA-YOKE: Capitalizar automáticamente mientras escribe
-        ['nombre_evento', 'organizador'].forEach(function(id) {
+        ['organizador'].forEach(function(id) {
             const el = document.getElementById(id);
             if (el) {
                 el.addEventListener('input', function() {
