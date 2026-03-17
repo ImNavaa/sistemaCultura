@@ -237,18 +237,6 @@
             },
 
             eventDrop: function(info) {
-                // ✅ POKA-YOKE: Bloquear arrastrar a fechas pasadas
-                const hoy = new Date();
-                hoy.setHours(0, 0, 0, 0);
-                const newDate = new Date(info.event.startStr);
-
-                if (newDate < hoy) {
-                    mostrarAlerta('⚠️ No puedes mover eventos a fechas pasadas.', 'warning');
-                    info.revert();
-                    return;
-                }
-
-                // ✅ POKA-YOKE: Advertir si ya existe evento en esa fecha y hora
                 verificarConflicto(info.event, function(conflicto) {
                     if (conflicto) {
                         if (!confirm(`⚠️ Ya existe un evento en esa fecha y hora: "${conflicto}". ¿Deseas continuar de todas formas?`)) {
