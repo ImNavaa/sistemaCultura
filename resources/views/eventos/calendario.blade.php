@@ -366,7 +366,7 @@
         document.getElementById('fecha').value = fecha;
         document.getElementById('nombre_evento').value = '';
         document.getElementById('organizador').value = '';
-        document.getElementById('autoriza').value = p.autoriza ?? '';
+        document.getElementById('autoriza').value = '';
         document.getElementById('hora_inicio').value = '';
         document.getElementById('hora_fin').value = '';
         document.getElementById('tipo').value = 'ninguno';
@@ -375,10 +375,6 @@
         document.getElementById('btnGuardar').onclick = guardarEvento;
         document.getElementById('btnGuardar').disabled = false;
         document.getElementById('btnEliminar').classList.add('d-none');
-
-        // ✅ POKA-YOKE: Bloquear fecha mínima en el input
-        document.getElementById('fecha').min = new Date().toISOString().split('T')[0];
-
         toggleCampos();
         new bootstrap.Modal(document.getElementById('modalEvento')).show();
     }
