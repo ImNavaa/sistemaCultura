@@ -287,13 +287,21 @@
         document.getElementById('selectAnio').value = hoy.getFullYear();
 
         // ✅ POKA-YOKE: Capitalizar automáticamente mientras escribe
-        ['nombre_evento', 'organizador', 'autoriza'].forEach(function(id) {
+        // ✅ POKA-YOKE: Capitalizar automáticamente mientras escribe
+        ['nombre_evento', 'organizador'].forEach(function(id) {
             const el = document.getElementById(id);
             if (el) {
                 el.addEventListener('input', function() {
                     const pos = this.selectionStart;
-                    this.value = capitalizarTexto(this.value);
-                    this.setSelectionRange(pos, pos);
+                    const val = this.value.replace(/\b\w/g, l => l.toUpperCase());
+                    if (val !== this.value) {
+                        this.value = val;
+                        try {
+                            this.setSelectionRange(pos, pos);
+                        } catch (e) {
+                            // ignorar si el navegador no lo soporta
+                        }
+                    }
                 });
             }
         });
