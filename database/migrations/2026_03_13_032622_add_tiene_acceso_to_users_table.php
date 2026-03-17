@@ -9,7 +9,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->boolean('tiene_acceso')->default(false)->after('dias_laborales');
+            if (!Schema::hasColumn('users', 'tiene_acceso')) {
+                $table->boolean('tiene_acceso')->default(false)->after('remember_token');
+            }
         });
     }
 
