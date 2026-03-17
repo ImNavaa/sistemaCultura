@@ -30,7 +30,9 @@ class EventoController extends Controller
             'nombre_evento',
             'organizador',
             'autoriza',
-            'tipo'
+            'tipo',
+            'hora_inicio',
+            'hora_fin'
         ]));
 
         // Actualiza horas en el oficio relacionado si existe
@@ -57,18 +59,27 @@ class EventoController extends Controller
                 'ninguno' => '#555555',
             };
 
-            // Buscar oficio relacionado para obtener las horas
+            // Buscar oficio relacionado
             $oficio = \App\Models\Oficio::where('nombre_evento', $evento->nombre_evento)
                 ->where('fecha', $evento->fecha)
                 ->first();
 
+            // Buscar recibo relacionado
+            $recibo = \App\Models\Recibo::where('nombre_evento', $evento->nombre_evento)
+                ->where('fecha', $evento->fecha)
+                ->first();
+
+            // ✅ Prioridad: horas del evento, si no hay usar las del oficio
+            $horaInicio = $evento->hora_inicio ?? $oficio?->hora_inicio ?? null;
+            $horaFin    = $evento->hora_fin    ?? $oficio?->hora_fin    ?? null;
+
             $start = $evento->fecha->format('Y-m-d');
             $end   = null;
 
-            if ($oficio && $oficio->hora_inicio) {
-                $start = $evento->fecha->format('Y-m-d') . 'T' . $oficio->hora_inicio;
-                if ($oficio->hora_fin) {
-                    $end = $evento->fecha->format('Y-m-d') . 'T' . $oficio->hora_fin;
+            if ($horaInicio) {
+                $start = $evento->fecha->format('Y-m-d') . 'T' . $horaInicio;
+                if ($horaFin) {
+                    $end = $evento->fecha->format('Y-m-d') . 'T' . $horaFin;
                 }
             }
 
@@ -79,13 +90,13 @@ class EventoController extends Controller
                 'end'             => $end,
                 'backgroundColor' => $color,
                 'borderColor'     => $color,
-                'extendedProps' => [
-                    'organizador' => $evento->organizador,
-                    'autoriza'    => $evento->autoriza,   // <-- agregar
-                    'tipo'        => $evento->tipo,
-                    'hora_inicio' => $oficio->hora_inicio ?? null,
-                    'hora_fin'    => $oficio->hora_fin ?? null,
-                    'numero_recibo' => $recibo->numero_recibo ?? null,
+                'extendedProps'   => [
+                    'organizador'   => $evento->organizador,
+                    'autoriza'      => $evento->autoriza,
+                    'tipo'          => $evento->tipo,
+                    'hora_inicio'   => $horaInicio,
+                    'hora_fin'      => $horaFin,
+                    'numero_recibo' => $recibo?->numero_recibo ?? null,
                 ],
             ];
         });
@@ -101,6 +112,8 @@ class EventoController extends Controller
             'nombre_evento' => 'required|string|max:255',
             'organizador'   => 'required|string|max:255',
             'tipo'          => 'required|in:oficio,recibo,ambos,ninguno',
+            'hora_inicio'   => 'nullable|date_format:H:i',
+            'hora_fin'      => 'nullable|date_format:H:i',
         ]);
 
         $evento = Evento::create($request->only([
@@ -108,7 +121,9 @@ class EventoController extends Controller
             'nombre_evento',
             'organizador',
             'autoriza',
-            'tipo'
+            'tipo',
+            'hora_inicio',
+            'hora_fin',
         ]));
 
         // Si tiene oficio, crearlo también
