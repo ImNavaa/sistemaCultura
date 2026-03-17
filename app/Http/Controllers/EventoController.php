@@ -129,7 +129,7 @@ class EventoController extends Controller
         if (in_array($request->tipo, ['recibo', 'ambos'])) {
             Recibo::create([
                 'fecha'         => $request->fecha,
-                'numero_recibo'  => $request->numero_recibo,
+                'numero_recibo' => $request->numero_recibo,
                 'nombre_evento' => $request->nombre_evento,
                 'organizador'   => $request->organizador,
                 'importe'       => $request->importe,

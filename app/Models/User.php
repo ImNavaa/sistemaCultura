@@ -26,7 +26,8 @@ class User extends Authenticatable
         'telefono',
         'cargo',
         'horario',
-        'dias_laborales'
+        'dias_laborales',
+        'tiene_acceso',
     ];
     /**
      * The attributes that should be hidden for serialization.
@@ -74,5 +75,25 @@ class User extends Authenticatable
     public function saldoTiempo()
     {
         return $this->hasOne(SaldoTiempo::class, 'user_id');
+    }
+    public function asistencias()
+    {
+        return $this->hasMany(Asistencia::class, 'user_id');
+    }
+
+    public function asistenciaHoy()
+    {
+        return $this->hasOne(Asistencia::class, 'user_id')
+            ->whereDate('fecha', today());
+    }
+    public function diasEconomicos()
+    {
+        return $this->hasMany(DiaEconomico::class, 'user_id');
+    }
+
+    public function diasEconomicosAnio(int $anio = null)
+    {
+        return $this->hasOne(DiaEconomico::class, 'user_id')
+            ->where('anio', $anio ?? now()->year);
     }
 }

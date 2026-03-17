@@ -10,36 +10,59 @@ class UserController extends Controller
 {
     public function index()
     {
-        $usuarios = User::orderBy('name')->get();
-        return view('usuarios.index', compact('usuarios'));
+        $conAcceso    = User::where('tiene_acceso', true)->orderBy('name')->get();
+        $sinAcceso    = User::where('tiene_acceso', false)->orderBy('name')->get();
+        return view('usuarios.index', compact('conAcceso', 'sinAcceso'));
     }
 
     public function create()
     {
-        return view('usuarios.create');
+        // Decide qué formulario mostrar
+        $tipo = request('tipo', 'sin_acceso');
+        return view('usuarios.create', compact('tipo'));
     }
 
     public function store(Request $request)
     {
-        $request->validate([
-            'name'          => 'required|string|max:255',
-            'email'         => 'required|email|unique:users,email',
-            'password'      => 'required|string|min:8|confirmed',
-            'telefono'      => 'nullable|string|max:20',
-            'cargo'         => 'nullable|string|max:100',
-            'horario'       => 'nullable|string|max:100',
-            'dias_laborales'=> 'nullable|string|max:255',
-        ]);
+        if ($request->tiene_acceso) {
+            $request->validate([
+                'name'           => 'required|string|max:255',
+                'email'          => 'required|email|unique:users,email',
+                'password'       => 'required|string|min:8|confirmed',
+                'telefono'       => 'nullable|string|max:20',
+                'cargo'          => 'nullable|string|max:100',
+                'horario'        => 'nullable|string|max:100',
+                'dias_laborales' => 'nullable|string|max:255',
+            ]);
 
-        User::create([
-            'name'           => $request->name,
-            'email'          => $request->email,
-            'password'       => Hash::make($request->password),
-            'telefono'       => $request->telefono,
-            'cargo'          => $request->cargo,
-            'horario'        => $request->horario,
-            'dias_laborales' => $request->dias_laborales,
-        ]);
+            User::create([
+                'name'           => $request->name,
+                'email'          => $request->email,
+                'password'       => Hash::make($request->password),
+                'telefono'       => $request->telefono,
+                'cargo'          => $request->cargo,
+                'horario'        => $request->horario,
+                'dias_laborales' => $request->dias_laborales,
+                'tiene_acceso'   => true,
+            ]);
+        } else {
+            $request->validate([
+                'name'           => 'required|string|max:255',
+                'telefono'       => 'nullable|string|max:20',
+                'cargo'          => 'nullable|string|max:100',
+                'horario'        => 'nullable|string|max:100',
+                'dias_laborales' => 'nullable|string|max:255',
+            ]);
+
+            User::create([
+                'name'           => $request->name,
+                'telefono'       => $request->telefono,
+                'cargo'          => $request->cargo,
+                'horario'        => $request->horario,
+                'dias_laborales' => $request->dias_laborales,
+                'tiene_acceso'   => false,
+            ]);
+        }
 
         return redirect()->route('usuarios.index')
             ->with('success', 'Empleado registrado correctamente.');
@@ -57,28 +80,39 @@ class UserController extends Controller
 
     public function update(Request $request, User $usuario)
     {
-        $request->validate([
-            'name'           => 'required|string|max:255',
-            'email'          => 'required|email|unique:users,email,' . $usuario->id,
-            'password'       => 'nullable|string|min:8|confirmed',
-            'telefono'       => 'nullable|string|max:20',
-            'cargo'          => 'nullable|string|max:100',
-            'horario'        => 'nullable|string|max:100',
-            'dias_laborales' => 'nullable|string|max:255',
-        ]);
+        if ($usuario->tiene_acceso) {
+            $request->validate([
+                'name'           => 'required|string|max:255',
+                'email'          => 'required|email|unique:users,email,' . $usuario->id,
+                'password'       => 'nullable|string|min:8|confirmed',
+                'telefono'       => 'nullable|string|max:20',
+                'cargo'          => 'nullable|string|max:100',
+                'horario'        => 'nullable|string|max:100',
+                'dias_laborales' => 'nullable|string|max:255',
+            ]);
+        } else {
+            $request->validate([
+                'name'           => 'required|string|max:255',
+                'telefono'       => 'nullable|string|max:20',
+                'cargo'          => 'nullable|string|max:100',
+                'horario'        => 'nullable|string|max:100',
+                'dias_laborales' => 'nullable|string|max:255',
+            ]);
+        }
 
         $datos = [
             'name'           => $request->name,
-            'email'          => $request->email,
             'telefono'       => $request->telefono,
             'cargo'          => $request->cargo,
             'horario'        => $request->horario,
             'dias_laborales' => $request->dias_laborales,
         ];
 
-        // Solo actualiza password si se ingresó uno nuevo
-        if ($request->filled('password')) {
-            $datos['password'] = Hash::make($request->password);
+        if ($usuario->tiene_acceso) {
+            $datos['email'] = $request->email;
+            if ($request->filled('password')) {
+                $datos['password'] = Hash::make($request->password);
+            }
         }
 
         $usuario->update($datos);
@@ -92,5 +126,14 @@ class UserController extends Controller
         $usuario->delete();
         return redirect()->route('usuarios.index')
             ->with('success', 'Empleado eliminado correctamente.');
+    }
+
+    // Verificar email duplicado en tiempo real
+    public function verificarEmail(Request $request)
+    {
+        $existe = User::where('email', $request->email)
+            ->where('id', '!=', $request->id ?? 0)
+            ->exists();
+        return response()->json(['existe' => $existe]);
     }
 }

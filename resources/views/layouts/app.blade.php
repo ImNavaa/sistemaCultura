@@ -54,6 +54,11 @@
                             <i class="bi bi-box-arrow-right"></i> Entregas
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ route('asistencias.index') }}">
+                            <i class="bi bi-person-check"></i> Asistencia
+                        </a>
+                    </li>
                 </ul>
 
             </div>

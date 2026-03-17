@@ -66,8 +66,14 @@
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Autoriza</label>
-                            <input type="text" id="autoriza" name="autoriza" class="form-control"
-                                placeholder="Nombre de quien autoriza">
+                            <select id="autoriza" name="autoriza" class="form-select">
+                                <option value="">-- Seleccionar --</option>
+                                <option value="Presidente">Presidente</option>
+                                <option value="Secretario">Secretario</option>
+                                <option value="Finanzas">Finanzas</option>
+                                <option value="Dirección de Cultura">Dirección de Cultura</option>
+                                <option value="Se desconoce">Se desconoce</option>
+                            </select>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Organizador <span class="text-danger">*</span></label>
@@ -84,8 +90,8 @@
                         </div>
                         <div class="col-md-12">
                             <label class="form-label">Nombre del Evento <span class="text-danger">*</span></label>
-                            <input type="text" id="nombre_evento" name="nombre_evento" class="form-control"
-                                placeholder="Nombre del evento" required>
+                            <input type="text" id="nombre_evento" name="nombre_evento"
+                                class="form-control" placeholder="Escribe el nombre del evento" required>
                         </div>
                         <div class="col-md-12">
                             <label class="form-label">Tipo de Documento</label>
@@ -211,7 +217,18 @@
             },
             events: '{{ route("eventos.get") }}',
 
+            // ✅ POKA-YOKE: Bloquear fechas pasadas al hacer clic
             dateClick: function(info) {
+                /*
+                const hoy = new Date();
+                hoy.setHours(0, 0, 0, 0);
+                const clicked = new Date(info.dateStr);
+
+                if (clicked < hoy) {
+                    mostrarAlerta('⚠️ No puedes crear eventos en fechas pasadas.', 'warning');
+                    return;
+                }
+                */
                 abrirModal(info.dateStr);
             },
 
@@ -220,7 +237,27 @@
             },
 
             eventDrop: function(info) {
-                actualizarEvento(info.event, info.revert);
+                // ✅ POKA-YOKE: Bloquear arrastrar a fechas pasadas
+                const hoy = new Date();
+                hoy.setHours(0, 0, 0, 0);
+                const newDate = new Date(info.event.startStr);
+
+                if (newDate < hoy) {
+                    mostrarAlerta('⚠️ No puedes mover eventos a fechas pasadas.', 'warning');
+                    info.revert();
+                    return;
+                }
+
+                // ✅ POKA-YOKE: Advertir si ya existe evento en esa fecha y hora
+                verificarConflicto(info.event, function(conflicto) {
+                    if (conflicto) {
+                        if (!confirm(`⚠️ Ya existe un evento en esa fecha y hora: "${conflicto}". ¿Deseas continuar de todas formas?`)) {
+                            info.revert();
+                            return;
+                        }
+                    }
+                    actualizarEvento(info.event, info.revert);
+                });
             },
 
             eventResize: function(info) {
@@ -230,11 +267,10 @@
             eventMouseEnter: function(info) {
                 const p = info.event.extendedProps;
                 info.el.setAttribute('title',
-                    `Organizador: ${p.organizador}\nTipo: ${p.tipo}`
+                    `Organizador: ${p.organizador}\nAutoriza: ${p.autoriza ?? '—'}\nTipo: ${p.tipo}`
                 );
             },
 
-            // Sincroniza selectores cuando el calendario navega
             datesSet: function(info) {
                 const fecha = info.view.currentStart;
                 document.getElementById('selectMes').value = fecha.getMonth();
@@ -245,61 +281,134 @@
         calendar.render();
         window._calendar = calendar;
 
-        // Inicializa selectores con el mes actual
+        // Inicializa selectores
         const hoy = new Date();
         document.getElementById('selectMes').value = hoy.getMonth();
         document.getElementById('selectAnio').value = hoy.getFullYear();
+
+        // ✅ POKA-YOKE: Capitalizar automáticamente mientras escribe
+        ['nombre_evento', 'organizador', 'autoriza'].forEach(function(id) {
+            const el = document.getElementById(id);
+            if (el) {
+                el.addEventListener('input', function() {
+                    const pos = this.selectionStart;
+                    this.value = capitalizarTexto(this.value);
+                    this.setSelectionRange(pos, pos);
+                });
+            }
+        });
+
+        // ✅ POKA-YOKE: Validar hora fin > hora inicio en tiempo real
+        document.getElementById('hora_fin').addEventListener('change', validarHoras);
+        document.getElementById('hora_inicio').addEventListener('change', validarHoras);
     });
 
-    // Navegar a mes/año seleccionado
+    // ✅ Capitalizar primera letra de cada palabra
+    function capitalizarTexto(texto) {
+        return texto.replace(/\b\w/g, function(l) {
+            return l.toUpperCase();
+        });
+    }
+
+    // ✅ Validar que hora fin sea mayor que hora inicio
+    function validarHoras() {
+        const inicio = document.getElementById('hora_inicio').value;
+        const fin = document.getElementById('hora_fin').value;
+
+        if (inicio && fin && fin <= inicio) {
+            mostrarAlerta('⚠️ La hora de fin debe ser mayor que la hora de inicio.', 'danger');
+            document.getElementById('hora_fin').value = '';
+            document.getElementById('hora_fin').classList.add('is-invalid');
+        } else {
+            document.getElementById('hora_fin').classList.remove('is-invalid');
+        }
+    }
+
+    // ✅ Verificar conflicto de evento en misma fecha y hora
+    function verificarConflicto(event, callback) {
+        const eventos = window._calendar.getEvents();
+        const nuevaFecha = event.startStr.substring(0, 10);
+        const nuevaHoraI = event.startStr.includes('T') ? event.startStr.substring(11, 16) : null;
+
+        const conflicto = eventos.find(function(e) {
+            if (e.id === event.id) return false;
+            const eFecha = e.startStr.substring(0, 10);
+            const eHoraI = e.startStr.includes('T') ? e.startStr.substring(11, 16) : null;
+            return eFecha === nuevaFecha && nuevaHoraI && eHoraI && eHoraI === nuevaHoraI;
+        });
+
+        callback(conflicto ? conflicto.title : null);
+    }
+
+    // ✅ Mostrar alerta temporal en pantalla
+    function mostrarAlerta(mensaje, tipo = 'warning') {
+        const div = document.createElement('div');
+        div.className = `alert alert-${tipo} alert-dismissible fade show position-fixed`;
+        div.style.cssText = 'top:20px; right:20px; z-index:9999; min-width:320px; box-shadow: 0 4px 12px rgba(0,0,0,0.15)';
+        div.innerHTML = `${mensaje} <button type="button" class="btn-close" data-bs-dismiss="alert"></button>`;
+        document.body.appendChild(div);
+        setTimeout(function() {
+            div.remove();
+        }, 4000);
+    }
+
+    // Navegar a mes/año
     function navegarFecha() {
         const mes = parseInt(document.getElementById('selectMes').value);
         const anio = parseInt(document.getElementById('selectAnio').value);
         window._calendar.gotoDate(new Date(anio, mes, 1));
     }
 
-    // Abre modal para CREAR
+    // Abrir modal CREAR
     function abrirModal(fecha = '') {
         document.getElementById('modalTitulo').textContent = 'Nuevo Evento';
         document.getElementById('eventoId').value = '';
         document.getElementById('fecha').value = fecha;
-        document.getElementById('numero_recibo').value = '';
-        document.getElementById('autoriza').value = '';
         document.getElementById('nombre_evento').value = '';
         document.getElementById('organizador').value = '';
+        document.getElementById('autoriza').value = p.autoriza ?? '';
         document.getElementById('hora_inicio').value = '';
         document.getElementById('hora_fin').value = '';
         document.getElementById('tipo').value = 'ninguno';
+        document.getElementById('numero_recibo').value = '';
         document.getElementById('btnGuardar').textContent = 'Guardar Evento';
         document.getElementById('btnGuardar').onclick = guardarEvento;
+        document.getElementById('btnGuardar').disabled = false;
         document.getElementById('btnEliminar').classList.add('d-none');
+
+        // ✅ POKA-YOKE: Bloquear fecha mínima en el input
+        document.getElementById('fecha').min = new Date().toISOString().split('T')[0];
+
         toggleCampos();
         new bootstrap.Modal(document.getElementById('modalEvento')).show();
     }
 
-    // Abre modal para EDITAR
+    // Abrir modal EDITAR
     function abrirModalEditar(event) {
         const p = event.extendedProps;
 
         document.getElementById('modalTitulo').textContent = 'Editar Evento';
         document.getElementById('eventoId').value = event.id;
         document.getElementById('fecha').value = event.startStr.substring(0, 10);
-        document.getElementById('numero_recibo').value = p.numero_recibo ?? '';
         document.getElementById('nombre_evento').value = event.title;
         document.getElementById('organizador').value = p.organizador ?? '';
         document.getElementById('autoriza').value = p.autoriza ?? '';
         document.getElementById('hora_inicio').value = p.hora_inicio ?? '';
         document.getElementById('hora_fin').value = p.hora_fin ?? '';
         document.getElementById('tipo').value = p.tipo ?? 'ninguno';
+        document.getElementById('numero_recibo').value = p.numero_recibo ?? '';
         document.getElementById('btnGuardar').textContent = 'Actualizar Evento';
         document.getElementById('btnGuardar').onclick = actualizarModal;
+        document.getElementById('btnGuardar').disabled = false;
 
-        // Muestra botón eliminar
+        // ✅ POKA-YOKE: Botón eliminar con confirmación
         const btnEliminar = document.getElementById('btnEliminar');
         btnEliminar.classList.remove('d-none');
         btnEliminar.onclick = function() {
-            if (confirm(`¿Eliminar el evento "${event.title}"?`)) {
-                eliminarEvento(event.id, event);
+            const nombre = event.title;
+            const fecha = event.startStr.substring(0, 10);
+            if (confirm(`⚠️ ¿Estás seguro de eliminar el evento?\n\n"${nombre}" del ${fecha}\n\nEsta acción no se puede deshacer.`)) {
+                eliminarEvento(event.id);
                 bootstrap.Modal.getInstance(document.getElementById('modalEvento')).hide();
             }
         };
@@ -308,51 +417,155 @@
         new bootstrap.Modal(document.getElementById('modalEvento')).show();
     }
 
+    // ✅ POKA-YOKE: Validar formulario antes de guardar
+    function validarFormulario() {
+        const nombre = document.getElementById('nombre_evento').value.trim();
+        const organizador = document.getElementById('organizador').value.trim();
+        const fecha = document.getElementById('fecha').value;
+        const horaInicio = document.getElementById('hora_inicio').value;
+        const horaFin = document.getElementById('hora_fin').value;
+
+        if (!nombre) {
+            mostrarAlerta('⚠️ El nombre del evento es obligatorio.', 'danger');
+            document.getElementById('nombre_evento').focus();
+            return false;
+        }
+
+        if (!organizador) {
+            mostrarAlerta('⚠️ El organizador es obligatorio.', 'danger');
+            document.getElementById('organizador').focus();
+            return false;
+        }
+
+        if (!fecha) {
+            mostrarAlerta('⚠️ La fecha es obligatoria.', 'danger');
+            document.getElementById('fecha').focus();
+            return false;
+        }
+
+        if (horaInicio && horaFin && horaFin <= horaInicio) {
+            mostrarAlerta('⚠️ La hora de fin debe ser mayor que la hora de inicio.', 'danger');
+            document.getElementById('hora_fin').focus();
+            return false;
+        }
+
+        return true;
+    }
+
+    // ✅ POKA-YOKE: Advertir si ya existe evento en misma fecha y hora al guardar
+    function verificarConflictoAlGuardar(callback) {
+        const fecha = document.getElementById('fecha').value;
+        const horaInicio = document.getElementById('hora_inicio').value;
+        const eventoId = document.getElementById('eventoId').value;
+
+        if (!horaInicio) {
+            callback(false);
+            return;
+        }
+
+        const eventos = window._calendar.getEvents();
+        const conflicto = eventos.find(function(e) {
+            if (e.id == eventoId) return false;
+            const eFecha = e.startStr.substring(0, 10);
+            const eHora = e.extendedProps.hora_inicio;
+            return eFecha === fecha && eHora === horaInicio;
+        });
+
+        if (conflicto) {
+            if (!confirm(`⚠️ Ya existe el evento "${conflicto.title}" en esa fecha y hora.\n\n¿Deseas guardarlo de todas formas?`)) {
+                callback(true);
+                return;
+            }
+        }
+        callback(false);
+    }
+
     // Guardar evento nuevo
     function guardarEvento() {
-        const form = document.getElementById('formEvento');
-        const data = new FormData(form);
+        if (!validarFormulario()) return;
 
-        fetch('{{ route("eventos.store") }}', {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value,
-                    'Accept': 'application/json',
-                },
-                body: data
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    bootstrap.Modal.getInstance(document.getElementById('modalEvento')).hide();
-                    window._calendar.refetchEvents();
-                }
-            })
-            .catch(err => console.error(err));
+        verificarConflictoAlGuardar(function(cancelado) {
+            if (cancelado) return;
+
+            // ✅ POKA-YOKE: Prevenir doble clic
+            const btn = document.getElementById('btnGuardar');
+            btn.disabled = true;
+            btn.textContent = 'Guardando...';
+
+            const form = document.getElementById('formEvento');
+            const data = new FormData(form);
+
+            fetch('{{ route("eventos.store") }}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value,
+                        'Accept': 'application/json',
+                    },
+                    body: data
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        bootstrap.Modal.getInstance(document.getElementById('modalEvento')).hide();
+                        window._calendar.refetchEvents();
+                        mostrarAlerta('✅ Evento guardado correctamente.', 'success');
+                    } else {
+                        mostrarAlerta('❌ Error al guardar el evento.', 'danger');
+                        btn.disabled = false;
+                        btn.textContent = 'Guardar Evento';
+                    }
+                })
+                .catch(function() {
+                    mostrarAlerta('❌ Error de conexión.', 'danger');
+                    btn.disabled = false;
+                    btn.textContent = 'Guardar Evento';
+                });
+        });
     }
 
     // Actualizar evento desde modal
     function actualizarModal() {
-        const id = document.getElementById('eventoId').value;
-        const form = document.getElementById('formEvento');
-        const data = new FormData(form);
-        data.append('_method', 'PUT');
+        if (!validarFormulario()) return;
 
-        fetch(`/eventos/${id}`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value,
-                    'Accept': 'application/json',
-                },
-                body: data
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    bootstrap.Modal.getInstance(document.getElementById('modalEvento')).hide();
-                    window._calendar.refetchEvents();
-                }
-            });
+        verificarConflictoAlGuardar(function(cancelado) {
+            if (cancelado) return;
+
+            // ✅ POKA-YOKE: Prevenir doble clic
+            const btn = document.getElementById('btnGuardar');
+            btn.disabled = true;
+            btn.textContent = 'Actualizando...';
+
+            const id = document.getElementById('eventoId').value;
+            const form = document.getElementById('formEvento');
+            const data = new FormData(form);
+            data.append('_method', 'PUT');
+
+            fetch(`/eventos/${id}`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value,
+                        'Accept': 'application/json',
+                    },
+                    body: data
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        bootstrap.Modal.getInstance(document.getElementById('modalEvento')).hide();
+                        window._calendar.refetchEvents();
+                        mostrarAlerta('✅ Evento actualizado correctamente.', 'success');
+                    } else {
+                        mostrarAlerta('❌ Error al actualizar.', 'danger');
+                        btn.disabled = false;
+                        btn.textContent = 'Actualizar Evento';
+                    }
+                })
+                .catch(function() {
+                    mostrarAlerta('❌ Error de conexión.', 'danger');
+                    btn.disabled = false;
+                    btn.textContent = 'Actualizar Evento';
+                });
+        });
     }
 
     // Actualizar evento al arrastrar
@@ -375,13 +588,19 @@
             })
             .then(res => res.json())
             .then(data => {
-                if (!data.success) revert();
+                if (data.success) {
+                    mostrarAlerta('✅ Evento movido correctamente.', 'success');
+                } else {
+                    revert();
+                }
             })
-            .catch(() => revert());
+            .catch(function() {
+                revert();
+            });
     }
 
     // Eliminar evento
-    function eliminarEvento(id, event) {
+    function eliminarEvento(id) {
         fetch(`/eventos/${id}`, {
                 method: 'DELETE',
                 headers: {
@@ -393,6 +612,7 @@
             .then(data => {
                 if (data.success) {
                     window._calendar.refetchEvents();
+                    mostrarAlerta('✅ Evento eliminado correctamente.', 'success');
                 }
             });
     }
@@ -407,5 +627,24 @@
         const cobrado = document.getElementById('cobrado').value;
         document.getElementById('montoGroup').classList.toggle('d-none', cobrado !== 'si');
     }
+</script>
+
+{{-- ✅ POKA-YOKE: Autocompletar nombres de eventos --}}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        fetch('{{ route("eventos.get") }}')
+            .then(res => res.json())
+            .then(eventos => {
+                const nombres = [...new Set(eventos.map(e => e.title))];
+                const datalist = document.createElement('datalist');
+                datalist.id = 'sugerenciasEventos';
+                nombres.forEach(function(nombre) {
+                    const opt = document.createElement('option');
+                    opt.value = nombre;
+                    datalist.appendChild(opt);
+                });
+                document.body.appendChild(datalist);
+            });
+    });
 </script>
 @endsection
