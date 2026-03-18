@@ -97,8 +97,9 @@
                                 <option value="Secretario">Secretario</option>
                                 <option value="Finanzas">Finanzas</option>
                                 <option value="Dirección de Cultura">Dirección de Cultura</option>
+                                <option value="Condonado">Condonado</option>
                                 <option value="Se desconoce">Se desconoce</option>
-                                <option value="Otro">Otro</option>
+                                
                             </select>
                         </div>
 
