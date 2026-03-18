@@ -9,6 +9,7 @@ class Oficio extends Model
     protected $table = 'oficios';
 
     protected $fillable = [
+        'evento_id',
         'fecha',
         'hora_inicio',
         'hora_fin',
@@ -25,4 +26,9 @@ class Oficio extends Model
         'cobrado'       => 'boolean',
         'monto_cobrado' => 'decimal:2',
     ];
+
+    public function evento()
+    {
+        return $this->belongsTo(Evento::class);
+    }
 }

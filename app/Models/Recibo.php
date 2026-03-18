@@ -9,16 +9,23 @@ class Recibo extends Model
     protected $table = 'recibos';
 
     protected $fillable = [
+        'evento_id',
         'fecha',
-        'nombre_evento',
         'numero_recibo',
+        'nombre_evento',
         'importe',
         'organizador',
         'concepto',
+        'foto',
     ];
 
     protected $casts = [
         'fecha'    => 'date',
         'importe'  => 'decimal:2',
     ];
+
+    public function evento()
+    {
+        return $this->belongsTo(Evento::class);
+    }
 }
