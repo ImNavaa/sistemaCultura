@@ -48,6 +48,7 @@
 </div>
 
 <!-- Modal -->
+<!-- Modal -->
 <div class="modal fade" id="modalEvento" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -60,10 +61,34 @@
                     @csrf
                     <input type="hidden" id="eventoId" value="">
                     <div class="row g-3">
+
                         <div class="col-md-6">
                             <label class="form-label">Fecha <span class="text-danger">*</span></label>
                             <input type="date" id="fecha" name="fecha" class="form-control" required>
                         </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Organizador <span class="text-danger">*</span></label>
+                            <input type="text" id="organizador" name="organizador"
+                                class="form-control" placeholder="Nombre del organizador" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Hora Inicio</label>
+                            <input type="time" id="hora_inicio" name="hora_inicio" class="form-control">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Hora Fin</label>
+                            <input type="time" id="hora_fin" name="hora_fin" class="form-control">
+                        </div>
+
+                        <div class="col-md-12">
+                            <label class="form-label">Nombre del Evento <span class="text-danger">*</span></label>
+                            <input type="text" id="nombre_evento" name="nombre_evento"
+                                class="form-control" placeholder="Nombre del evento" required>
+                        </div>
+
                         <div class="col-md-6">
                             <label class="form-label">Autoriza</label>
                             <select id="autoriza" name="autoriza" class="form-select">
@@ -72,29 +97,12 @@
                                 <option value="Secretario">Secretario</option>
                                 <option value="Finanzas">Finanzas</option>
                                 <option value="Dirección de Cultura">Dirección de Cultura</option>
-                                <option value="Condonado">Condonado</option>
                                 <option value="Se desconoce">Se desconoce</option>
+                                <option value="Otro">Otro</option>
                             </select>
                         </div>
+
                         <div class="col-md-6">
-                            <label class="form-label">Organizador <span class="text-danger">*</span></label>
-                            <input type="text" id="organizador" name="organizador" class="form-control"
-                                placeholder="Nombre del organizador" required>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Hora Inicio</label>
-                            <input type="time" id="hora_inicio" name="hora_inicio" class="form-control">
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Hora Fin</label>
-                            <input type="time" id="hora_fin" name="hora_fin" class="form-control">
-                        </div>
-                        <div class="col-md-12">
-                            <label class="form-label">Nombre del Evento <span class="text-danger">*</span></label>
-                            <input type="text" id="nombre_evento" name="nombre_evento"
-                                class="form-control" placeholder="Escribe el nombre del evento" required>
-                        </div>
-                        <div class="col-md-12">
                             <label class="form-label">Tipo de Documento</label>
                             <select id="tipo" name="tipo" class="form-select" onchange="toggleCampos()">
                                 <option value="ninguno">Sin documento</option>
@@ -128,7 +136,8 @@
                                         <div class="col-md-3 d-none" id="montoGroup">
                                             <label class="form-label">Monto ($)</label>
                                             <input type="number" id="monto_cobrado" name="monto_cobrado"
-                                                class="form-control" placeholder="0.00" step="0.01" min="0">
+                                                class="form-control" placeholder="0.00"
+                                                step="0.01" min="0">
                                         </div>
                                     </div>
                                 </div>
@@ -136,37 +145,44 @@
                         </div>
 
                         <!-- Campos Recibo -->
-                        <!-- Campos Recibo -->
                         <div id="camposRecibo" class="col-12 d-none">
                             <div class="card bg-light" style="border-color:#7b3ad5!important; border:1px solid">
                                 <div class="card-body">
-                                    <h6 style="color:#7b3ad5" class="mb-3"><i class="bi bi-receipt"></i> Datos del Recibo</h6>
+                                    <h6 style="color:#7b3ad5" class="mb-3">
+                                        <i class="bi bi-receipt"></i> Datos del Recibo
+                                    </h6>
                                     <div class="row g-3">
-
-                                        <div class="col-md-4"> {{-- NUEVO --}}
+                                        <div class="col-md-4">
                                             <label class="form-label">Número de Recibo</label>
                                             <input type="text" id="numero_recibo" name="numero_recibo"
                                                 class="form-control" placeholder="REC-2024-001">
                                         </div>
-
                                         <div class="col-md-4">
                                             <label class="form-label">Importe ($)</label>
                                             <input type="number" id="importe" name="importe"
-                                                class="form-control" placeholder="0.00" step="0.01" min="0">
+                                                class="form-control" placeholder="0.00"
+                                                step="0.01" min="0">
                                         </div>
-
                                         <div class="col-md-4">
                                             <label class="form-label">Concepto</label>
                                             <input type="text" id="concepto" name="concepto"
                                                 class="form-control" placeholder="Concepto del recibo">
                                         </div>
-
                                     </div>
                                 </div>
                             </div>
                         </div>
+
                     </div>
                 </form>
+
+                {{-- Panel de visualización (solo lectura al editar) --}}
+                <div id="panelVisualizacion" class="d-none mt-3">
+                    <hr>
+                    <h6 class="text-muted mb-3"><i class="bi bi-eye"></i> Datos registrados</h6>
+                    <div class="row g-2" id="datosVisualizacion"></div>
+                </div>
+
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-danger me-auto d-none" id="btnEliminar">
@@ -348,11 +364,18 @@
         document.getElementById('hora_inicio').value = '';
         document.getElementById('hora_fin').value = '';
         document.getElementById('tipo').value = 'ninguno';
+        document.getElementById('numero_oficio').value = '';
+        document.getElementById('cobrado').value = 'no';
+        document.getElementById('monto_cobrado').value = '';
         document.getElementById('numero_recibo').value = '';
+        document.getElementById('importe').value = '';
+        document.getElementById('concepto').value = '';
         document.getElementById('btnGuardar').textContent = 'Guardar Evento';
         document.getElementById('btnGuardar').onclick = guardarEvento;
         document.getElementById('btnGuardar').disabled = false;
         document.getElementById('btnEliminar').classList.add('d-none');
+        document.getElementById('panelVisualizacion').classList.add('d-none');
+        document.getElementById('montoGroup').classList.add('d-none');
         toggleCampos();
         new bootstrap.Modal(document.getElementById('modalEvento')).show();
     }
@@ -370,12 +393,29 @@
         document.getElementById('hora_inicio').value = p.hora_inicio ?? '';
         document.getElementById('hora_fin').value = p.hora_fin ?? '';
         document.getElementById('tipo').value = p.tipo ?? 'ninguno';
-        document.getElementById('numero_recibo').value = p.numero_recibo ?? '';
-        document.getElementById('btnGuardar').textContent = 'Actualizar Evento';
-        document.getElementById('btnGuardar').onclick = actualizarModal;
-        document.getElementById('btnGuardar').disabled = false;
 
-        // ✅ POKA-YOKE: Botón eliminar con confirmación
+        // Campos oficio
+        document.getElementById('numero_oficio').value = p.numero_oficio ?? '';
+        document.getElementById('cobrado').value = p.cobrado ? 'si' : 'no';
+        document.getElementById('monto_cobrado').value = p.monto_cobrado ?? '';
+
+        // Campos recibo
+        document.getElementById('numero_recibo').value = p.numero_recibo ?? '';
+        document.getElementById('importe').value = p.importe ?? '';
+        document.getElementById('concepto').value = p.concepto ?? '';
+
+        // Mostrar/ocultar campos según tipo
+        toggleCampos();
+
+        // Mostrar monto si cobrado
+        if (p.cobrado) {
+            document.getElementById('montoGroup').classList.remove('d-none');
+        }
+
+        // ✅ Panel de visualización con todos los datos
+        mostrarPanelVisualizacion(p, event.title, event.startStr.substring(0, 10));
+
+        // Botón eliminar
         const btnEliminar = document.getElementById('btnEliminar');
         btnEliminar.classList.remove('d-none');
         btnEliminar.onclick = function() {
@@ -387,8 +427,67 @@
             }
         };
 
-        toggleCampos();
+        document.getElementById('btnGuardar').textContent = 'Actualizar Evento';
+        document.getElementById('btnGuardar').onclick = actualizarModal;
+        document.getElementById('btnGuardar').disabled = false;
+
         new bootstrap.Modal(document.getElementById('modalEvento')).show();
+    }
+
+    // ✅ Panel de solo lectura con todos los datos del evento
+    function mostrarPanelVisualizacion(p, nombre, fecha) {
+        const panel = document.getElementById('panelVisualizacion');
+        const datos = document.getElementById('datosVisualizacion');
+
+        if (!p) {
+            panel.classList.add('d-none');
+            return;
+        }
+
+        let html = '';
+
+        // Datos generales
+        html += dato('Evento', nombre, 'primary');
+        html += dato('Fecha', fecha, 'secondary');
+        html += dato('Organizador', p.organizador, 'secondary');
+        html += dato('Autoriza', p.autoriza, 'secondary');
+        html += dato('Tipo', p.tipo, 'info');
+
+        if (p.hora_inicio) {
+            html += dato('Horario', `${p.hora_inicio} - ${p.hora_fin ?? '?'}`, 'secondary');
+        }
+
+        // Datos oficio
+        if (['oficio', 'ambos'].includes(p.tipo)) {
+            html += `<div class="col-12"><hr class="my-1"><small class="text-primary fw-bold">
+                 <i class="bi bi-file-earmark-text"></i> Oficio</small></div>`;
+            html += dato('N° Oficio', p.numero_oficio, 'primary');
+            html += dato('Cobrado', p.cobrado ? 'Sí' : 'No', p.cobrado ? 'success' : 'secondary');
+            if (p.cobrado && p.monto_cobrado) {
+                html += dato('Monto', `$${parseFloat(p.monto_cobrado).toFixed(2)}`, 'success');
+            }
+        }
+
+        // Datos recibo
+        if (['recibo', 'ambos'].includes(p.tipo)) {
+            html += `<div class="col-12"><hr class="my-1"><small style="color:#7b3ad5" class="fw-bold">
+                 <i class="bi bi-receipt"></i> Recibo</small></div>`;
+            html += dato('N° Recibo', p.numero_recibo, 'purple');
+            html += dato('Importe', p.importe ? `$${parseFloat(p.importe).toFixed(2)}` : null, 'success');
+            html += dato('Concepto', p.concepto, 'secondary');
+        }
+
+        datos.innerHTML = html;
+        panel.classList.remove('d-none');
+    }
+
+    // Helper para crear badges de datos
+    function dato(label, valor, color) {
+        if (!valor && valor !== 0) return '';
+        return `<div class="col-md-4 col-6 mb-1">
+                <small class="text-muted d-block">${label}</small>
+                <span class="badge bg-${color} text-wrap" style="font-size:0.8rem">${valor}</span>
+            </div>`;
     }
 
     // ✅ POKA-YOKE: Validar formulario antes de guardar
