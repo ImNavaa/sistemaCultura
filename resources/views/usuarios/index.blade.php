@@ -27,6 +27,7 @@
                     <th>Cargo</th>
                     <th>Horario</th>
                     <th>Días Laborales</th>
+                    <th>Rol</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
@@ -40,17 +41,35 @@
                     <td>{{ $usuario->horario ?? '—' }}</td>
                     <td>{{ $usuario->dias_laborales ?? '—' }}</td>
                     <td>
-                        <a href="{{ route('usuarios.show', $usuario) }}" class="btn btn-sm btn-info text-white">
+                        @if($usuario->rol)
+                            <span class="badge bg-primary">
+                                {{ ucfirst(str_replace('_', ' ', $usuario->rol->nombre)) }}
+                            </span>
+                        @else
+                            <span class="badge bg-light text-dark border">Sin rol</span>
+                        @endif
+                    </td>
+                    <td>
+                        <a href="{{ route('usuarios.show', $usuario) }}"
+                           class="btn btn-sm btn-info text-white" title="Ver">
                             <i class="bi bi-eye"></i>
                         </a>
-                        <a href="{{ route('usuarios.edit', $usuario) }}" class="btn btn-sm btn-warning">
+                        <a href="{{ route('usuarios.edit', $usuario) }}"
+                           class="btn btn-sm btn-warning" title="Editar">
                             <i class="bi bi-pencil"></i>
                         </a>
-                        <form action="{{ route('usuarios.destroy', $usuario) }}" method="POST" class="d-inline"
-                              onsubmit="return confirmarEliminar(event, '{{ $usuario->name }}')">
+                        @if(auth()->user()->puede('usuarios', 'editar'))
+                        <a href="{{ route('permisos.index', $usuario) }}"
+                           class="btn btn-sm btn-outline-info" title="Gestionar permisos">
+                            <i class="bi bi-shield-lock"></i>
+                        </a>
+                        @endif
+                        <form action="{{ route('usuarios.destroy', $usuario) }}" method="POST"
+                              class="d-inline"
+                              onsubmit="return confirmarEliminar(event, {{ Js::from($usuario->name) }})">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="btn btn-sm btn-danger">
+                            <button type="submit" class="btn btn-sm btn-danger" title="Eliminar">
                                 <i class="bi bi-trash"></i>
                             </button>
                         </form>
@@ -58,7 +77,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="7" class="text-center text-muted py-3">Sin empleados con acceso.</td>
+                    <td colspan="8" class="text-center text-muted py-3">Sin empleados con acceso.</td>
                 </tr>
                 @endforelse
             </tbody>
@@ -90,17 +109,20 @@
                     <td>{{ $usuario->horario ?? '—' }}</td>
                     <td>{{ $usuario->dias_laborales ?? '—' }}</td>
                     <td>
-                        <a href="{{ route('usuarios.show', $usuario) }}" class="btn btn-sm btn-info text-white">
+                        <a href="{{ route('usuarios.show', $usuario) }}"
+                           class="btn btn-sm btn-info text-white" title="Ver">
                             <i class="bi bi-eye"></i>
                         </a>
-                        <a href="{{ route('usuarios.edit', $usuario) }}" class="btn btn-sm btn-warning">
+                        <a href="{{ route('usuarios.edit', $usuario) }}"
+                           class="btn btn-sm btn-warning" title="Editar">
                             <i class="bi bi-pencil"></i>
                         </a>
-                        <form action="{{ route('usuarios.destroy', $usuario) }}" method="POST" class="d-inline"
-                              onsubmit="return confirmarEliminar(event, '{{ $usuario->name }}')">
+                        <form action="{{ route('usuarios.destroy', $usuario) }}" method="POST"
+                              class="d-inline"
+                              onsubmit="return confirmarEliminar(event, {{ Js::from($usuario->name) }})">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="btn btn-sm btn-danger">
+                            <button type="submit" class="btn btn-sm btn-danger" title="Eliminar">
                                 <i class="bi bi-trash"></i>
                             </button>
                         </form>

@@ -28,6 +28,7 @@ class User extends Authenticatable
         'horario',
         'dias_laborales',
         'tiene_acceso',
+        'rol_id',
     ];
     /**
      * The attributes that should be hidden for serialization.
@@ -95,5 +96,38 @@ class User extends Authenticatable
     {
         return $this->hasOne(DiaEconomico::class, 'user_id')
             ->where('anio', $anio ?? now()->year);
+    }
+    public function rol()
+    {
+        return $this->belongsTo(Rol::class, 'rol_id');
+    }
+
+    public function permisosExtra()
+    {
+        return $this->belongsToMany(Permiso::class, 'user_permiso')
+            ->withPivot('permitido');
+    }
+
+    // Verificar si tiene un permiso
+    public function puede(string $modulo, string $accion): bool
+    {
+        // Super admin siempre puede todo
+        if ($this->rol?->nombre === 'super_admin') return true;
+
+        // Verificar permiso extra del usuario
+        $permisoExtra = $this->permisosExtra
+            ->where('modulo', $modulo)
+            ->where('accion', $accion)
+            ->first();
+
+        if ($permisoExtra) {
+            return (bool) $permisoExtra->pivot->permitido;
+        }
+
+        // Verificar permiso del rol
+        return $this->rol?->permisos
+            ->where('modulo', $modulo)
+            ->where('accion', $accion)
+            ->isNotEmpty() ?? false;
     }
 }

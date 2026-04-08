@@ -123,9 +123,27 @@ class UserController extends Controller
 
     public function destroy(User $usuario)
     {
-        $usuario->delete();
-        return redirect()->route('usuarios.index')
-            ->with('success', 'Empleado eliminado correctamente.');
+        try {
+            $usuario->delete();
+            return redirect()->route('usuarios.index')
+                ->with('success', 'Empleado eliminado correctamente.');
+        } catch (\Illuminate\Database\QueryException $e) {
+            $mensaje = 'No se puede eliminar a "' . $usuario->name . '" porque tiene registros relacionados en el sistema.';
+
+            // Identificar qué tabla tiene la restricción
+            if (str_contains($e->getMessage(), 'entregas')) {
+                $mensaje .= ' Tiene entregas de almacén registradas a su nombre.';
+            } elseif (str_contains($e->getMessage(), 'asistencias')) {
+                $mensaje .= ' Tiene registros de asistencia vinculados.';
+            } elseif (str_contains($e->getMessage(), 'registros_tiempo')) {
+                $mensaje .= ' Tiene registros de tiempo vinculados.';
+            } else {
+                $mensaje .= ' Primero elimina o reasigna los registros relacionados antes de eliminar al empleado.';
+            }
+
+            return redirect()->route('usuarios.index')
+                ->with('error', $mensaje);
+        }
     }
 
     // Verificar email duplicado en tiempo real
