@@ -12,7 +12,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->redirectGuestsTo('/login');
-        $middleware->redirectUsersTo('/calendario'); // <-- cambiar a calendario
+        $middleware->redirectUsersTo('/inicio');
 
         $middleware->alias([
             'permiso' => \App\Http\Middleware\VerificarPermiso::class,

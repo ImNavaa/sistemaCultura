@@ -7,13 +7,14 @@
     <title>@yield('title', 'Sistema de Cultura')</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    @stack('styles')
 </head>
 
 <body class="bg-light">
 
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container">
-            <a class="navbar-brand fw-bold" href="{{ route('calendario') }}">
+            <a class="navbar-brand fw-bold" href="{{ route('inicio') }}">
                 <i class="bi bi-building"></i> Cultura
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">

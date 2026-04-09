@@ -12,11 +12,15 @@ use App\Http\Controllers\EntregaController;
 use App\Http\Controllers\AsistenciaController;
 use App\Http\Controllers\PermisoController;
 use App\Http\Controllers\DiaEconomicoController;
+use App\Http\Controllers\DashboardController;
 
 // ── REDIRECCIONES ─────────────────────────────────────────
-Route::get('/', fn() => redirect()->route('calendario'));
-Route::get('/home', fn() => redirect()->route('calendario'))->name('home');
-Route::get('/dashboard', fn() => redirect()->route('calendario'))->name('dashboard');
+Route::get('/', fn() => redirect()->route('inicio'));
+Route::get('/home', fn() => redirect()->route('inicio'))->name('home');
+Route::get('/dashboard', fn() => redirect()->route('inicio'))->name('dashboard');
+
+// ── INICIO / DASHBOARD ────────────────────────────────────
+Route::middleware('auth')->get('/inicio', [DashboardController::class, 'index'])->name('inicio');
 
 // ── CALENDARIO ──────────────────────────────────────────
 Route::middleware(['auth', 'permiso:calendario,ver'])->group(function () {

@@ -11,7 +11,7 @@ class LoginController extends Controller
     public function showLogin()
     {
         if (Auth::check()) {
-            return redirect()->route('calendario');
+            return redirect()->route('inicio');
         }
         return view('auth.login');
     }
@@ -28,7 +28,7 @@ class LoginController extends Controller
             // ✅ Guardar sesión explícitamente
             $request->session()->save();
 
-            return redirect()->intended(route('calendario'));
+            return redirect()->intended(route('inicio'));
         }
 
         return back()->withErrors([
