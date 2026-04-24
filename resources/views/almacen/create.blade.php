@@ -52,16 +52,8 @@
                 </div>
 
                 <div class="col-md-8">
-                    <label class="form-label">Responsable <span class="text-danger">*</span></label>
-                    <select name="responsable_id" class="form-select @error('responsable_id') is-invalid @enderror">
-                        <option value="">-- Seleccionar responsable --</option>
-                        @foreach($usuarios as $usuario)
-                            <option value="{{ $usuario->id }}" {{ old('responsable_id') == $usuario->id ? 'selected' : '' }}>
-                                {{ $usuario->name }}
-                            </option>
-                        @endforeach
-                    </select>
-                    @error('responsable_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                    <label class="form-label">Responsable</label>
+                    <input type="text" class="form-control bg-light" value="{{ auth()->user()->name }}" readonly>
                 </div>
 
                 <div class="col-12">

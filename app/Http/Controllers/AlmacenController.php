@@ -19,8 +19,7 @@ class AlmacenController extends Controller
 
     public function create()
     {
-        $usuarios = User::orderBy('name')->get();
-        return view('almacen.create', compact('usuarios'));
+        return view('almacen.create');
     }
 
     public function store(Request $request)
@@ -30,10 +29,15 @@ class AlmacenController extends Controller
             'descripcion'    => 'nullable|string',
             'cantidad_actual'=> 'required|numeric|min:0',
             'unidad'         => 'required|string|max:50',
-            'responsable_id' => 'required|exists:users,id',
         ]);
 
-        Articulo::create($request->all());
+        Articulo::create([
+            'nombre'          => $request->nombre,
+            'descripcion'     => $request->descripcion,
+            'cantidad_actual' => $request->cantidad_actual,
+            'unidad'          => $request->unidad,
+            'responsable_id'  => auth()->id(),
+        ]);
 
         return redirect()->route('almacen.index')
             ->with('success', 'Artículo registrado correctamente.');
