@@ -45,7 +45,7 @@ class FortifyServiceProvider extends ServiceProvider
     // ✅ Configurar redirecciones
     private function configureRedirects(): void
     {
-        Fortify::redirects('login', '/calendario');
+        Fortify::redirects('login', '/inicio');
         Fortify::redirects('logout', '/login');
     }
 
