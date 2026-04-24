@@ -14,17 +14,23 @@ class DatabaseSeeder extends Seeder
         // 1. Crear roles y permisos
         $this->call(RolesPermisosSeeder::class);
 
-        // 2. Crear super administrador
+        // 2. Crear super administrador (solo si no existe)
         $rol = Rol::where('nombre', 'super_admin')->first();
 
-        User::create([
-            'name'         => 'Super Admin',
-            'email'        => 'admin@cultura.com',
-            'password'     => Hash::make('Admin1234!'),
-            'tiene_acceso' => true,
-            'rol_id'       => $rol?->id,
-        ]);
+        $admin = User::firstOrCreate(
+            ['email' => 'admin@cultura.com'],
+            [
+                'name'         => 'Super Admin',
+                'password'     => Hash::make('Admin1234!'),
+                'tiene_acceso' => true,
+                'rol_id'       => $rol?->id,
+            ]
+        );
 
-        $this->command->info('✅ Super admin creado: admin@cultura.com / Admin1234!');
+        if ($admin->wasRecentlyCreated) {
+            $this->command->info('✅ Super admin creado: admin@cultura.com / Admin1234!');
+        } else {
+            $this->command->info('ℹ️  Super admin ya existe, no se modificó.');
+        }
     }
 }
