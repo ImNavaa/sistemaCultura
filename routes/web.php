@@ -14,6 +14,28 @@ use App\Http\Controllers\PermisoController;
 use App\Http\Controllers\DiaEconomicoController;
 use App\Http\Controllers\DashboardController;
 
+// ── SETUP INICIAL (eliminar después del primer uso) ───────
+Route::get('/setup-inicial-xyz123', function () {
+    // Crear roles y permisos
+    \Artisan::call('db:seed', ['--class' => 'RolesPermisosSeeder', '--force' => true]);
+
+    // Crear super admin si no existe
+    $rol   = \App\Models\Rol::where('nombre', 'super_admin')->first();
+    $admin = \App\Models\User::firstOrCreate(
+        ['email' => 'admin@cultura.com'],
+        [
+            'name'         => 'Super Admin',
+            'password'     => \Illuminate\Support\Facades\Hash::make('Admin1234!'),
+            'tiene_acceso' => true,
+            'rol_id'       => $rol?->id,
+        ]
+    );
+
+    return $admin->wasRecentlyCreated
+        ? '✅ Admin creado correctamente. Entra con admin@cultura.com / Admin1234!'
+        : 'ℹ️ El admin ya existía.';
+});
+
 // ── REDIRECCIONES ─────────────────────────────────────────
 Route::get('/', fn() => redirect()->route('inicio'));
 Route::get('/home', fn() => redirect()->route('inicio'))->name('home');
