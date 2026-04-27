@@ -27,7 +27,7 @@
                     <label class="form-label">Unidad <span class="text-danger">*</span></label>
                     <select name="unidad" class="form-select @error('unidad') is-invalid @enderror">
                         <option value="">-- Seleccionar --</option>
-                        @foreach(['pieza','caja','litro','metro','rollo','par','juego','kg'] as $unidad)
+                        @foreach(['pieza','caja','litro','metro','rollo','par','juego','kg','paquete'] as $unidad)
                             <option value="{{ $unidad }}" {{ old('unidad', $almacen->unidad) == $unidad ? 'selected' : '' }}>
                                 {{ ucfirst($unidad) }}
                             </option>

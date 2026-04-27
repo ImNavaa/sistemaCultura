@@ -33,6 +33,7 @@
                         <option value="par" {{ old('unidad') == 'par' ? 'selected' : '' }}>Par</option>
                         <option value="juego" {{ old('unidad') == 'juego' ? 'selected' : '' }}>Juego</option>
                         <option value="kg" {{ old('unidad') == 'kg' ? 'selected' : '' }}>Kilogramo</option>
+                        <option value="paquete" {{ old('unidad') == 'paquete' ? 'selected' : '' }}>Paquete</option>
                     </select>
                     @error('unidad') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>
