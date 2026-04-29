@@ -91,7 +91,7 @@
         </table>
     </div>
     @if($entregas->hasPages())
-    <div class="p-3 border-top">{{ $entregas->links() }}</div>
+    <div class="p-3 border-top d-flex justify-content-center">{{ $entregas->links() }}</div>
     @endif
 </div>
 

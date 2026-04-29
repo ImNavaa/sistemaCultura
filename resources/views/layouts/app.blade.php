@@ -302,6 +302,22 @@
         .perm-table .form-check-input { width: 1.1em; height: 1.1em; cursor: pointer; }
         .perm-table .form-check-input:checked { background-color: var(--navy3); border-color: var(--navy3); }
 
+        /* ── Pagination ── */
+        .pagination { gap: 3px; margin-bottom: 0; flex-wrap: wrap; justify-content: center; }
+        .page-link {
+            border-radius: 7px !important;
+            padding: .28rem .62rem;
+            font-size: .82rem;
+            color: var(--navy3);
+            border-color: #e0e3e8;
+            min-width: 32px;
+            text-align: center;
+            line-height: 1.6;
+        }
+        .page-item.active .page-link { background: var(--navy3); border-color: var(--navy3); color: #fff; }
+        .page-item.disabled .page-link { color: #ccc; background: #fafafa; }
+        .page-link:hover { background: #e8eaf6; color: var(--navy); border-color: #c5cae9; }
+
         /* ── Scrollbar ── */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: #f0f2f5; }

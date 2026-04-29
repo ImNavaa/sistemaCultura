@@ -88,7 +88,7 @@
         </table>
     </div>
     @if($recibos->hasPages())
-    <div class="p-3 border-top">{{ $recibos->links() }}</div>
+    <div class="p-3 border-top d-flex justify-content-center">{{ $recibos->links() }}</div>
     @endif
 </div>
 

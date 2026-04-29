@@ -96,7 +96,7 @@
         </table>
     </div>
     @if($oficios->hasPages())
-    <div class="p-3 border-top">{{ $oficios->links() }}</div>
+    <div class="p-3 border-top d-flex justify-content-center">{{ $oficios->links() }}</div>
     @endif
 </div>
 

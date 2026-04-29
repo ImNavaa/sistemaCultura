@@ -80,25 +80,35 @@ class UserController extends Controller
 
     public function update(Request $request, User $usuario)
     {
-        if ($usuario->tiene_acceso) {
-            $request->validate([
-                'name'           => 'required|string|max:255',
-                'email'          => 'required|email|unique:users,email,' . $usuario->id,
-                'password'       => 'nullable|string|min:8|confirmed',
-                'telefono'       => 'nullable|string|max:20',
-                'cargo'          => 'nullable|string|max:100',
-                'horario'        => 'nullable|string|max:100',
-                'dias_laborales' => 'nullable|string|max:255',
-            ]);
-        } else {
-            $request->validate([
-                'name'           => 'required|string|max:255',
-                'telefono'       => 'nullable|string|max:20',
-                'cargo'          => 'nullable|string|max:100',
-                'horario'        => 'nullable|string|max:100',
-                'dias_laborales' => 'nullable|string|max:255',
-            ]);
+        $nuevoAcceso = $request->boolean('tiene_acceso');
+        $teniaAcceso = $usuario->tiene_acceso;
+
+        // No se puede quitar acceso al propio usuario ni al super_admin
+        if ($teniaAcceso && !$nuevoAcceso) {
+            if ($usuario->id === auth()->id()) {
+                return back()->withErrors(['error' => 'No puedes quitarte el acceso a ti mismo.'])->withInput();
+            }
+            if ($usuario->rol?->nombre === 'super_admin') {
+                return back()->withErrors(['error' => 'No se puede quitar el acceso al super administrador.'])->withInput();
+            }
         }
+
+        $reglas = [
+            'name'           => 'required|string|max:255',
+            'telefono'       => 'nullable|string|max:20',
+            'cargo'          => 'nullable|string|max:100',
+            'horario'        => 'nullable|string|max:100',
+            'dias_laborales' => 'nullable|string|max:255',
+        ];
+
+        if ($nuevoAcceso) {
+            $reglas['email']    = 'required|email|unique:users,email,' . $usuario->id;
+            $reglas['password'] = $teniaAcceso
+                ? 'nullable|string|min:8|confirmed'
+                : 'required|string|min:8|confirmed';
+        }
+
+        $request->validate($reglas);
 
         $datos = [
             'name'           => $request->name,
@@ -106,9 +116,10 @@ class UserController extends Controller
             'cargo'          => $request->cargo,
             'horario'        => $request->horario,
             'dias_laborales' => $request->dias_laborales,
+            'tiene_acceso'   => $nuevoAcceso,
         ];
 
-        if ($usuario->tiene_acceso) {
+        if ($nuevoAcceso) {
             $datos['email'] = $request->email;
             if ($request->filled('password')) {
                 $datos['password'] = Hash::make($request->password);
@@ -117,8 +128,13 @@ class UserController extends Controller
 
         $usuario->update($datos);
 
-        return redirect()->route('usuarios.index')
-            ->with('success', 'Empleado actualizado correctamente.');
+        $msg = $nuevoAcceso && !$teniaAcceso
+            ? 'Acceso al sistema otorgado correctamente.'
+            : (!$nuevoAcceso && $teniaAcceso
+                ? 'Acceso al sistema revocado.'
+                : 'Empleado actualizado correctamente.');
+
+        return redirect()->route('usuarios.index')->with('success', $msg);
     }
 
     public function destroy(User $usuario)

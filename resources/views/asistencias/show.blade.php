@@ -130,7 +130,7 @@
         </table>
     </div>
     @if($asistencias->hasPages())
-    <div class="p-3 border-top">{{ $asistencias->links() }}</div>
+    <div class="p-3 border-top d-flex justify-content-center">{{ $asistencias->links() }}</div>
     @endif
 </div>
 
