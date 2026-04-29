@@ -9,35 +9,60 @@
     </a>
 </div>
 
+@if(session('success'))
+    <div class="alert alert-success alert-dismissible fade show">
+        {{ session('success') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+@endif
+
 <div class="card shadow-sm">
     <div class="card-body p-0">
-        <table class="table table-hover mb-0">
+        <table class="table table-hover mb-0 align-middle">
             <thead class="table-dark">
                 <tr>
+                    <th>Folio</th>
                     <th>Fecha</th>
-                    <th>Artículo</th>
-                    <th>Cantidad</th>
+                    <th>Artículos</th>
+                    <th>Unidad solicitante</th>
                     <th>Receptor</th>
                     <th>Responsable</th>
-                    <th>Observaciones</th>
-                    <th>Acción</th>
+                    <th class="text-center">Acciones</th>
                 </tr>
             </thead>
             <tbody>
                 @forelse($entregas as $entrega)
                 <tr>
+                    <td>
+                        <span class="badge bg-secondary font-monospace">
+                            {{ $entrega->folio ?? '—' }}
+                        </span>
+                    </td>
                     <td>{{ $entrega->fecha_entrega->format('d/m/Y') }}</td>
-                    <td>{{ $entrega->articulo->nombre }}</td>
-                    <td>{{ $entrega->cantidad }} {{ $entrega->articulo->unidad }}</td>
+                    <td>
+                        @foreach($entrega->detalles as $d)
+                            <div class="small">
+                                <span class="fw-semibold">{{ $d->articulo->nombre }}</span>
+                                <span class="text-muted">
+                                    — {{ number_format($d->cantidad, 2) }} {{ $d->articulo->unidad }}(s)
+                                </span>
+                            </div>
+                        @endforeach
+                    </td>
+                    <td class="small">{{ $entrega->unidad_solicitante ?? '—' }}</td>
                     <td>{{ $entrega->receptor }}</td>
                     <td>{{ $entrega->responsable->name }}</td>
-                    <td>{{ $entrega->observaciones ?? '—' }}</td>
-                    <td>
-                        <form action="{{ route('entregas.destroy', $entrega) }}" method="POST" class="d-inline"
-                              onsubmit="return confirm('¿Cancelar esta entrega?')">
+                    <td class="text-center text-nowrap">
+                        <a href="{{ route('entregas.pdf', $entrega) }}"
+                           class="btn btn-sm btn-outline-primary" title="Descargar Vale PDF">
+                            <i class="bi bi-file-earmark-pdf"></i> PDF
+                        </a>
+                        <form action="{{ route('entregas.destroy', $entrega) }}" method="POST"
+                              class="d-inline"
+                              onsubmit="return confirm('¿Cancelar esta entrega y restaurar el stock?')">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="btn btn-sm btn-danger">
+                            <button type="submit" class="btn btn-sm btn-danger" title="Cancelar entrega">
                                 <i class="bi bi-arrow-counterclockwise"></i>
                             </button>
                         </form>
@@ -45,7 +70,9 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="7" class="text-center text-muted py-4">No hay entregas registradas.</td>
+                    <td colspan="7" class="text-center text-muted py-4">
+                        No hay entregas registradas.
+                    </td>
                 </tr>
                 @endforelse
             </tbody>

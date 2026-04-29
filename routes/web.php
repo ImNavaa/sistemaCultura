@@ -112,6 +112,7 @@ Route::middleware(['auth', 'permiso:usuarios,ver'])->group(function () {
 Route::middleware(['auth', 'permiso:almacen,ver'])->group(function () {
     Route::resource('almacen', AlmacenController::class);
     Route::resource('entregas', EntregaController::class)->only(['index', 'create', 'store', 'destroy']);
+    Route::get('/entregas/{entrega}/pdf', [EntregaController::class, 'pdf'])->name('entregas.pdf');
 });
 
 // ── CONTROL DE TIEMPO ─────────────────────────────────────

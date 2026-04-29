@@ -21,30 +21,40 @@ class AsistenciaController extends Controller
 
     public function index()
     {
-        $hoy      = today();
-        $anio     = $hoy->year;
+        $hoy  = today();
+        $anio = $hoy->year;
 
-        $empleados = User::with([
-            'asistenciaHoy',
-            'saldoTiempo',
-            'diasEconomicosAnio',
-        ])->orderBy('name')->get();
+        // Excluir super_admin del tablero de asistencia
+        $empleados = User::whereDoesntHave('rol', fn($q) => $q->where('nombre', 'super_admin'))
+            ->with(['saldoTiempo', 'diasEconomicosAnio'])
+            ->orderBy('name')
+            ->get();
+
+        // Asistencia activa: registro de hoy O registro multi-día vigente (vacaciones, incapacidad, etc.)
+        $asistencias = Asistencia::where(function ($q) use ($hoy) {
+                $q->whereDate('fecha', $hoy)
+                  ->orWhere(function ($q2) use ($hoy) {
+                      $q2->where('fecha', '<=', $hoy)
+                         ->where('fecha_fin', '>=', $hoy);
+                  });
+            })
+            ->whereIn('user_id', $empleados->pluck('id'))
+            ->with('evento')
+            ->orderByDesc('fecha')
+            ->get()
+            ->keyBy('user_id');
+
+        // Adjuntar a cada empleado su asistencia activa
+        $empleados->each(fn($emp) => $emp->asistenciaActiva = $asistencias->get($emp->id));
 
         $stats = [
             'total'        => $empleados->count(),
-            'presentes'    => Asistencia::whereDate('fecha', $hoy)
-                ->whereIn('estado', ['a_tiempo', 'tarde', 'cubriendo_evento', 'horas_extra', 'guardia'])
-                ->count(),
-            'faltas'       => Asistencia::whereDate('fecha', $hoy)
-                ->whereIn('estado', ['falta_justificada', 'falta_injustificada'])
-                ->count(),
-            'ausencias'    => Asistencia::whereDate('fecha', $hoy)
-                ->whereIn('estado', ['vacaciones', 'dia_economico', 'incapacidad', 'cita_medica'])
-                ->count(),
-            'sin_registro' => $empleados->filter(fn($e) => !$e->asistenciaHoy)->count(),
+            'presentes'    => $asistencias->whereIn('estado', ['a_tiempo', 'tarde', 'cubriendo_evento', 'horas_extra', 'guardia'])->count(),
+            'faltas'       => $asistencias->whereIn('estado', ['falta_justificada', 'falta_injustificada'])->count(),
+            'ausencias'    => $asistencias->whereIn('estado', ['vacaciones', 'dia_economico', 'incapacidad', 'cita_medica'])->count(),
+            'sin_registro' => $empleados->filter(fn($e) => !$e->asistenciaActiva)->count(),
         ];
 
-        // Eventos del día para vincular
         $eventosHoy = Evento::whereDate('fecha', $hoy)->get();
         $etiquetas  = Asistencia::etiquetas();
 

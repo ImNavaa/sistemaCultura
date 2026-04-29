@@ -4,36 +4,56 @@ namespace App\Services;
 
 use App\Models\Articulo;
 use App\Models\Entrega;
+use App\Models\EntregaDetalle;
+use Illuminate\Support\Facades\DB;
 
 class AlmacenService
 {
-    // Registra una entrega y descuenta del inventario automáticamente
-    public function registrarEntrega(array $datos): Entrega
+    /**
+     * Registra una entrega con uno o varios artículos.
+     *
+     * $cabecera: folio, receptor, unidad_solicitante, fecha_entrega, responsable_id, observaciones
+     * $items: [['articulo_id' => X, 'cantidad' => Y], ...]
+     */
+    public function registrarEntrega(array $cabecera, array $items): Entrega
     {
-        $articulo = Articulo::findOrFail($datos['articulo_id']);
+        return DB::transaction(function () use ($cabecera, $items) {
+            // Validar stock de todos los artículos antes de modificar nada
+            foreach ($items as $item) {
+                $articulo = Articulo::findOrFail($item['articulo_id']);
+                if (!$articulo->tieneSuficiente($item['cantidad'])) {
+                    throw new \Exception(
+                        "Stock insuficiente para \"{$articulo->nombre}\". Disponible: {$articulo->cantidad_actual} {$articulo->unidad}."
+                    );
+                }
+            }
 
-        if (!$articulo->tieneSuficiente($datos['cantidad'])) {
-            throw new \Exception(
-                "Stock insuficiente. Disponible: {$articulo->cantidad_actual} {$articulo->unidad}."
-            );
-        }
+            $entrega = Entrega::create($cabecera);
 
-        $entrega = Entrega::create($datos);
+            foreach ($items as $item) {
+                $articulo = Articulo::find($item['articulo_id']);
+                EntregaDetalle::create([
+                    'entrega_id'  => $entrega->id,
+                    'articulo_id' => $item['articulo_id'],
+                    'cantidad'    => $item['cantidad'],
+                ]);
+                $articulo->decrement('cantidad_actual', $item['cantidad']);
+            }
 
-        // Descuenta automáticamente del inventario
-        $articulo->decrement('cantidad_actual', $datos['cantidad']);
-
-        return $entrega;
+            return $entrega;
+        });
     }
 
-    // Cancela una entrega y devuelve el stock
     public function cancelarEntrega(Entrega $entrega): void
     {
-        $entrega->articulo->increment('cantidad_actual', $entrega->cantidad);
-        $entrega->delete();
+        DB::transaction(function () use ($entrega) {
+            foreach ($entrega->detalles as $detalle) {
+                $detalle->articulo->increment('cantidad_actual', $detalle->cantidad);
+            }
+            $entrega->delete();
+        });
     }
 
-    // Agrega stock a un artículo existente
     public function agregarStock(Articulo $articulo, float $cantidad): void
     {
         $articulo->increment('cantidad_actual', $cantidad);

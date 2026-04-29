@@ -9,9 +9,9 @@ class Entrega extends Model
     protected $table = 'entregas';
 
     protected $fillable = [
-        'articulo_id',
-        'cantidad',
+        'folio',
         'receptor',
+        'unidad_solicitante',
         'fecha_entrega',
         'responsable_id',
         'observaciones',
@@ -19,12 +19,18 @@ class Entrega extends Model
 
     protected $casts = [
         'fecha_entrega' => 'date',
-        'cantidad'      => 'decimal:2',
     ];
 
-    public function articulo()
+    public static function generarFolio(): string
     {
-        return $this->belongsTo(Articulo::class, 'articulo_id');
+        $anio   = now()->format('Y');
+        $ultimo = static::whereYear('created_at', $anio)->max('id') ?? 0;
+        return 'VSA-' . $anio . '-' . str_pad($ultimo + 1, 4, '0', STR_PAD_LEFT);
+    }
+
+    public function detalles()
+    {
+        return $this->hasMany(EntregaDetalle::class, 'entrega_id');
     }
 
     public function responsable()
