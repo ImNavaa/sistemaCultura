@@ -1,85 +1,136 @@
 @extends('layouts.app')
-@section('title', 'Detalle Artículo')
+@section('title', $almacen->nombre)
 @section('content')
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h2><i class="bi bi-box-seam"></i> {{ $almacen->nombre }}</h2>
-    <div>
-        <a href="{{ route('entregas.create') }}?articulo={{ $almacen->id }}" class="btn btn-success">
-            <i class="bi bi-box-arrow-right"></i> Registrar Entrega
+<div class="page-header">
+    <div class="page-header-left">
+        <div class="page-header-icon teal"><i class="bi bi-box-seam"></i></div>
+        <div>
+            <h2>{{ $almacen->nombre }}</h2>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a href="{{ route('inicio') }}">Inicio</a></li>
+                    <li class="breadcrumb-item"><a href="{{ route('almacen.index') }}">Almacén</a></li>
+                    <li class="breadcrumb-item active">{{ $almacen->nombre }}</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+    <div class="d-flex gap-2 flex-wrap">
+        <a href="{{ route('entregas.create') }}?articulo={{ $almacen->id }}" class="btn btn-navy">
+            <i class="bi bi-box-arrow-right me-1"></i> Registrar Entrega
         </a>
-        <a href="{{ route('almacen.edit', $almacen) }}" class="btn btn-warning">
-            <i class="bi bi-pencil"></i> Editar
+        <a href="{{ route('almacen.edit', $almacen) }}" class="btn btn-outline-warning">
+            <i class="bi bi-pencil me-1"></i> Editar
         </a>
-        <a href="{{ route('almacen.index') }}" class="btn btn-secondary">
-            <i class="bi bi-arrow-left"></i> Volver
+        <a href="{{ route('almacen.index') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i> Volver
         </a>
     </div>
 </div>
 
+{{-- Stat cards --}}
 <div class="row g-3 mb-4">
-    <div class="col-md-4">
-        <div class="card text-center border-success">
-            <div class="card-body">
-                <h3 class="text-success">{{ $almacen->cantidad_actual }}</h3>
-                <p class="mb-0 text-muted">{{ $almacen->unidad }}(s) disponibles</p>
+    <div class="col-6 col-md-4">
+        <div class="stat-card">
+            @php
+                $qty = $almacen->cantidad_actual;
+                $icoColor = $qty <= 0 ? 'red' : ($qty <= 5 ? 'amber' : 'green');
+            @endphp
+            <div class="stat-card-icon {{ $icoColor }}">
+                <i class="bi bi-boxes"></i>
+            </div>
+            <div>
+                <div class="stat-card-value">{{ $qty }}</div>
+                <div class="stat-card-label">{{ ucfirst($almacen->unidad) }}(s) disponibles</div>
             </div>
         </div>
     </div>
-    <div class="col-md-4">
-        <div class="card text-center">
-            <div class="card-body">
-                <h3>{{ $entregas->count() }}</h3>
-                <p class="mb-0 text-muted">Entregas realizadas</p>
+    <div class="col-6 col-md-4">
+        <div class="stat-card">
+            <div class="stat-card-icon blue">
+                <i class="bi bi-box-arrow-right"></i>
+            </div>
+            <div>
+                <div class="stat-card-value">{{ $entregas->count() }}</div>
+                <div class="stat-card-label">Entregas realizadas</div>
             </div>
         </div>
     </div>
-    <div class="col-md-4">
-        <div class="card text-center">
-            <div class="card-body">
-                <h3>{{ $entregas->sum('cantidad') }}</h3>
-                <p class="mb-0 text-muted">Total entregado</p>
+    <div class="col-12 col-md-4">
+        <div class="stat-card">
+            <div class="stat-card-icon teal">
+                <i class="bi bi-graph-down-arrow"></i>
+            </div>
+            <div>
+                <div class="stat-card-value">{{ number_format($entregas->sum(fn($e) => $e->detalles->where('articulo_id', $almacen->id)->sum('cantidad')), 2) }}</div>
+                <div class="stat-card-label">Total entregado</div>
             </div>
         </div>
     </div>
 </div>
 
-<div class="card shadow-sm">
-    <div class="card-header"><strong>Historial de entregas</strong></div>
-    <div class="card-body p-0">
-        <table class="table table-hover mb-0">
-            <thead class="table-dark">
+{{-- Info del artículo --}}
+@if($almacen->descripcion)
+<div class="data-card mb-4">
+    <div class="data-card-header">
+        <div class="header-icon navy"><i class="bi bi-info-circle"></i></div>
+        Descripción
+    </div>
+    <div class="p-3" style="font-size:.9rem;color:#555;">{{ $almacen->descripcion }}</div>
+</div>
+@endif
+
+{{-- Historial de entregas --}}
+<div class="data-card">
+    <div class="data-card-header">
+        <div class="header-icon blue"><i class="bi bi-clock-history"></i></div>
+        Historial de entregas
+    </div>
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
                 <tr>
+                    <th>Folio</th>
                     <th>Fecha</th>
                     <th>Receptor</th>
-                    <th>Cantidad</th>
+                    <th>Unidad solicitante</th>
                     <th>Responsable</th>
-                    <th>Observaciones</th>
-                    <th>Acción</th>
+                    <th class="text-center">Acciones</th>
                 </tr>
             </thead>
             <tbody>
                 @forelse($entregas as $entrega)
                 <tr>
+                    <td><span class="badge badge-navy font-monospace">{{ $entrega->folio ?? '—' }}</span></td>
                     <td>{{ $entrega->fecha_entrega->format('d/m/Y') }}</td>
                     <td>{{ $entrega->receptor }}</td>
-                    <td>{{ $entrega->cantidad }} {{ $almacen->unidad }}</td>
+                    <td class="text-muted small">{{ $entrega->unidad_solicitante ?? '—' }}</td>
                     <td>{{ $entrega->responsable->name }}</td>
-                    <td>{{ $entrega->observaciones ?? '—' }}</td>
-                    <td>
-                        <form action="{{ route('entregas.destroy', $entrega) }}" method="POST" class="d-inline"
-                              onsubmit="return confirm('¿Cancelar esta entrega y restaurar stock?')">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn btn-sm btn-danger">
-                                <i class="bi bi-arrow-counterclockwise"></i>
-                            </button>
-                        </form>
+                    <td class="text-center">
+                        <div class="d-flex justify-content-center gap-1">
+                            <a href="{{ route('entregas.pdf', $entrega) }}"
+                               class="btn btn-action btn-outline-primary" title="Descargar PDF">
+                                <i class="bi bi-file-earmark-pdf"></i>
+                            </a>
+                            <form action="{{ route('entregas.destroy', $entrega) }}" method="POST" class="d-inline"
+                                  onsubmit="return confirm('¿Cancelar esta entrega y restaurar stock?')">
+                                @csrf @method('DELETE')
+                                <button type="submit" class="btn btn-action btn-outline-danger" title="Cancelar">
+                                    <i class="bi bi-arrow-counterclockwise"></i>
+                                </button>
+                            </form>
+                        </div>
                     </td>
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="6" class="text-center text-muted py-4">Sin entregas registradas.</td>
+                    <td colspan="6">
+                        <div class="empty-state">
+                            <i class="bi bi-inbox"></i>
+                            <p>Sin entregas registradas para este artículo.</p>
+                        </div>
+                    </td>
                 </tr>
                 @endforelse
             </tbody>

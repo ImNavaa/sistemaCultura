@@ -1,68 +1,95 @@
 @extends('layouts.app')
-
 @section('title', 'Recibos')
-
 @section('content')
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h2><i class="bi bi-receipt"></i> Recibos</h2>
-    <a href="{{ route('recibos.create') }}" class="btn btn-primary">
-        <i class="bi bi-plus-circle"></i> Nuevo Recibo
+
+<div class="page-header">
+    <div class="page-header-left">
+        <div class="page-header-icon amber"><i class="bi bi-receipt"></i></div>
+        <div>
+            <h2>Recibos</h2>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a href="{{ route('inicio') }}">Inicio</a></li>
+                    <li class="breadcrumb-item active">Recibos</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+    <a href="{{ route('recibos.create') }}" class="btn btn-navy">
+        <i class="bi bi-plus-circle me-1"></i> Nuevo Recibo
     </a>
 </div>
 
-<div class="card shadow-sm">
-    <div class="card-body p-0">
-        <table class="table table-hover mb-0">
-            <thead class="table-dark">
+<div class="data-card">
+    <div class="data-card-header">
+        <div class="header-icon amber"><i class="bi bi-list-ul"></i></div>
+        Registros
+        <span class="badge ms-auto" style="background:#fff8e1;color:#e65100;">{{ $recibos->total() }}</span>
+    </div>
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
                 <tr>
-                    <th>#</th>
                     <th>Fecha</th>
                     <th>N° Recibo</th>
-                    <th>Nombre del Evento</th>
+                    <th>Evento</th>
                     <th>Concepto</th>
                     <th>Importe</th>
                     <th>Organizador</th>
-                    <th>Acciones</th>
+                    <th class="text-center">Acciones</th>
                 </tr>
             </thead>
             <tbody>
                 @forelse($recibos as $recibo)
                 <tr>
-                    <td>{{ $recibo->id }}</td>
-                    <td>{{ $recibo->fecha->format('d/m/Y') }}</td>
-                    <td>{{ $recibo->numero_recibo ?? '—' }}</td>
-                    <td>{{ $recibo->nombre_evento }}</td>
-                    <td>{{ Str::limit($recibo->concepto, 50) }}</td>
-                    <td>${{ number_format($recibo->importe, 2) }}</td>
-                    <td>{{ $recibo->organizador }}</td>
+                    <td class="text-muted small">{{ $recibo->fecha->format('d/m/Y') }}</td>
                     <td>
-                        <a href="{{ route('recibos.show', $recibo) }}" class="btn btn-sm btn-info text-white">
-                            <i class="bi bi-eye"></i>
-                        </a>
-                        <a href="{{ route('recibos.edit', $recibo) }}" class="btn btn-sm btn-warning">
-                            <i class="bi bi-pencil"></i>
-                        </a>
-                        <form action="{{ route('recibos.destroy', $recibo) }}" method="POST" class="d-inline"
-                              onsubmit="return confirm('¿Estás seguro de eliminar este recibo?')">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn btn-sm btn-danger">
-                                <i class="bi bi-trash"></i>
-                            </button>
-                        </form>
+                        <span class="badge" style="background:#fff8e1;color:#e65100;font-family:monospace;">
+                            {{ $recibo->numero_recibo ?? '—' }}
+                        </span>
+                    </td>
+                    <td class="fw-semibold">{{ $recibo->nombre_evento }}</td>
+                    <td class="small text-muted" style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+                        {{ $recibo->concepto }}
+                    </td>
+                    <td class="fw-semibold">${{ number_format($recibo->importe, 2) }}</td>
+                    <td class="small text-muted">{{ $recibo->organizador }}</td>
+                    <td class="text-center">
+                        <div class="d-flex justify-content-center gap-1">
+                            <a href="{{ route('recibos.show', $recibo) }}"
+                               class="btn btn-action btn-outline-primary" title="Ver">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            <a href="{{ route('recibos.edit', $recibo) }}"
+                               class="btn btn-action btn-outline-warning" title="Editar">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <form action="{{ route('recibos.destroy', $recibo) }}" method="POST" class="d-inline"
+                                  onsubmit="return confirm('¿Eliminar este recibo?')">
+                                @csrf @method('DELETE')
+                                <button type="submit" class="btn btn-action btn-outline-danger" title="Eliminar">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </div>
                     </td>
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="7" class="text-center text-muted py-4">No hay recibos registrados.</td>
+                    <td colspan="7">
+                        <div class="empty-state">
+                            <i class="bi bi-receipt"></i>
+                            <p>No hay recibos registrados.</p>
+                        </div>
+                    </td>
                 </tr>
                 @endforelse
             </tbody>
         </table>
     </div>
+    @if($recibos->hasPages())
+    <div class="p-3 border-top">{{ $recibos->links() }}</div>
+    @endif
 </div>
 
-<div class="mt-3">
-    {{ $recibos->links() }}
-</div>
 @endsection

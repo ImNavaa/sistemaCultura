@@ -1,76 +1,103 @@
 @extends('layouts.app')
-
 @section('title', 'Oficios')
-
 @section('content')
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h2><i class="bi bi-file-earmark-text"></i> Oficios</h2>
-    <a href="{{ route('oficios.create') }}" class="btn btn-primary">
-        <i class="bi bi-plus-circle"></i> Nuevo Oficio
+
+<div class="page-header">
+    <div class="page-header-left">
+        <div class="page-header-icon teal"><i class="bi bi-file-earmark-text"></i></div>
+        <div>
+            <h2>Oficios</h2>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a href="{{ route('inicio') }}">Inicio</a></li>
+                    <li class="breadcrumb-item active">Oficios</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+    <a href="{{ route('oficios.create') }}" class="btn btn-navy">
+        <i class="bi bi-plus-circle me-1"></i> Nuevo Oficio
     </a>
 </div>
 
-<div class="card shadow-sm">
-    <div class="card-body p-0">
-        <table class="table table-hover mb-0">
-            <thead class="table-dark">
+<div class="data-card">
+    <div class="data-card-header">
+        <div class="header-icon teal"><i class="bi bi-list-ul"></i></div>
+        Registros
+        <span class="badge ms-auto" style="background:#e0f2f1;color:#00695c;">{{ $oficios->total() }}</span>
+    </div>
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
                 <tr>
-                    <th>#</th>
                     <th>Fecha</th>
-                    <th>Nombre del Evento</th>
-                    <th>Número de Oficio</th>
+                    <th>Evento</th>
+                    <th>No. Oficio</th>
                     <th>Cobrado</th>
                     <th>Monto</th>
                     <th>Organizador</th>
-                    <th>Acciones</th>
+                    <th class="text-center">Acciones</th>
                 </tr>
             </thead>
             <tbody>
                 @forelse($oficios as $oficio)
                 <tr>
-                    <td>{{ $oficio->id }}</td>
-                    <td>{{ $oficio->fecha->format('d/m/Y') }}</td>
-                    <td>{{ $oficio->nombre_evento }}</td>
-                    <td>{{ $oficio->numero_oficio }}</td>
+                    <td class="text-muted small">{{ $oficio->fecha->format('d/m/Y') }}</td>
+                    <td class="fw-semibold">{{ $oficio->nombre_evento }}</td>
+                    <td>
+                        <span class="badge" style="background:#e8eaf6;color:var(--navy);font-family:monospace;">
+                            {{ $oficio->numero_oficio }}
+                        </span>
+                    </td>
                     <td>
                         @if($oficio->cobrado)
-                            <span class="badge bg-success">Sí</span>
+                            <span class="badge" style="background:#e8f5e9;color:#2e7d32;">
+                                <i class="bi bi-check me-1"></i>Sí
+                            </span>
                         @else
-                            <span class="badge bg-secondary">No</span>
+                            <span class="badge bg-light text-muted border">No</span>
                         @endif
                     </td>
-                    <td>
+                    <td class="fw-semibold">
                         {{ $oficio->monto_cobrado ? '$' . number_format($oficio->monto_cobrado, 2) : '—' }}
                     </td>
-                    <td>{{ $oficio->organizador }}</td>
-                    <td>
-                        <a href="{{ route('oficios.show', $oficio) }}" class="btn btn-sm btn-info text-white">
-                            <i class="bi bi-eye"></i>
-                        </a>
-                        <a href="{{ route('oficios.edit', $oficio) }}" class="btn btn-sm btn-warning">
-                            <i class="bi bi-pencil"></i>
-                        </a>
-                        <form action="{{ route('oficios.destroy', $oficio) }}" method="POST" class="d-inline"
-                              onsubmit="return confirm('¿Estás seguro de eliminar este oficio?')">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn btn-sm btn-danger">
-                                <i class="bi bi-trash"></i>
-                            </button>
-                        </form>
+                    <td class="small text-muted">{{ $oficio->organizador }}</td>
+                    <td class="text-center">
+                        <div class="d-flex justify-content-center gap-1">
+                            <a href="{{ route('oficios.show', $oficio) }}"
+                               class="btn btn-action btn-outline-primary" title="Ver">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            <a href="{{ route('oficios.edit', $oficio) }}"
+                               class="btn btn-action btn-outline-warning" title="Editar">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <form action="{{ route('oficios.destroy', $oficio) }}" method="POST" class="d-inline"
+                                  onsubmit="return confirm('¿Eliminar este oficio?')">
+                                @csrf @method('DELETE')
+                                <button type="submit" class="btn btn-action btn-outline-danger" title="Eliminar">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </div>
                     </td>
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="8" class="text-center text-muted py-4">No hay oficios registrados.</td>
+                    <td colspan="7">
+                        <div class="empty-state">
+                            <i class="bi bi-file-earmark-text"></i>
+                            <p>No hay oficios registrados.</p>
+                        </div>
+                    </td>
                 </tr>
                 @endforelse
             </tbody>
         </table>
     </div>
+    @if($oficios->hasPages())
+    <div class="p-3 border-top">{{ $oficios->links() }}</div>
+    @endif
 </div>
 
-<div class="mt-3">
-    {{ $oficios->links() }}
-</div>
 @endsection
