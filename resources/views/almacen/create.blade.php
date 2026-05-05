@@ -40,7 +40,7 @@
                     <label class="form-label">Unidad de medida <span class="text-danger">*</span></label>
                     <select name="unidad" class="form-select @error('unidad') is-invalid @enderror">
                         <option value="">-- Seleccionar --</option>
-                        @foreach(['pieza'=>'Pieza','caja'=>'Caja','litro'=>'Litro','metro'=>'Metro','rollo'=>'Rollo','par'=>'Par','juego'=>'Juego','kg'=>'Kilogramo','paquete'=>'Paquete'] as $val => $label)
+                        @foreach(['pieza'=>'Pieza','caja'=>'Caja','litro'=>'Litro','galon'=>'Galón','metro'=>'Metro','rollo'=>'Rollo','par'=>'Par','juego'=>'Juego','kg'=>'Kilogramo','paquete'=>'Paquete'] as $val => $label)
                             <option value="{{ $val }}" {{ old('unidad') == $val ? 'selected' : '' }}>{{ $label }}</option>
                         @endforeach
                     </select>
