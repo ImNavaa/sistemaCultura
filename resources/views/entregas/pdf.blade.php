@@ -31,19 +31,11 @@ body {
 .celda-titulo { text-align: center; }
 .celda-folio  { width: 130px; text-align: right; }
 
-.logo-placeholder {
-    width: 75px;
-    height: 75px;
-    border: 2px solid #1a1a2e;
-    border-radius: 4px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 8px;
-    color: #555;
-    text-align: center;
-    line-height: 1.3;
-    padding: 4px;
+.logo-img {
+    width: 90px;
+    height: auto;
+    display: block;
+    margin: 0 auto;
 }
 .titulo-principal {
     font-size: 16px;
@@ -157,7 +149,14 @@ body {
         <table class="enc-tabla">
             <tr>
                 <td class="celda-logo">
-                    <div class="logo-placeholder">Instituto Municipal<br>de Cultura</div>
+                    @php $logoPath = public_path('images/logo-cultura.png'); @endphp
+                    @if(file_exists($logoPath))
+                        <img src="{{ $logoPath }}" class="logo-img" alt="Instituto Municipal de Cultura">
+                    @else
+                        <div style="font-size:8px;color:#555;text-align:center;line-height:1.3;">
+                            Instituto Municipal<br>de Cultura
+                        </div>
+                    @endif
                 </td>
                 <td class="celda-titulo">
                     <div class="titulo-principal">Vale de Salida de Almacén</div>
