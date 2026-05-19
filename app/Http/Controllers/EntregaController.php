@@ -67,13 +67,13 @@ class EntregaController extends Controller
     {
         $entrega->load(['detalles.articulo', 'responsable']);
 
-        // Pre-redimensionar logo a 90px para evitar agotamiento de memoria en DomPDF
+        // Redimensionar logo a 200px de ancho para el encabezado del PDF
         $logoBase64 = null;
         $logoPath   = public_path('images/logo-cultura.png');
 
         if (file_exists($logoPath) && extension_loaded('gd')) {
             [$srcW, $srcH] = getimagesize($logoPath);
-            $dstW = 90;
+            $dstW = 200;
             $dstH = (int) ($srcH * $dstW / $srcW);
 
             $src = imagecreatefrompng($logoPath);
@@ -87,9 +87,7 @@ class EntregaController extends Controller
             ob_start();
             imagepng($dst);
             $logoBase64 = base64_encode(ob_get_clean());
-
-            imagedestroy($src);
-            imagedestroy($dst);
+            // PHP 8.4+: GD objects se liberan automáticamente por el GC
         }
 
         $pdf = Pdf::loadView('entregas.pdf', compact('entrega', 'logoBase64'))
