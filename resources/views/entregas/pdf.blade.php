@@ -143,20 +143,23 @@ body {
         <table class="enc-tabla">
             <tr>
                 <td class="celda-logo">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 112" width="78" height="88">
-                      <!-- Escudo con 3 protuberancias en la corona -->
-                      <path d="M50,108 C28,96 8,78 8,56 L8,30 C14,30 14,22 20,20 C20,13 26,8 32,10 C34,4 40,1 46,5 C48,1 52,1 54,5 C60,1 66,4 68,10 C74,8 80,13 80,20 C86,22 86,30 92,30 L92,56 C92,78 72,96 50,108 Z" fill="white" stroke="#1a1a2e" stroke-width="4.5" stroke-linejoin="round"/>
-                      <!-- Máscara comedia (izquierda, frente) -->
-                      <ellipse cx="40" cy="60" rx="19" ry="23" fill="white" stroke="#1a1a2e" stroke-width="3.5"/>
-                      <circle cx="33" cy="53" r="2.8" fill="#1a1a2e"/>
-                      <circle cx="47" cy="53" r="2.8" fill="#1a1a2e"/>
-                      <path d="M32,70 Q40,79 48,70" fill="none" stroke="#1a1a2e" stroke-width="3" stroke-linecap="round"/>
-                      <!-- Máscara tragedia (derecha, detrás) -->
-                      <ellipse cx="62" cy="70" rx="19" ry="23" fill="white" stroke="#1a1a2e" stroke-width="3.5"/>
-                      <circle cx="55" cy="63" r="2.8" fill="#1a1a2e"/>
-                      <circle cx="69" cy="63" r="2.8" fill="#1a1a2e"/>
-                      <path d="M54,82 Q62,74 70,82" fill="none" stroke="#1a1a2e" stroke-width="3" stroke-linecap="round"/>
-                    </svg>
+                    @php $logoPath = public_path('images/logo-cultura.png'); @endphp
+                    @if(file_exists($logoPath))
+                        <img src="data:image/png;base64,{{ base64_encode(file_get_contents($logoPath)) }}"
+                             style="width:82px;height:auto;display:block;margin:0 auto;" alt="Logo">
+                    @else
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 112" width="78" height="88">
+                          <path d="M50,108 C28,96 8,78 8,56 L8,30 C14,30 14,22 20,20 C20,13 26,8 32,10 C34,4 40,1 46,5 C48,1 52,1 54,5 C60,1 66,4 68,10 C74,8 80,13 80,20 C86,22 86,30 92,30 L92,56 C92,78 72,96 50,108 Z" fill="white" stroke="#1a1a2e" stroke-width="4.5" stroke-linejoin="round"/>
+                          <ellipse cx="40" cy="60" rx="19" ry="23" fill="white" stroke="#1a1a2e" stroke-width="3.5"/>
+                          <circle cx="33" cy="53" r="2.8" fill="#1a1a2e"/>
+                          <circle cx="47" cy="53" r="2.8" fill="#1a1a2e"/>
+                          <path d="M32,70 Q40,79 48,70" fill="none" stroke="#1a1a2e" stroke-width="3" stroke-linecap="round"/>
+                          <ellipse cx="62" cy="70" rx="19" ry="23" fill="white" stroke="#1a1a2e" stroke-width="3.5"/>
+                          <circle cx="55" cy="63" r="2.8" fill="#1a1a2e"/>
+                          <circle cx="69" cy="63" r="2.8" fill="#1a1a2e"/>
+                          <path d="M54,82 Q62,74 70,82" fill="none" stroke="#1a1a2e" stroke-width="3" stroke-linecap="round"/>
+                        </svg>
+                    @endif
                 </td>
                 <td class="celda-titulo">
                     <div class="titulo-principal">Vale de Salida de Almacén</div>
