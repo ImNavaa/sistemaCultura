@@ -31,32 +31,6 @@ body {
 .celda-titulo { text-align: center; }
 .celda-folio  { width: 130px; text-align: right; }
 
-.logo-box {
-    width: 84px;
-    height: 84px;
-    border: 2.5px solid #1a1a2e;
-    border-radius: 6px;
-    display: inline-block;
-    text-align: center;
-    padding-top: 12px;
-    margin: 0 auto;
-    background: #f5f5f5;
-}
-.logo-escudo {
-    font-size: 26px;
-    line-height: 1;
-    color: #1a1a2e;
-    display: block;
-}
-.logo-texto {
-    font-size: 6.5px;
-    font-weight: bold;
-    color: #1a1a2e;
-    letter-spacing: .03em;
-    line-height: 1.5;
-    margin-top: 5px;
-    text-transform: uppercase;
-}
 .titulo-principal {
     font-size: 16px;
     font-weight: bold;
@@ -169,10 +143,20 @@ body {
         <table class="enc-tabla">
             <tr>
                 <td class="celda-logo">
-                    <div class="logo-box">
-                        <div class="logo-escudo">&#9830;</div>
-                        <div class="logo-texto">Instituto<br>Municipal<br>de Cultura</div>
-                    </div>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 112" width="78" height="88">
+                      <!-- Escudo con 3 protuberancias en la corona -->
+                      <path d="M50,108 C28,96 8,78 8,56 L8,30 C14,30 14,22 20,20 C20,13 26,8 32,10 C34,4 40,1 46,5 C48,1 52,1 54,5 C60,1 66,4 68,10 C74,8 80,13 80,20 C86,22 86,30 92,30 L92,56 C92,78 72,96 50,108 Z" fill="white" stroke="#1a1a2e" stroke-width="4.5" stroke-linejoin="round"/>
+                      <!-- Máscara comedia (izquierda, frente) -->
+                      <ellipse cx="40" cy="60" rx="19" ry="23" fill="white" stroke="#1a1a2e" stroke-width="3.5"/>
+                      <circle cx="33" cy="53" r="2.8" fill="#1a1a2e"/>
+                      <circle cx="47" cy="53" r="2.8" fill="#1a1a2e"/>
+                      <path d="M32,70 Q40,79 48,70" fill="none" stroke="#1a1a2e" stroke-width="3" stroke-linecap="round"/>
+                      <!-- Máscara tragedia (derecha, detrás) -->
+                      <ellipse cx="62" cy="70" rx="19" ry="23" fill="white" stroke="#1a1a2e" stroke-width="3.5"/>
+                      <circle cx="55" cy="63" r="2.8" fill="#1a1a2e"/>
+                      <circle cx="69" cy="63" r="2.8" fill="#1a1a2e"/>
+                      <path d="M54,82 Q62,74 70,82" fill="none" stroke="#1a1a2e" stroke-width="3" stroke-linecap="round"/>
+                    </svg>
                 </td>
                 <td class="celda-titulo">
                     <div class="titulo-principal">Vale de Salida de Almacén</div>
