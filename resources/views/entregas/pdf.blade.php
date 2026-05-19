@@ -143,9 +143,8 @@ body {
         <table class="enc-tabla">
             <tr>
                 <td class="celda-logo">
-                    @php $logoPath = public_path('images/logo-cultura.png'); @endphp
-                    @if(file_exists($logoPath))
-                        <img src="data:image/png;base64,{{ base64_encode(file_get_contents($logoPath)) }}"
+                    @if(!empty($logoBase64))
+                        <img src="data:image/png;base64,{{ $logoBase64 }}"
                              style="width:82px;height:auto;display:block;margin:0 auto;" alt="Logo">
                     @else
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 112" width="78" height="88">

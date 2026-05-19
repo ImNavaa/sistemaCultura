@@ -67,7 +67,32 @@ class EntregaController extends Controller
     {
         $entrega->load(['detalles.articulo', 'responsable']);
 
-        $pdf = Pdf::loadView('entregas.pdf', compact('entrega'))
+        // Pre-redimensionar logo a 90px para evitar agotamiento de memoria en DomPDF
+        $logoBase64 = null;
+        $logoPath   = public_path('images/logo-cultura.png');
+
+        if (file_exists($logoPath) && extension_loaded('gd')) {
+            [$srcW, $srcH] = getimagesize($logoPath);
+            $dstW = 90;
+            $dstH = (int) ($srcH * $dstW / $srcW);
+
+            $src = imagecreatefrompng($logoPath);
+            $dst = imagecreatetruecolor($dstW, $dstH);
+            imagealphablending($dst, false);
+            imagesavealpha($dst, true);
+            imagefilledrectangle($dst, 0, 0, $dstW, $dstH,
+                imagecolorallocatealpha($dst, 255, 255, 255, 127));
+            imagecopyresampled($dst, $src, 0, 0, 0, 0, $dstW, $dstH, $srcW, $srcH);
+
+            ob_start();
+            imagepng($dst);
+            $logoBase64 = base64_encode(ob_get_clean());
+
+            imagedestroy($src);
+            imagedestroy($dst);
+        }
+
+        $pdf = Pdf::loadView('entregas.pdf', compact('entrega', 'logoBase64'))
             ->setPaper('letter', 'portrait');
 
         return $pdf->download('vale-salida-' . $entrega->folio . '.pdf');
