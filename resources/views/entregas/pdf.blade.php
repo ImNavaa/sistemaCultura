@@ -27,15 +27,35 @@ body {
 }
 .enc-tabla { width: 100%; border-collapse: collapse; }
 .enc-tabla td { vertical-align: middle; padding: 0 8px; }
-.celda-logo  { width: 90px; text-align: center; }
+.celda-logo  { width: 100px; text-align: center; }
 .celda-titulo { text-align: center; }
 .celda-folio  { width: 130px; text-align: right; }
 
-.logo-img {
-    width: 90px;
-    height: auto;
-    display: block;
+.logo-box {
+    width: 84px;
+    height: 84px;
+    border: 2.5px solid #1a1a2e;
+    border-radius: 6px;
+    display: inline-block;
+    text-align: center;
+    padding-top: 12px;
     margin: 0 auto;
+    background: #f5f5f5;
+}
+.logo-escudo {
+    font-size: 26px;
+    line-height: 1;
+    color: #1a1a2e;
+    display: block;
+}
+.logo-texto {
+    font-size: 6.5px;
+    font-weight: bold;
+    color: #1a1a2e;
+    letter-spacing: .03em;
+    line-height: 1.5;
+    margin-top: 5px;
+    text-transform: uppercase;
 }
 .titulo-principal {
     font-size: 16px;
@@ -149,14 +169,10 @@ body {
         <table class="enc-tabla">
             <tr>
                 <td class="celda-logo">
-                    @php $logoPath = public_path('images/logo-cultura.png'); @endphp
-                    @if(file_exists($logoPath))
-                        <img src="{{ $logoPath }}" class="logo-img" alt="Instituto Municipal de Cultura">
-                    @else
-                        <div style="font-size:8px;color:#555;text-align:center;line-height:1.3;">
-                            Instituto Municipal<br>de Cultura
-                        </div>
-                    @endif
+                    <div class="logo-box">
+                        <div class="logo-escudo">&#9830;</div>
+                        <div class="logo-texto">Instituto<br>Municipal<br>de Cultura</div>
+                    </div>
                 </td>
                 <td class="celda-titulo">
                     <div class="titulo-principal">Vale de Salida de Almacén</div>
