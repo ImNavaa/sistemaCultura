@@ -27,7 +27,7 @@ body {
 }
 .enc-tabla { width: 100%; border-collapse: collapse; }
 .enc-tabla td { vertical-align: middle; padding: 0 8px; }
-.celda-logo  { width: 210px; text-align: left; }
+.celda-logo  { width: 230px; text-align: left; }
 .celda-titulo { text-align: center; }
 .celda-folio  { width: 130px; text-align: right; }
 
@@ -144,8 +144,8 @@ body {
             <tr>
                 <td class="celda-logo">
                     @if(!empty($logoBase64))
-                        <img src="data:image/png;base64,{{ $logoBase64 }}"
-                             style="width:200px;height:auto;display:block;" alt="Logo">
+                        <img src="data:image/jpeg;base64,{{ $logoBase64 }}"
+                             style="width:220px;height:auto;display:block;" alt="Logo">
                     @else
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 112" width="78" height="88">
                           <path d="M50,108 C28,96 8,78 8,56 L8,30 C14,30 14,22 20,20 C20,13 26,8 32,10 C34,4 40,1 46,5 C48,1 52,1 54,5 C60,1 66,4 68,10 C74,8 80,13 80,20 C86,22 86,30 92,30 L92,56 C92,78 72,96 50,108 Z" fill="white" stroke="#1a1a2e" stroke-width="4.5" stroke-linejoin="round"/>
