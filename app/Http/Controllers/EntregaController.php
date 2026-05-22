@@ -67,26 +67,11 @@ class EntregaController extends Controller
     {
         $entrega->load(['detalles.articulo', 'responsable']);
 
-        // Redimensionar logo y convertir a JPEG (sin transparencia, más compatible con DomPDF)
+        // Logo pre-procesado (JPEG 160px, sin transparencia) — generado una sola vez
         $logoBase64 = null;
-        $logoMime   = 'image/jpeg';
-        $logoPath   = public_path('images/logo-cultura.png');
-
-        if (file_exists($logoPath) && extension_loaded('gd')) {
-            [$srcW, $srcH] = getimagesize($logoPath);
-            $dstW = 240;
-            $dstH = (int) ($srcH * $dstW / $srcW);
-
-            $src = imagecreatefrompng($logoPath);
-            $dst = imagecreatetruecolor($dstW, $dstH);
-
-            // Fondo blanco sólido (evita problemas de transparencia en DomPDF)
-            imagefill($dst, 0, 0, imagecolorallocate($dst, 255, 255, 255));
-            imagecopyresampled($dst, $src, 0, 0, 0, 0, $dstW, $dstH, $srcW, $srcH);
-
-            ob_start();
-            imagejpeg($dst, null, 95);
-            $logoBase64 = base64_encode(ob_get_clean());
+        $logoPdf    = public_path('images/logo-pdf.jpg');
+        if (file_exists($logoPdf)) {
+            $logoBase64 = base64_encode(file_get_contents($logoPdf));
         }
 
         $pdf = Pdf::loadView('entregas.pdf', compact('entrega', 'logoBase64'))
