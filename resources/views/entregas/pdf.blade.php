@@ -275,13 +275,13 @@ body {
                     <div class="firma-espacio"></div>
                     <div class="firma-linea"></div>
                     <div class="firma-rol">Entrega</div>
-                    <div class="firma-nombre">&nbsp;</div>
+                    <div class="firma-nombre">{{ $entrega->responsable->name }}</div>
                 </td>
                 <td>
                     <div class="firma-espacio"></div>
                     <div class="firma-linea"></div>
                     <div class="firma-rol">Recibe</div>
-                    <div class="firma-nombre">&nbsp;</div>
+                    <div class="firma-nombre">{{ $entrega->receptor }}</div>
                 </td>
             </tr>
         </table>
