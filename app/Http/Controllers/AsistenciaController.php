@@ -24,8 +24,10 @@ class AsistenciaController extends Controller
         $hoy  = today();
         $anio = $hoy->year;
 
-        // Excluir super_admin del tablero de asistencia
-        $empleados = User::whereDoesntHave('rol', fn($q) => $q->where('nombre', 'super_admin'))
+        // Excluir usuarios con rol super_admin del tablero de asistencia
+        $empleados = User::whereNot(fn($q) =>
+                $q->whereHas('rol', fn($r) => $r->where('nombre', 'super_admin'))
+            )
             ->with(['saldoTiempo', 'diasEconomicosAnio'])
             ->orderBy('name')
             ->get();
