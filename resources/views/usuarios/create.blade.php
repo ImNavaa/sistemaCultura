@@ -160,7 +160,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (campoName) {
         campoName.addEventListener('input', function() {
             const pos = this.selectionStart;
-            this.value = this.value.replace(/\b\w/g, l => l.toUpperCase());
+            this.value = this.value.split(' ').map(w => w ? w[0].toUpperCase() + w.slice(1) : w).join(' ');
             this.setSelectionRange(pos, pos);
         });
     }
@@ -170,7 +170,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (campoCargo) {
         campoCargo.addEventListener('input', function() {
             const pos = this.selectionStart;
-            this.value = this.value.replace(/\b\w/g, l => l.toUpperCase());
+            this.value = this.value.split(' ').map(w => w ? w[0].toUpperCase() + w.slice(1) : w).join(' ');
             this.setSelectionRange(pos, pos);
         });
     }
