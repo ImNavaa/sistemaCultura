@@ -29,14 +29,14 @@
 
 /* ── Cards de módulos ── */
 .module-card {
-    background: white;
-    border: 1px solid #e9ecef;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
     border-radius: 12px;
     padding: 1.25rem;
     display: flex;
     flex-direction: column;
     gap: .75rem;
-    transition: box-shadow .2s, transform .2s;
+    transition: box-shadow .2s, transform .2s, background .2s;
     cursor: pointer;
 }
 .module-card:hover {
@@ -51,24 +51,24 @@
     flex-shrink: 0;
 }
 .module-card-body { flex: 1; }
-.module-card-title { font-weight: 600; font-size: .95rem; color: #212529; margin-bottom: .25rem; }
-.module-card-desc  { font-size: .8rem; color: #6c757d; line-height: 1.4; }
+.module-card-title { font-weight: 600; font-size: .95rem; color: var(--text-main); margin-bottom: .25rem; }
+.module-card-desc  { font-size: .8rem; color: var(--text-muted); line-height: 1.4; }
 .module-card-arrow { font-size: 1.2rem; align-self: flex-end; }
 
 /* ── Quick cards ── */
 .quick-card {
-    background: white;
-    border: 1px solid #e9ecef;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
     border-radius: 10px;
     padding: .85rem 1.1rem;
     display: flex;
     align-items: center;
     gap: .75rem;
     font-size: .9rem;
-    color: #343a40;
+    color: var(--text-body);
     transition: background .15s, box-shadow .15s;
 }
-.quick-card:hover { background: #f8f9fa; box-shadow: 0 2px 8px rgba(0,0,0,.07); }
+.quick-card:hover { background: var(--bg-row-hover); box-shadow: 0 2px 8px rgba(0,0,0,.07); }
 .quick-card i { font-size: 1.25rem; }
 </style>
 @endpush

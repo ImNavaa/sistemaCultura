@@ -44,22 +44,22 @@
     flex-shrink: 0;
 }
 .stat-num  { font-size: 1.6rem; font-weight: 700; line-height: 1; }
-.stat-label{ font-size: .75rem; color: #6c757d; margin-top: 2px; }
+.stat-label{ font-size: .75rem; color: var(--text-muted, #6c757d); margin-top: 2px; }
 
 /* ── Tarjeta empleado ── */
 .tarjeta-empleado {
     border-radius: 12px;
-    border: 1px solid #e9ecef;
-    transition: box-shadow .2s, transform .15s;
+    border: 1px solid var(--border-color, #e9ecef);
+    transition: box-shadow .2s, transform .15s, background .2s;
     overflow: hidden;
-    background: white;
+    background: var(--bg-card, #fff);
 }
 .tarjeta-empleado:hover {
     box-shadow: 0 8px 24px rgba(0,0,0,.1);
     transform: translateY(-2px);
 }
 .tarjeta-empleado.no-laboral {
-    background: #f8f9fa;
+    background: var(--bg-card-alt, #f8f9fa);
     opacity: .75;
 }
 .tarjeta-top-bar {
@@ -104,10 +104,12 @@
     border: 1px solid #e2e8f0;
     white-space: nowrap;
 }
-.chip-presente { background: #d1fae5; color: #065f46; border-color: #a7f3d0; }
-.chip-tarde    { background: #fef3c7; color: #92400e; border-color: #fde68a; }
-.chip-ausente  { background: #fee2e2; color: #991b1b; border-color: #fca5a5; }
-.chip-nolaboral{ background: #f1f5f9; color: #64748b; border-color: #e2e8f0; }
+.chip-presente    { background: #d1fae5; color: #065f46; border-color: #a7f3d0; }
+.chip-tarde       { background: #fef3c7; color: #92400e; border-color: #fde68a; }
+.chip-ausente     { background: #fee2e2; color: #991b1b; border-color: #fca5a5; }
+.chip-nolaboral   { background: #f1f5f9; color: #64748b; border-color: #e2e8f0; }
+.chip-saldo-horas { background: #d1fae5; color: #065f46; border-color: #a7f3d0; }
+.chip-saldo-ec    { background: #ede9fe; color: #4c1d95; border-color: #c4b5fd; }
 
 .horas-pill {
     display: inline-flex; align-items: center; gap: 6px;
@@ -145,11 +147,73 @@
     margin-top: .5rem;
 }
 
+/* ── Stat card backgrounds (usadas en el HTML) ── */
+.stat-bg-total    { background: #f1f5f9; }
+.stat-bg-presente { background: #d1fae5; }
+.stat-bg-falta    { background: #fee2e2; }
+.stat-bg-sinreg   { background: #fef3c7; }
+.stat-icon-total    { background: #e2e8f0; }
+.stat-icon-presente { background: #a7f3d0; }
+.stat-icon-falta    { background: #fca5a5; }
+.stat-icon-sinreg   { background: #fde68a; }
+.stat-num-presente  { color: #065f46; }
+.stat-num-falta     { color: #991b1b; }
+.stat-num-sinreg    { color: #92400e; }
+
+/* ── Barra de eventos del día ── */
+.eventos-bar        { background: #eff6ff; border-radius: 10px; border: 1px solid #bfdbfe; }
+.eventos-bar-titulo { font-size: .8rem; font-weight: 600; color: #1e40af; }
+
+/* ── Badge sin registro ── */
+.badge-sinreg { background: #f1f5f9; color: #64748b; border: 1px solid #e2e8f0; font-size: .68rem; }
+
+/* ── Caja de horario referencia en modal ── */
+.horario-ref-box       { background: #eff6ff; border-radius: 8px; padding: .6rem 1rem; border: 1px solid #bfdbfe; }
+.horario-ref-box small { color: #1e40af; }
+
+/* ── Caja info guardia en modal ── */
+.guardia-info-box { background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0; font-size: .82rem; color: #475569; }
+
 /* Colores para badge-purple, teal, indigo, orange */
 .bg-purple { background-color: #6f42c1 !important; }
 .bg-teal   { background-color: #20c997 !important; }
 .bg-indigo { background-color: #6610f2 !important; }
 .bg-orange { background-color: #fd7e14 !important; }
+
+/* ── MODO OSCURO ── */
+[data-theme="dark"] .tarjeta-empleado         { background: var(--bg-card); border-color: var(--border-color); }
+[data-theme="dark"] .tarjeta-empleado.no-laboral { background: var(--bg-card-alt); }
+[data-theme="dark"] .stat-label               { color: var(--text-muted); }
+[data-theme="dark"] .chip                     { background: #2a2a45; color: #c5cae9; border-color: #3a3a55; }
+[data-theme="dark"] .chip-presente            { background: #1a3a2e; color: #81c784;  border-color: #2d5a3d; }
+[data-theme="dark"] .chip-tarde               { background: #3a2a10; color: #ffd54f;  border-color: #5a4015; }
+[data-theme="dark"] .chip-ausente             { background: #3a1a1a; color: #ef9a9a;  border-color: #5a2525; }
+[data-theme="dark"] .chip-nolaboral           { background: #2a2a45; color: #9fa8da;  border-color: #3a3a55; }
+[data-theme="dark"] .chip-saldo-horas         { background: #1a3a2e; color: #81c784;  border-color: #2d5a3d; }
+[data-theme="dark"] .chip-saldo-ec            { background: #2a1a45; color: #ce93d8;  border-color: #4a2a65; }
+[data-theme="dark"] .horas-pill               { background: var(--bg-card-alt); border-color: var(--border-color); color: var(--text-body); }
+[data-theme="dark"] .horas-pill .sep          { color: var(--text-muted); }
+[data-theme="dark"] .dia-chip                 { background: #2a2a45; color: #9fa8da; border-color: #3a3a55; }
+[data-theme="dark"] .dia-chip.hoy             { background: #1a2a4e; color: #90caf9; border-color: #2a4a7e; }
+[data-theme="dark"] .detalle-asistencia       { background: var(--bg-card-alt); color: var(--text-body); }
+[data-theme="dark"] .dot-vacio                { background: #3a3a55; }
+[data-theme="dark"] .stat-bg-total            { background: #1e2535; }
+[data-theme="dark"] .stat-bg-presente         { background: #0d2e20; }
+[data-theme="dark"] .stat-bg-falta            { background: #2e1515; }
+[data-theme="dark"] .stat-bg-sinreg           { background: #2e2510; }
+[data-theme="dark"] .stat-icon-total          { background: #2a3045; }
+[data-theme="dark"] .stat-icon-presente       { background: #1a4a30; }
+[data-theme="dark"] .stat-icon-falta          { background: #4a2020; }
+[data-theme="dark"] .stat-icon-sinreg         { background: #4a3a15; }
+[data-theme="dark"] .stat-num-presente        { color: #81c784; }
+[data-theme="dark"] .stat-num-falta           { color: #ef9a9a; }
+[data-theme="dark"] .stat-num-sinreg          { color: #ffb74d; }
+[data-theme="dark"] .eventos-bar              { background: #1a2035; border-color: #2a3555; }
+[data-theme="dark"] .eventos-bar-titulo       { color: #90caf9; }
+[data-theme="dark"] .badge-sinreg             { background: #2a2a45; color: #9fa8da; border-color: #3a3a55; }
+[data-theme="dark"] .horario-ref-box          { background: #1a2035; border-color: #2a3555; }
+[data-theme="dark"] .horario-ref-box small    { color: #90caf9; }
+[data-theme="dark"] .guardia-info-box         { background: var(--bg-card-alt); border-color: var(--border-color); color: var(--text-body); }
 </style>
 @endpush
 
@@ -182,45 +246,45 @@
 {{-- Stats ── ────────────────────────────────────────────── --}}
 <div class="row g-3 mb-4">
     <div class="col-6 col-md-3">
-        <div class="stat-card" style="background:#f1f5f9">
-            <div class="stat-icon" style="background:#e2e8f0">
+        <div class="stat-card stat-bg-total">
+            <div class="stat-icon stat-icon-total">
                 <i class="bi bi-people text-secondary"></i>
             </div>
             <div>
-                <div class="stat-num text-dark">{{ $stats['total'] }}</div>
+                <div class="stat-num" style="color:var(--text-main)">{{ $stats['total'] }}</div>
                 <div class="stat-label">Total empleados</div>
             </div>
         </div>
     </div>
     <div class="col-6 col-md-3">
-        <div class="stat-card" style="background:#d1fae5">
-            <div class="stat-icon" style="background:#a7f3d0">
-                <i class="bi bi-person-check" style="color:#065f46"></i>
+        <div class="stat-card stat-bg-presente">
+            <div class="stat-icon stat-icon-presente">
+                <i class="bi bi-person-check stat-num-presente"></i>
             </div>
             <div>
-                <div class="stat-num" style="color:#065f46">{{ $stats['presentes'] }}</div>
+                <div class="stat-num stat-num-presente">{{ $stats['presentes'] }}</div>
                 <div class="stat-label">Presentes</div>
             </div>
         </div>
     </div>
     <div class="col-6 col-md-3">
-        <div class="stat-card" style="background:#fee2e2">
-            <div class="stat-icon" style="background:#fca5a5">
-                <i class="bi bi-person-x" style="color:#991b1b"></i>
+        <div class="stat-card stat-bg-falta">
+            <div class="stat-icon stat-icon-falta">
+                <i class="bi bi-person-x stat-num-falta"></i>
             </div>
             <div>
-                <div class="stat-num" style="color:#991b1b">{{ $stats['faltas'] }}</div>
+                <div class="stat-num stat-num-falta">{{ $stats['faltas'] }}</div>
                 <div class="stat-label">Faltas</div>
             </div>
         </div>
     </div>
     <div class="col-6 col-md-3">
-        <div class="stat-card" style="background:#fef3c7">
-            <div class="stat-icon" style="background:#fde68a">
-                <i class="bi bi-question-circle" style="color:#92400e"></i>
+        <div class="stat-card stat-bg-sinreg">
+            <div class="stat-icon stat-icon-sinreg">
+                <i class="bi bi-question-circle stat-num-sinreg"></i>
             </div>
             <div>
-                <div class="stat-num" style="color:#92400e">{{ $stats['sin_registro'] }}</div>
+                <div class="stat-num stat-num-sinreg">{{ $stats['sin_registro'] }}</div>
                 <div class="stat-label">Sin registro</div>
             </div>
         </div>
@@ -229,9 +293,8 @@
 
 {{-- Eventos del día ──────────────────────────────────────── --}}
 @if($eventosHoy->count() > 0)
-<div class="d-flex align-items-center gap-2 flex-wrap mb-4 p-3"
-     style="background:#eff6ff; border-radius:10px; border:1px solid #bfdbfe;">
-    <span style="font-size:.8rem; font-weight:600; color:#1e40af;">
+<div class="d-flex align-items-center gap-2 flex-wrap mb-4 p-3 eventos-bar">
+    <span class="eventos-bar-titulo">
         <i class="bi bi-calendar-event me-1"></i>Eventos hoy:
     </span>
     @foreach($eventosHoy as $ev)
@@ -300,7 +363,7 @@
                                 {{ $etiqueta['icono'] }} {{ $etiqueta['label'] }}
                             </span>
                         @else
-                            <span class="badge" style="background:#f1f5f9;color:#64748b;border:1px solid #e2e8f0;font-size:.68rem;">
+                            <span class="badge badge-sinreg">
                                 Sin registro
                             </span>
                         @endif
@@ -387,13 +450,13 @@
                 @if(($saldo && $saldo->saldo > 0) || ($diasEc && $diasEc->diasPendientes() > 0))
                 <div class="d-flex gap-1 flex-wrap mt-2">
                     @if($saldo && $saldo->saldo > 0)
-                    <span class="chip" style="background:#d1fae5;color:#065f46;border-color:#a7f3d0;">
+                    <span class="chip chip-saldo-horas">
                         <i class="bi bi-clock" style="font-size:.6rem;"></i>
                         {{ number_format($saldo->saldo, 1) }}h a favor
                     </span>
                     @endif
                     @if($diasEc && $diasEc->diasPendientes() > 0)
-                    <span class="chip" style="background:#ede9fe;color:#4c1d95;border-color:#c4b5fd;">
+                    <span class="chip chip-saldo-ec">
                         <i class="bi bi-calendar3" style="font-size:.6rem;"></i>
                         {{ $diasEc->diasPendientes() }} días ec.
                     </span>
@@ -452,9 +515,8 @@
                     <input type="hidden" name="fecha" value="{{ $hoy->format('Y-m-d') }}">
 
                     {{-- Horario referencia --}}
-                    <div class="d-none mb-3" id="horarioReferencia"
-                         style="background:#eff6ff; border-radius:8px; padding:.6rem 1rem; border:1px solid #bfdbfe;">
-                        <small style="color:#1e40af;">
+                    <div class="d-none mb-3 horario-ref-box" id="horarioReferencia">
+                        <small>
                             <i class="bi bi-clock-fill me-1"></i>
                             Horario registrado: <strong id="textoHorario"></strong>
                         </small>
@@ -546,9 +608,8 @@
                     </div>
 
                     {{-- Guardia aviso --}}
-                    <div class="mb-3 d-none p-3" id="grupoGuardia"
-                         style="background:#f8fafc; border-radius:8px; border:1px solid #e2e8f0; font-size:.82rem; color:#475569;">
-                        <i class="bi bi-shield-fill-check text-dark me-1"></i>
+                    <div class="mb-3 d-none p-3 guardia-info-box" id="grupoGuardia">
+                        <i class="bi bi-shield-fill-check me-1"></i>
                         Indica la hora de inicio y fin de guardia en los campos de entrada/salida.
                     </div>
 

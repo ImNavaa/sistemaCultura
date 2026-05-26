@@ -13,6 +13,7 @@ use App\Http\Controllers\AsistenciaController;
 use App\Http\Controllers\PermisoController;
 use App\Http\Controllers\DiaEconomicoController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ConfiguracionController;
 
 // ── SETUP INICIAL (eliminar después del primer uso) ───────
 Route::get('/setup-inicial-xyz123', function () {
@@ -43,6 +44,12 @@ Route::get('/dashboard', fn() => redirect()->route('inicio'))->name('dashboard')
 
 // ── INICIO / DASHBOARD ────────────────────────────────────
 Route::middleware('auth')->get('/inicio', [DashboardController::class, 'index'])->name('inicio');
+
+// ── CONFIGURACIÓN ─────────────────────────────────────────
+Route::middleware('auth')->group(function () {
+    Route::get('/configuracion', [ConfiguracionController::class, 'index'])->name('configuracion');
+    Route::post('/configuracion/password', [ConfiguracionController::class, 'cambiarPassword'])->name('configuracion.password');
+});
 
 // ── CALENDARIO ──────────────────────────────────────────
 Route::middleware(['auth', 'permiso:calendario,ver'])->group(function () {
