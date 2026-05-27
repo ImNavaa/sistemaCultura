@@ -24,14 +24,14 @@
                 <div class="col-md-3">
                     <label class="form-label">Hora Inicio</label>
                     <input type="time" name="hora_inicio" class="form-control @error('hora_inicio') is-invalid @enderror"
-                        value="{{ old('hora_inicio', $oficio->hora_inicio ?? '') }}">
+                        value="{{ old('hora_inicio') }}">
                     @error('hora_inicio') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>
 
                 <div class="col-md-3">
                     <label class="form-label">Hora Fin</label>
                     <input type="time" name="hora_fin" class="form-control @error('hora_fin') is-invalid @enderror"
-                        value="{{ old('hora_fin', $oficio->hora_fin ?? '') }}">
+                        value="{{ old('hora_fin') }}">
                     @error('hora_fin') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>
                 <div class="col-md-6">

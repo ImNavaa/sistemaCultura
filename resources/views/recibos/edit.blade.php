@@ -12,7 +12,7 @@
 
 <div class="card shadow-sm">
     <div class="card-body">
-        <form action="{{ route('recibos.update', $recibo) }}" method="POST">
+        <form action="{{ route('recibos.update', $recibo) }}" method="POST" enctype="multipart/form-data">
             @csrf
             @method('PUT')
             <div class="row g-3">
@@ -58,6 +58,21 @@
                     <label class="form-label">Concepto <span class="text-danger">*</span></label>
                     <textarea name="concepto" rows="3" class="form-control @error('concepto') is-invalid @enderror">{{ old('concepto', $recibo->concepto) }}</textarea>
                     @error('concepto') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                </div>
+
+                <div class="col-md-12">
+                    <label class="form-label">Foto / Archivo del documento</label>
+                    @if($recibo->foto)
+                        <div class="mb-2">
+                            <small class="text-muted">Archivo actual:</small>
+                            <a href="{{ Storage::url($recibo->foto) }}" target="_blank" class="ms-1">
+                                <i class="bi bi-paperclip"></i> Ver archivo
+                            </a>
+                        </div>
+                    @endif
+                    <input type="file" name="foto" class="form-control @error('foto') is-invalid @enderror"
+                           accept="image/*,.pdf">
+                    @error('foto') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>
 
                 <div class="col-12">

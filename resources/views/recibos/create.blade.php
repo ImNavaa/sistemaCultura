@@ -12,7 +12,7 @@
 
 <div class="card shadow-sm">
     <div class="card-body">
-        <form action="{{ route('recibos.store') }}" method="POST">
+        <form action="{{ route('recibos.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
             <div class="row g-3">
                 <div class="col-md-6">
@@ -24,7 +24,7 @@
                 <div class="col-md-6">
                     <label class="form-label">Número de Recibo</label>
                     <input type="text" name="numero_recibo" class="form-control @error('numero_recibo') is-invalid @enderror"
-                        value="{{ old('numero_recibo', $recibo->numero_recibo ?? '') }}"
+                        value="{{ old('numero_recibo') }}"
                         placeholder="Ej: REC-2024-001">
                     @error('numero_recibo') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>

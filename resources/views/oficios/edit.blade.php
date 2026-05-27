@@ -12,7 +12,7 @@
 
 <div class="card shadow-sm">
     <div class="card-body">
-        <form action="{{ route('oficios.update', $oficio) }}" method="POST" enctype="multipart/form-data>
+        <form action="{{ route('oficios.update', $oficio) }}" method="POST" enctype="multipart/form-data">
             @csrf
             @method('PUT')
             <div class="row g-3">
@@ -21,6 +21,20 @@
                     <input type="date" name="fecha" class="form-control @error('fecha') is-invalid @enderror"
                            value="{{ old('fecha', $oficio->fecha->format('Y-m-d')) }}">
                     @error('fecha') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">Hora Inicio</label>
+                    <input type="time" name="hora_inicio" class="form-control @error('hora_inicio') is-invalid @enderror"
+                           value="{{ old('hora_inicio', $oficio->hora_inicio ? \Carbon\Carbon::parse($oficio->hora_inicio)->format('H:i') : '') }}">
+                    @error('hora_inicio') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">Hora Fin</label>
+                    <input type="time" name="hora_fin" class="form-control @error('hora_fin') is-invalid @enderror"
+                           value="{{ old('hora_fin', $oficio->hora_fin ? \Carbon\Carbon::parse($oficio->hora_fin)->format('H:i') : '') }}">
+                    @error('hora_fin') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>
 
                 <div class="col-md-6">
@@ -59,6 +73,21 @@
                            class="form-control @error('monto_cobrado') is-invalid @enderror"
                            value="{{ old('monto_cobrado', $oficio->monto_cobrado) }}">
                     @error('monto_cobrado') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                </div>
+
+                <div class="col-md-12">
+                    <label class="form-label">Foto / Archivo del documento</label>
+                    @if($oficio->foto)
+                        <div class="mb-2">
+                            <small class="text-muted">Archivo actual:</small>
+                            <a href="{{ Storage::url($oficio->foto) }}" target="_blank" class="ms-1">
+                                <i class="bi bi-paperclip"></i> Ver archivo
+                            </a>
+                        </div>
+                    @endif
+                    <input type="file" name="foto" class="form-control @error('foto') is-invalid @enderror"
+                           accept="image/*,.pdf">
+                    @error('foto') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>
 
                 <div class="col-12">

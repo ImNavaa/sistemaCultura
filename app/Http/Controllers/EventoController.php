@@ -166,6 +166,12 @@ class EventoController extends Controller
                 'tipo'          => 'sometimes|in:oficio,recibo,ambos,ninguno',
                 'hora_inicio'   => 'nullable|date_format:H:i',
                 'hora_fin'      => 'nullable|date_format:H:i',
+                'numero_oficio' => 'nullable|string|max:100',
+                'cobrado'       => 'nullable|string|in:si,no',
+                'monto_cobrado' => 'nullable|numeric|min:0',
+                'numero_recibo' => 'nullable|string|max:100',
+                'importe'       => 'nullable|numeric|min:0',
+                'concepto'      => 'nullable|string',
             ]);
 
             $evento->update($request->only([
@@ -173,20 +179,65 @@ class EventoController extends Controller
                 'autoriza', 'tipo', 'hora_inicio', 'hora_fin',
             ]));
 
-            // Actualizar oficio relacionado
-            if ($evento->oficio) {
-                $evento->oficio->update([
-                    'fecha'      => $request->fecha,
-                    'hora_inicio'=> $request->hora_inicio,
-                    'hora_fin'   => $request->hora_fin,
-                ]);
-            }
+            // Reload to get fresh tipo after update
+            $evento->refresh();
 
-            // Actualizar recibo relacionado
-            if ($evento->recibo) {
-                $evento->recibo->update([
-                    'fecha' => $request->fecha,
-                ]);
+            if ($request->has('tipo')) {
+                // Full modal update: sync all oficio/recibo data
+                $tipo = $evento->tipo;
+
+                if (in_array($tipo, ['oficio', 'ambos'])) {
+                    $cobrado = $request->cobrado === 'si';
+                    $oficioData = [
+                        'fecha'         => $request->fecha,
+                        'nombre_evento' => $request->nombre_evento,
+                        'organizador'   => $request->organizador,
+                        'numero_oficio' => $request->numero_oficio,
+                        'cobrado'       => $cobrado,
+                        'monto_cobrado' => $cobrado ? $request->monto_cobrado : null,
+                        'hora_inicio'   => $request->hora_inicio,
+                        'hora_fin'      => $request->hora_fin,
+                    ];
+                    if ($evento->oficio) {
+                        $evento->oficio->update($oficioData);
+                    } else {
+                        Oficio::create(array_merge($oficioData, ['evento_id' => $evento->id]));
+                    }
+                } else {
+                    $evento->oficio?->delete();
+                }
+
+                if (in_array($tipo, ['recibo', 'ambos'])) {
+                    $reciboData = [
+                        'fecha'         => $request->fecha,
+                        'nombre_evento' => $request->nombre_evento,
+                        'organizador'   => $request->organizador,
+                        'numero_recibo' => $request->numero_recibo,
+                        'importe'       => $request->importe,
+                        'concepto'      => $request->concepto,
+                    ];
+                    if ($evento->recibo) {
+                        $evento->recibo->update($reciboData);
+                    } else {
+                        Recibo::create(array_merge($reciboData, ['evento_id' => $evento->id]));
+                    }
+                } else {
+                    $evento->recibo?->delete();
+                }
+            } else {
+                // Drag-drop update: only sync fecha/hora
+                if ($evento->oficio) {
+                    $evento->oficio->update([
+                        'fecha'       => $request->fecha,
+                        'hora_inicio' => $request->hora_inicio,
+                        'hora_fin'    => $request->hora_fin,
+                    ]);
+                }
+                if ($evento->recibo) {
+                    $evento->recibo->update([
+                        'fecha' => $request->fecha,
+                    ]);
+                }
             }
 
             return response()->json(['success' => true]);
