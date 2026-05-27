@@ -10,8 +10,15 @@ class UserController extends Controller
 {
     public function index()
     {
-        $conAcceso    = User::where('tiene_acceso', true)->orderBy('name')->get();
-        $sinAcceso    = User::where('tiene_acceso', false)->orderBy('name')->get();
+        $esSuperAdmin = auth()->user()->rol?->nombre === 'super_admin';
+
+        $base = $esSuperAdmin
+            ? User::query()
+            : User::whereDoesntHave('rol', fn($q) => $q->where('nombre', 'super_admin'));
+
+        $conAcceso = (clone $base)->where('tiene_acceso', true)->orderBy('name')->get();
+        $sinAcceso = (clone $base)->where('tiene_acceso', false)->orderBy('name')->get();
+
         return view('usuarios.index', compact('conAcceso', 'sinAcceso'));
     }
 
@@ -70,16 +77,19 @@ class UserController extends Controller
 
     public function show(User $usuario)
     {
+        $this->denegarAccesoSuperAdmin($usuario);
         return view('usuarios.show', compact('usuario'));
     }
 
     public function edit(User $usuario)
     {
+        $this->denegarAccesoSuperAdmin($usuario);
         return view('usuarios.edit', compact('usuario'));
     }
 
     public function update(Request $request, User $usuario)
     {
+        $this->denegarAccesoSuperAdmin($usuario);
         $nuevoAcceso = $request->boolean('tiene_acceso');
         $teniaAcceso = $usuario->tiene_acceso;
 
@@ -139,6 +149,7 @@ class UserController extends Controller
 
     public function destroy(User $usuario)
     {
+        $this->denegarAccesoSuperAdmin($usuario);
         try {
             $usuario->delete();
             return redirect()->route('usuarios.index')
@@ -169,5 +180,15 @@ class UserController extends Controller
             ->where('id', '!=', $request->id ?? 0)
             ->exists();
         return response()->json(['existe' => $existe]);
+    }
+
+    private function denegarAccesoSuperAdmin(User $usuario): void
+    {
+        if (
+            $usuario->rol?->nombre === 'super_admin' &&
+            auth()->user()->rol?->nombre !== 'super_admin'
+        ) {
+            abort(403);
+        }
     }
 }
