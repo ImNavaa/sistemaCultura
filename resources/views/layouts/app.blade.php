@@ -588,6 +588,21 @@
                     </li>
                     @endif
 
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle {{ request()->is('herramientas*') ? 'active' : '' }}"
+                           href="#" data-bs-toggle="dropdown">
+                            <i class="bi bi-tools me-1"></i>Herramientas
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a class="dropdown-item {{ request()->is('herramientas/img-pdf') ? 'active' : '' }}"
+                                   href="{{ route('herramientas.img-pdf') }}">
+                                    <i class="bi bi-file-image me-2"></i>IMG a PDF
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+
                 </ul>
 
                 <ul class="navbar-nav ms-auto align-items-center gap-2">

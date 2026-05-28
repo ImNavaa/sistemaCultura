@@ -95,13 +95,23 @@ class DashboardController extends Controller
         ];
 
         // Filtrar solo los módulos a los que el usuario tiene acceso
-        $modulosPermitidos = array_filter($todosModulos, function ($m) use ($usuario) {
+        $modulosPermitidos = array_values(array_filter($todosModulos, function ($m) use ($usuario) {
             return $usuario->puede($m['modulo'], $m['accion']);
-        });
+        }));
+
+        // Herramientas: disponible para todos los usuarios autenticados
+        $modulosPermitidos[] = [
+            'nombre'      => 'Herramientas',
+            'descripcion' => 'Convierte imágenes a PDF y otras utilidades del sistema.',
+            'icono'       => 'bi-tools',
+            'color'       => 'info',
+            'ruta'        => 'herramientas.img-pdf',
+            'params'      => [],
+        ];
 
         return view('dashboard', [
-            'usuario'          => $usuario,
-            'modulosPermitidos' => array_values($modulosPermitidos),
+            'usuario'           => $usuario,
+            'modulosPermitidos' => $modulosPermitidos,
         ]);
     }
 }
