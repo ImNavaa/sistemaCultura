@@ -92,6 +92,16 @@ class DashboardController extends Controller
                 'ruta'        => 'tiempo.index',
                 'params'      => [],
             ],
+            [
+                'modulo'      => 'proyectos',
+                'accion'      => 'ver',
+                'nombre'      => 'Proyectos y Tareas',
+                'descripcion' => 'Gestiona proyectos, asigna tareas y sigue el progreso del equipo.',
+                'icono'       => 'bi-kanban',
+                'color'       => 'primary',
+                'ruta'        => 'proyectos.index',
+                'params'      => [],
+            ],
         ];
 
         // Filtrar solo los módulos a los que el usuario tiene acceso

@@ -15,6 +15,8 @@ use App\Http\Controllers\DiaEconomicoController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ConfiguracionController;
 use App\Http\Controllers\HerramientasController;
+use App\Http\Controllers\ProyectoController;
+use App\Http\Controllers\TareaController;
 
 // ── SETUP INICIAL (eliminar después del primer uso) ───────
 Route::get('/setup-inicial-xyz123', function () {
@@ -136,6 +138,33 @@ Route::middleware(['auth', 'permiso:tiempo,ver'])->group(function () {
 // ── DÍAS ECONÓMICOS ───────────────────────────────────────
 Route::middleware(['auth'])->group(function () {
     Route::resource('dias-economicos', DiaEconomicoController::class)->only(['index', 'store', 'update', 'destroy']);
+});
+
+// ── PROYECTOS Y TAREAS ────────────────────────────────────
+Route::middleware(['auth', 'permiso:proyectos,ver'])->group(function () {
+    Route::get('/proyectos', [ProyectoController::class, 'index'])->name('proyectos.index');
+
+    Route::middleware('permiso:proyectos,crear')->group(function () {
+        Route::get('/proyectos/create', [ProyectoController::class, 'create'])->name('proyectos.create');
+        Route::post('/proyectos', [ProyectoController::class, 'store'])->name('proyectos.store');
+        Route::post('/proyectos/{proyecto}/tareas', [TareaController::class, 'store'])->name('tareas.store');
+    });
+
+    Route::middleware('permiso:proyectos,editar')->group(function () {
+        Route::get('/proyectos/{proyecto}/edit', [ProyectoController::class, 'edit'])->name('proyectos.edit');
+        Route::put('/proyectos/{proyecto}', [ProyectoController::class, 'update'])->name('proyectos.update');
+        Route::put('/tareas/{tarea}', [TareaController::class, 'update'])->name('tareas.update');
+    });
+
+    Route::middleware('permiso:proyectos,eliminar')->group(function () {
+        Route::delete('/proyectos/{proyecto}', [ProyectoController::class, 'destroy'])->name('proyectos.destroy');
+        Route::delete('/tareas/{tarea}', [TareaController::class, 'destroy'])->name('tareas.destroy');
+    });
+
+    Route::get('/proyectos/{proyecto}', [ProyectoController::class, 'show'])->name('proyectos.show');
+
+    // Cambio de estado accesible para admin O el usuario asignado (validado en el controller)
+    Route::patch('/tareas/{tarea}/estado', [TareaController::class, 'updateEstado'])->name('tareas.estado');
 });
 
 // ── PERMISOS ──────────────────────────────────────────────

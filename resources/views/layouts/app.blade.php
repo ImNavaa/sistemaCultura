@@ -588,6 +588,15 @@
                     </li>
                     @endif
 
+                    @if(auth()->user()?->puede('proyectos', 'ver'))
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->is('proyectos*') ? 'active' : '' }}"
+                           href="{{ route('proyectos.index') }}">
+                            <i class="bi bi-kanban me-1"></i>Proyectos
+                        </a>
+                    </li>
+                    @endif
+
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle {{ request()->is('herramientas*') ? 'active' : '' }}"
                            href="#" data-bs-toggle="dropdown">
