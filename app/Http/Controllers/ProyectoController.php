@@ -32,7 +32,7 @@ class ProyectoController extends Controller
     public function create()
     {
         $usuarios = User::where('tiene_acceso', true)
-            ->orderBy('nombre')
+            ->orderBy('name')
             ->get();
         $colores = Proyecto::coloresDisponibles();
 
@@ -72,14 +72,14 @@ class ProyectoController extends Controller
             'creador',
         ]);
 
-        $usuarios = User::where('tiene_acceso', true)->orderBy('nombre')->get();
+        $usuarios = User::where('tiene_acceso', true)->orderBy('name')->get();
 
         return view('proyectos.show', compact('proyecto', 'usuarios'));
     }
 
     public function edit(Proyecto $proyecto)
     {
-        $usuarios = User::where('tiene_acceso', true)->orderBy('nombre')->get();
+        $usuarios = User::where('tiene_acceso', true)->orderBy('name')->get();
         $colores  = Proyecto::coloresDisponibles();
         $miembrosIds = $proyecto->miembros->pluck('id')->toArray();
 
