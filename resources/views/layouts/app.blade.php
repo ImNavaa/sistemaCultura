@@ -527,35 +527,60 @@
                     </li>
                     @endif
 
-                    @if(auth()->user()?->puede('oficios', 'ver'))
-                    <li class="nav-item">
-                        <a class="nav-link {{ request()->is('oficios*') ? 'active' : '' }}" href="{{ route('oficios.index') }}">
-                            <i class="bi bi-file-earmark-text me-1"></i>Oficios
+                    @if(auth()->user()?->puede('oficios', 'ver') || auth()->user()?->puede('recibos', 'ver'))
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle {{ request()->is('oficios*') || request()->is('recibos*') ? 'active' : '' }}"
+                           href="#" data-bs-toggle="dropdown">
+                            <i class="bi bi-file-earmark-text me-1"></i>Documentos
                         </a>
+                        <ul class="dropdown-menu">
+                            @if(auth()->user()?->puede('oficios', 'ver'))
+                            <li>
+                                <a class="dropdown-item {{ request()->is('oficios*') ? 'active' : '' }}" href="{{ route('oficios.index') }}">
+                                    <i class="bi bi-file-earmark-text me-2"></i>Oficios
+                                </a>
+                            </li>
+                            @endif
+                            @if(auth()->user()?->puede('recibos', 'ver'))
+                            <li>
+                                <a class="dropdown-item {{ request()->is('recibos*') ? 'active' : '' }}" href="{{ route('recibos.index') }}">
+                                    <i class="bi bi-receipt me-2"></i>Recibos
+                                </a>
+                            </li>
+                            @endif
+                        </ul>
                     </li>
                     @endif
 
-                    @if(auth()->user()?->puede('recibos', 'ver'))
-                    <li class="nav-item">
-                        <a class="nav-link {{ request()->is('recibos*') ? 'active' : '' }}" href="{{ route('recibos.index') }}">
-                            <i class="bi bi-receipt me-1"></i>Recibos
+                    @if(auth()->user()?->puede('asistencias', 'ver') || auth()->user()?->puede('usuarios', 'ver') || auth()->user()?->puede('tiempo', 'ver'))
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle {{ request()->is('asistencias*') || request()->is('usuarios*') || request()->is('tiempo*') ? 'active' : '' }}"
+                           href="#" data-bs-toggle="dropdown">
+                            <i class="bi bi-people me-1"></i>Personal
                         </a>
-                    </li>
-                    @endif
-
-                    @if(auth()->user()?->puede('asistencias', 'ver'))
-                    <li class="nav-item">
-                        <a class="nav-link {{ request()->is('asistencias*') ? 'active' : '' }}" href="{{ route('asistencias.index') }}">
-                            <i class="bi bi-person-check me-1"></i>Asistencia
-                        </a>
-                    </li>
-                    @endif
-
-                    @if(auth()->user()?->puede('usuarios', 'ver'))
-                    <li class="nav-item">
-                        <a class="nav-link {{ request()->is('usuarios*') ? 'active' : '' }}" href="{{ route('usuarios.index') }}">
-                            <i class="bi bi-people me-1"></i>Empleados
-                        </a>
+                        <ul class="dropdown-menu">
+                            @if(auth()->user()?->puede('asistencias', 'ver'))
+                            <li>
+                                <a class="dropdown-item {{ request()->is('asistencias*') ? 'active' : '' }}" href="{{ route('asistencias.index') }}">
+                                    <i class="bi bi-person-check me-2"></i>Asistencia
+                                </a>
+                            </li>
+                            @endif
+                            @if(auth()->user()?->puede('usuarios', 'ver'))
+                            <li>
+                                <a class="dropdown-item {{ request()->is('usuarios*') ? 'active' : '' }}" href="{{ route('usuarios.index') }}">
+                                    <i class="bi bi-people me-2"></i>Empleados
+                                </a>
+                            </li>
+                            @endif
+                            @if(auth()->user()?->puede('tiempo', 'ver'))
+                            <li>
+                                <a class="dropdown-item {{ request()->is('tiempo*') ? 'active' : '' }}" href="{{ route('tiempo.index') }}">
+                                    <i class="bi bi-clock-history me-2"></i>Tiempo
+                                </a>
+                            </li>
+                            @endif
+                        </ul>
                     </li>
                     @endif
 
@@ -577,14 +602,6 @@
                                 </a>
                             </li>
                         </ul>
-                    </li>
-                    @endif
-
-                    @if(auth()->user()?->puede('tiempo', 'ver'))
-                    <li class="nav-item">
-                        <a class="nav-link {{ request()->is('tiempo*') ? 'active' : '' }}" href="{{ route('tiempo.index') }}">
-                            <i class="bi bi-clock-history me-1"></i>Tiempo
-                        </a>
                     </li>
                     @endif
 
