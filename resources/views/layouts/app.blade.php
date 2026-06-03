@@ -519,19 +519,28 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto gap-1">
 
-                    @if(auth()->user()?->puede('calendario', 'ver'))
-                    <li class="nav-item">
-                        <a class="nav-link {{ request()->is('calendario') ? 'active' : '' }}" href="{{ route('calendario') }}">
-                            <i class="bi bi-calendar3 me-1"></i>Calendario
+                    @if(auth()->user()?->puede('calendario', 'ver') || auth()->user()?->puede('agora', 'ver'))
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle {{ request()->is('calendario') || request()->is('agora*') ? 'active' : '' }}"
+                           href="#" data-bs-toggle="dropdown">
+                            <i class="bi bi-calendar3 me-1"></i>Calendarios
                         </a>
-                    </li>
-                    @endif
-
-                    @if(auth()->user()?->puede('agora', 'ver'))
-                    <li class="nav-item">
-                        <a class="nav-link {{ request()->is('agora*') ? 'active' : '' }}" href="{{ route('agora.index') }}">
-                            <i class="bi bi-building me-1"></i>Ágora
-                        </a>
+                        <ul class="dropdown-menu">
+                            @if(auth()->user()?->puede('calendario', 'ver'))
+                            <li>
+                                <a class="dropdown-item {{ request()->is('calendario') ? 'active' : '' }}" href="{{ route('calendario') }}">
+                                    <i class="bi bi-calendar3 me-2"></i>Eventos Generales
+                                </a>
+                            </li>
+                            @endif
+                            @if(auth()->user()?->puede('agora', 'ver'))
+                            <li>
+                                <a class="dropdown-item {{ request()->is('agora*') ? 'active' : '' }}" href="{{ route('agora.index') }}">
+                                    <i class="bi bi-building me-2"></i>Ágora
+                                </a>
+                            </li>
+                            @endif
+                        </ul>
                     </li>
                     @endif
 
