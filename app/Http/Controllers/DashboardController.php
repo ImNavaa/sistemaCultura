@@ -102,6 +102,16 @@ class DashboardController extends Controller
                 'ruta'        => 'proyectos.index',
                 'params'      => [],
             ],
+            [
+                'modulo'      => 'agora',
+                'accion'      => 'ver',
+                'nombre'      => 'Ágora',
+                'descripcion' => 'Reservas del Ágora: eventos, sesiones fotográficas y uso de áreas.',
+                'icono'       => 'bi-building',
+                'color'       => 'indigo',
+                'ruta'        => 'agora.index',
+                'params'      => [],
+            ],
         ];
 
         // Filtrar solo los módulos a los que el usuario tiene acceso

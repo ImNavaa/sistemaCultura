@@ -15,6 +15,7 @@ use App\Http\Controllers\DiaEconomicoController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ConfiguracionController;
 use App\Http\Controllers\HerramientasController;
+use App\Http\Controllers\AgoraController;
 use App\Http\Controllers\ProyectoController;
 use App\Http\Controllers\TareaController;
 
@@ -138,6 +139,28 @@ Route::middleware(['auth', 'permiso:tiempo,ver'])->group(function () {
 // ── DÍAS ECONÓMICOS ───────────────────────────────────────
 Route::middleware(['auth'])->group(function () {
     Route::resource('dias-economicos', DiaEconomicoController::class)->only(['index', 'store', 'update', 'destroy']);
+});
+
+// ── ÁGORA ─────────────────────────────────────────────────
+Route::middleware(['auth', 'permiso:agora,ver'])->group(function () {
+    Route::get('/agora', [AgoraController::class, 'index'])->name('agora.index');
+    Route::get('/agora/reservas', [AgoraController::class, 'getReservas'])->name('agora.reservas.get');
+
+    Route::middleware('permiso:agora,crear')->group(function () {
+        Route::post('/agora/reservas', [AgoraController::class, 'store'])->name('agora.reservas.store');
+    });
+    Route::middleware('permiso:agora,editar')->group(function () {
+        Route::put('/agora/reservas/{reserva}', [AgoraController::class, 'update'])->name('agora.reservas.update');
+        Route::patch('/agora/reservas/{reserva}/mover', [AgoraController::class, 'moverFecha'])->name('agora.reservas.mover');
+        // Gestión de áreas (solo admin)
+        Route::get('/agora/areas', [AgoraController::class, 'areasIndex'])->name('agora.areas');
+        Route::post('/agora/areas', [AgoraController::class, 'areasStore'])->name('agora.areas.store');
+        Route::put('/agora/areas/{area}', [AgoraController::class, 'areasUpdate'])->name('agora.areas.update');
+    });
+    Route::middleware('permiso:agora,eliminar')->group(function () {
+        Route::delete('/agora/reservas/{reserva}', [AgoraController::class, 'destroy'])->name('agora.reservas.destroy');
+        Route::delete('/agora/areas/{area}', [AgoraController::class, 'areasDestroy'])->name('agora.areas.destroy');
+    });
 });
 
 // ── PROYECTOS Y TAREAS ────────────────────────────────────

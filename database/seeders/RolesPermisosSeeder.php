@@ -21,6 +21,7 @@ class RolesPermisosSeeder extends Seeder
             'entregas'   => 'Entregas',
             'tiempo'     => 'Control de Tiempo',
             'proyectos'  => 'Proyectos y Tareas',
+            'agora'      => 'Ágora',
         ];
 
         $acciones = [
@@ -64,6 +65,7 @@ class RolesPermisosSeeder extends Seeder
                     'usuarios.ver', 'usuarios.crear', 'usuarios.editar',
                     'tiempo.ver', 'tiempo.crear', 'tiempo.editar',
                     'proyectos.ver',
+                    'agora.ver',
                 ],
             ],
             [
@@ -73,6 +75,7 @@ class RolesPermisosSeeder extends Seeder
                 'permisos'    => [
                     'asistencias.ver', 'asistencias.crear', 'asistencias.editar',
                     'proyectos.ver',
+                    'agora.ver',
                 ],
             ],
             [
@@ -83,6 +86,7 @@ class RolesPermisosSeeder extends Seeder
                     'almacen.ver', 'almacen.crear', 'almacen.editar',
                     'entregas.ver', 'entregas.crear',
                     'proyectos.ver',
+                    'agora.ver',
                 ],
             ],
             [
@@ -93,6 +97,7 @@ class RolesPermisosSeeder extends Seeder
                     'calendario.ver', 'oficios.ver', 'recibos.ver',
                     'asistencias.ver', 'usuarios.ver', 'almacen.ver',
                     'proyectos.ver',
+                    'agora.ver',
                 ],
             ],
         ];

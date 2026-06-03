@@ -527,6 +527,14 @@
                     </li>
                     @endif
 
+                    @if(auth()->user()?->puede('agora', 'ver'))
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->is('agora*') ? 'active' : '' }}" href="{{ route('agora.index') }}">
+                            <i class="bi bi-building me-1"></i>Ágora
+                        </a>
+                    </li>
+                    @endif
+
                     @if(auth()->user()?->puede('oficios', 'ver') || auth()->user()?->puede('recibos', 'ver'))
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle {{ request()->is('oficios*') || request()->is('recibos*') ? 'active' : '' }}"
