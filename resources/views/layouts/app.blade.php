@@ -529,7 +529,7 @@
                             @if(auth()->user()?->puede('calendario', 'ver'))
                             <li>
                                 <a class="dropdown-item {{ request()->is('calendario') ? 'active' : '' }}" href="{{ route('calendario') }}">
-                                    <i class="bi bi-calendar3 me-2"></i>Eventos Teatro
+                                    <i class="bi bi-calendar3 me-2"></i>Teatro
                                 </a>
                             </li>
                             @endif
