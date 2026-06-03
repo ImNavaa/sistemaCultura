@@ -651,7 +651,8 @@
                             <span style="width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;color:#fff;flex-shrink:0;">
                                 {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
                             </span>
-                            <span class="d-none d-lg-inline" style="font-size:.875rem;color:rgba(255,255,255,.9);">{{ auth()->user()->name }}</span>
+                            <span class="d-none d-lg-inline" style="font-size:.875rem;color:rgba(255,255,255,.9);"
+                                  title="{{ auth()->user()->name }}">{{ \Illuminate\Support\Str::before(auth()->user()->name, ' ') ?: auth()->user()->name }}</span>
                             @if(auth()->user()->rol)
                             <span class="badge-rol d-none d-lg-inline">
                                 {{ ucfirst(str_replace('_', ' ', auth()->user()->rol->nombre)) }}
