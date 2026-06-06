@@ -52,6 +52,23 @@
         @endif
     </form>
 
+    {{-- Toolbar vista + ordenamiento --}}
+    <div class="d-flex align-items-center gap-2 flex-wrap mb-3 p-2 rounded-3" style="background:var(--bg-card);border:1px solid var(--border-color)">
+        <div class="d-flex gap-1">
+            <button class="btn-vista" data-v="tarjetas" title="Vista tarjetas"><i class="bi bi-grid-3x3-gap"></i></button>
+            <button class="btn-vista active" data-v="tabla" title="Vista lista"><i class="bi bi-list-ul"></i></button>
+        </div>
+        <div class="sep" style="width:1px;height:20px;background:var(--border-color)"></div>
+        <span class="small text-muted">Ordenar:</span>
+        <select class="form-select sort-select" style="width:auto">
+            <option value="titulo">Título</option>
+            <option value="estado">Estado</option>
+            <option value="progreso">Progreso</option>
+            <option value="fecha">Fecha límite</option>
+        </select>
+        <button class="btn-sortdir" title="Cambiar dirección"><i class="bi bi-sort-down"></i></button>
+    </div>
+
     {{-- Grid de proyectos --}}
     @if($proyectos->isEmpty())
     <div class="text-center py-5" style="color: var(--text-muted)">
@@ -64,7 +81,7 @@
         @endif
     </div>
     @else
-    <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
+    <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4" id="proyectos-grid">
         @foreach($proyectos as $proyecto)
         @php
             $total      = $proyecto->tareas_count;
@@ -77,7 +94,11 @@
                 'cancelado'  => 'secondary',
             ][$proyecto->estado] ?? 'secondary';
         @endphp
-        <div class="col">
+        <div class="col sort-card"
+             data-titulo="{{ strtolower($proyecto->titulo) }}"
+             data-estado="{{ $proyecto->estado }}"
+             data-progreso="{{ $progreso }}"
+             data-fecha="{{ $proyecto->fecha_limite?->format('Y-m-d') ?? '9999-12-31' }}">
             <div class="card h-100 shadow-sm border-0" style="border-left: 4px solid {{ $proyecto->color ?? '#3a7bd5' }} !important; border-left-width: 4px !important;">
                 <div class="card-body d-flex flex-column gap-2">
                     {{-- Color bar + título + estado --}}
@@ -154,4 +175,67 @@
     @endif
 
 </div>
+<script>
+// Para proyectos: el "grid" ya es tarjetas, pero usamos sort-card en .col
+(function(){
+    var pkey = 'proyectos';
+    var dir  = localStorage.getItem('sortDir_'+pkey)  || 'asc';
+    var by   = localStorage.getItem('sortBy_'+pkey)   || 'titulo';
+
+    var sel  = document.querySelector('.sort-select');
+    var btn  = document.querySelector('.btn-sortdir');
+    var grid = document.getElementById('proyectos-grid');
+
+    if (!sel || !grid) return;
+
+    sel.value = by;
+    actualizarIconDir();
+
+    sel.addEventListener('change', function(){ by = this.value; guardar(); ordenar(); });
+    btn.addEventListener('click', function(){ dir = dir === 'asc' ? 'desc' : 'asc'; guardar(); actualizarIconDir(); ordenar(); });
+
+    // Botones de vista: en proyectos solo hay tarjetas, los botones cambian cols
+    document.querySelectorAll('.btn-vista').forEach(function(b){
+        b.addEventListener('click', function(){
+            document.querySelectorAll('.btn-vista').forEach(x => x.classList.remove('active'));
+            this.classList.add('active');
+            var v = this.dataset.v;
+            localStorage.setItem('view_'+pkey, v);
+            if (v === 'tabla') {
+                grid.className = 'row row-cols-1 g-2';
+            } else {
+                grid.className = 'row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4';
+            }
+        });
+    });
+
+    // Restaurar vista guardada
+    var savedView = localStorage.getItem('view_'+pkey) || 'tarjetas';
+    document.querySelectorAll('.btn-vista').forEach(function(b){
+        b.classList.toggle('active', b.dataset.v === savedView);
+    });
+    if (savedView === 'tabla') grid.className = 'row row-cols-1 g-2';
+
+    ordenar();
+
+    function ordenar(){
+        var cards = Array.from(grid.querySelectorAll('.sort-card'));
+        cards.sort(function(a, b){
+            var av = a.dataset[by] || '', bv = b.dataset[by] || '';
+            var cmp = isNaN(av) ? av.localeCompare(bv, 'es') : parseFloat(av) - parseFloat(bv);
+            return dir === 'asc' ? cmp : -cmp;
+        });
+        cards.forEach(c => grid.appendChild(c));
+    }
+    function guardar(){
+        localStorage.setItem('sortBy_'+pkey, by);
+        localStorage.setItem('sortDir_'+pkey, dir);
+    }
+    function actualizarIconDir(){
+        if (btn) btn.innerHTML = dir === 'asc'
+            ? '<i class="bi bi-sort-down"></i>'
+            : '<i class="bi bi-sort-up"></i>';
+    }
+})();
+</script>
 @endsection

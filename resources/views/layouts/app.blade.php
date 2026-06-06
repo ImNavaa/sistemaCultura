@@ -501,6 +501,76 @@
         }
         .btn-tema:hover { background: rgba(255,255,255,.18); color: #fff; border-color: rgba(255,255,255,.5); }
     </style>
+
+    <style>
+    /* ── List toolbar (vista + ordenamiento) ── */
+    .list-toolbar {
+        display: flex;
+        align-items: center;
+        gap: .65rem;
+        flex-wrap: wrap;
+        padding: .55rem 1rem;
+        background: var(--bg-card);
+        border-bottom: 1px solid var(--border-color);
+        border-radius: 0;
+    }
+    .list-toolbar .sep {
+        width: 1px; height: 20px;
+        background: var(--border-color);
+        flex-shrink: 0;
+    }
+    .btn-vista {
+        width: 30px; height: 30px;
+        border-radius: 7px;
+        border: 1px solid var(--border-color);
+        background: transparent;
+        color: var(--text-muted);
+        display: inline-flex; align-items: center; justify-content: center;
+        font-size: .82rem; cursor: pointer;
+        transition: all .15s;
+        padding: 0;
+    }
+    .btn-vista:hover:not(.active) { background: var(--bg-card-alt); color: var(--text-main); }
+    .btn-vista.active { background: var(--accent, #3a7bd5); border-color: var(--accent, #3a7bd5); color: #fff; }
+
+    .sort-select { font-size: .78rem !important; padding: .25rem .5rem !important; height: 30px; }
+    .btn-sortdir {
+        width: 30px; height: 30px;
+        border-radius: 7px;
+        border: 1px solid var(--border-color);
+        background: transparent;
+        color: var(--text-muted);
+        display: inline-flex; align-items: center; justify-content: center;
+        font-size: .85rem; cursor: pointer; padding: 0;
+        transition: all .15s;
+    }
+    .btn-sortdir:hover { background: var(--bg-card-alt); color: var(--text-main); }
+
+    /* ── Grid de tarjetas ── */
+    .view-tarjetas { display: none; }
+    .view-tarjetas.activo { display: grid; }
+    .view-tabla.oculto { display: none; }
+
+    .grid-cards {
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: .75rem;
+        padding: 1rem;
+    }
+    .list-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: .85rem 1rem;
+        transition: box-shadow .15s, transform .1s;
+        display: flex; flex-direction: column; gap: .4rem;
+    }
+    .list-card:hover { box-shadow: 0 4px 14px rgba(0,0,0,.1); transform: translateY(-1px); }
+    .list-card .card-label { font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--text-muted); }
+    .list-card .card-title { font-weight: 600; font-size: .9rem; line-height: 1.3; }
+    .list-card .card-meta  { font-size: .78rem; color: var(--text-muted); display: flex; align-items: center; gap: .35rem; flex-wrap: wrap; }
+    .list-card .card-actions { display: flex; gap: .35rem; margin-top: .35rem; padding-top: .5rem; border-top: 1px solid var(--border-color); }
+    </style>
+
     @stack('styles')
 </head>
 
@@ -749,6 +819,103 @@
     </script>
 
     @yield('scripts')
+
+    {{-- ── initListView: vista tabla/tarjetas + ordenamiento ── --}}
+    <script>
+    function initListView(pageKey, defaultBy, defaultDir) {
+        var card = document.querySelector('.data-card:not([data-lv-init])');
+        // Permite múltiples toolbars en la misma página (usuarios tiene dos)
+        document.querySelectorAll('.data-card:not([data-lv-init])').forEach(function(dataCard, idx) {
+            dataCard.setAttribute('data-lv-init', '1');
+            var key = pageKey + (idx > 0 ? '_' + idx : '');
+
+            var toolbar  = dataCard.querySelector('.list-toolbar');
+            if (!toolbar) return;
+
+            var btnVistas = toolbar.querySelectorAll('.btn-vista');
+            var selSort   = toolbar.querySelector('.sort-select');
+            var btnDir    = toolbar.querySelector('.btn-sortdir');
+            var vTabla    = dataCard.querySelector('.view-tabla');
+            var vTarjetas = dataCard.querySelector('.view-tarjetas');
+
+            var view = localStorage.getItem('view_' + key) || 'tabla';
+            var by   = localStorage.getItem('sortBy_' + key) || defaultBy;
+            var dir  = localStorage.getItem('sortDir_' + key) || defaultDir;
+
+            if (selSort) selSort.value = by;
+            setView(view);
+            setDir(dir);
+            sort();
+
+            // Toggle vista
+            btnVistas.forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    btnVistas.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    view = this.dataset.v;
+                    localStorage.setItem('view_' + key, view);
+                    setView(view);
+                });
+            });
+
+            // Cambio de campo de ordenamiento
+            if (selSort) selSort.addEventListener('change', function() {
+                by = this.value;
+                localStorage.setItem('sortBy_' + key, by);
+                sort();
+            });
+
+            // Toggle dirección
+            if (btnDir) btnDir.addEventListener('click', function() {
+                dir = dir === 'asc' ? 'desc' : 'asc';
+                localStorage.setItem('sortDir_' + key, dir);
+                setDir(dir);
+                sort();
+            });
+
+            function setView(v) {
+                btnVistas.forEach(function(b) { b.classList.toggle('active', b.dataset.v === v); });
+                if (vTabla)    vTabla.classList.toggle('oculto', v !== 'tabla');
+                if (vTarjetas) {
+                    vTarjetas.classList.toggle('activo', v === 'tarjetas');
+                    if (v === 'tarjetas') vTarjetas.classList.add('grid-cards');
+                }
+            }
+
+            function setDir(d) {
+                if (btnDir) btnDir.innerHTML = d === 'asc'
+                    ? '<i class="bi bi-sort-down"></i>'
+                    : '<i class="bi bi-sort-up"></i>';
+            }
+
+            function sort() {
+                // Ordenar filas de tabla
+                if (vTabla) {
+                    var tbody = vTabla.querySelector('tbody');
+                    if (tbody) {
+                        var rows = Array.from(tbody.querySelectorAll('tr.sort-row'));
+                        rows.sort(function(a, b) {
+                            var av = a.dataset[by] || '', bv = b.dataset[by] || '';
+                            var cmp = isNaN(av) || av === '' ? av.localeCompare(bv, 'es') : parseFloat(av) - parseFloat(bv);
+                            return dir === 'asc' ? cmp : -cmp;
+                        });
+                        rows.forEach(r => tbody.appendChild(r));
+                    }
+                }
+                // Ordenar tarjetas
+                if (vTarjetas) {
+                    var cards = Array.from(vTarjetas.querySelectorAll('.sort-card'));
+                    cards.sort(function(a, b) {
+                        var av = a.dataset[by] || '', bv = b.dataset[by] || '';
+                        var cmp = isNaN(av) || av === '' ? av.localeCompare(bv, 'es') : parseFloat(av) - parseFloat(bv);
+                        return dir === 'asc' ? cmp : -cmp;
+                    });
+                    cards.forEach(c => vTarjetas.appendChild(c));
+                }
+            }
+        });
+    }
+    </script>
 
 </body>
 </html>
