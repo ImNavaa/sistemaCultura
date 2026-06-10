@@ -34,7 +34,6 @@ class PermisoController extends Controller
             'permisos.*'=> 'exists:permisos,id',
         ]);
 
-        // Actualizar rol
         $usuario->update(['rol_id' => $request->rol_id]);
 
         // Sincronizar permisos extra (true = extra, false = bloqueado)

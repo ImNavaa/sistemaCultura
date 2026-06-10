@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\AgoraArea;
 use App\Models\AgoraReserva;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -186,5 +187,28 @@ class AgoraController extends Controller
     {
         $area->delete();
         return redirect()->route('agora.areas')->with('success', 'Área eliminada.');
+    }
+
+    public function reporte(Request $request)
+    {
+        $request->validate([
+            'desde' => 'required|date',
+            'hasta' => 'required|date|after_or_equal:desde',
+        ]);
+
+        $desde = $request->date('desde');
+        $hasta = $request->date('hasta');
+
+        $reservas = AgoraReserva::whereBetween('fecha', [$desde->format('Y-m-d'), $hasta->format('Y-m-d')])
+            ->orderBy('fecha')
+            ->orderBy('hora_inicio')
+            ->get();
+
+        $areas = AgoraArea::all()->keyBy('id');
+
+        $pdf = Pdf::loadView('agora.reporte-pdf', compact('reservas', 'areas', 'desde', 'hasta'))
+            ->setPaper('letter', 'landscape');
+
+        return $pdf->stream('reporte-agora-' . $desde->format('Y-m-d') . '-al-' . $hasta->format('Y-m-d') . '.pdf');
     }
 }

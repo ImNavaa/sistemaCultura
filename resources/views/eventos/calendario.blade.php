@@ -4,12 +4,61 @@
 
 @section('content')
 
-<div class="d-flex justify-content-between align-items-center mb-4">
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
     <h2><i class="bi bi-calendar3"></i> Calendario de Eventos</h2>
-    <button class="btn btn-primary" onclick="abrirModal()">
-        <i class="bi bi-plus-circle"></i> Nuevo Evento
-    </button>
+    <div class="d-flex gap-2">
+        <button class="btn btn-outline-secondary btn-sm" type="button" data-bs-toggle="modal" data-bs-target="#modalReporteTeatroBtn">
+            <i class="bi bi-file-earmark-pdf me-1"></i>Reporte PDF
+        </button>
+        @if(auth()->user()->puede('calendario','crear'))
+        <button class="btn btn-primary" onclick="abrirModal()">
+            <i class="bi bi-plus-circle"></i> Nuevo Evento
+        </button>
+        @endif
+    </div>
 </div>
+
+{{-- Modal rango de fechas para reporte Teatro --}}
+<div class="modal fade" id="modalReporteTeatroBtn" tabindex="-1">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header py-3">
+        <h6 class="modal-title"><i class="bi bi-file-earmark-pdf me-2"></i>Reporte PDF — Teatro</h6>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form action="{{ route('calendario.reporte') }}" method="GET" target="_blank">
+        <div class="modal-body py-3">
+          <div class="mb-3">
+            <label class="form-label small fw-semibold">Desde</label>
+            <input type="date" name="desde" class="form-control form-control-sm" required id="teatroDesde">
+          </div>
+          <div class="mb-1">
+            <label class="form-label small fw-semibold">Hasta</label>
+            <input type="date" name="hasta" class="form-control form-control-sm" required id="teatroHasta">
+          </div>
+        </div>
+        <div class="modal-footer py-2">
+          <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-sm btn-danger">
+            <i class="bi bi-file-earmark-pdf me-1"></i>Generar PDF
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<script>
+(function(){
+  var today = new Date().toISOString().slice(0,10);
+  var firstDay = today.slice(0,8) + '01';
+  document.addEventListener('DOMContentLoaded', function(){
+    var d = document.getElementById('teatroDesde');
+    var h = document.getElementById('teatroHasta');
+    if (d) d.value = firstDay;
+    if (h) h.value = today;
+  });
+})();
+</script>
 
 {{-- Navegador de mes/año --}}
 <div class="d-flex gap-2 mb-3 align-items-center flex-wrap">

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Evento;
 use App\Models\Oficio;
 use App\Models\Recibo;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 
 class EventoController extends Controller
@@ -254,5 +255,26 @@ class EventoController extends Controller
     {
         $evento->delete();
         return response()->json(['success' => true]);
+    }
+
+    public function reporte(Request $request)
+    {
+        $request->validate([
+            'desde' => 'required|date',
+            'hasta' => 'required|date|after_or_equal:desde',
+        ]);
+
+        $desde = $request->date('desde');
+        $hasta = $request->date('hasta');
+
+        $eventos = Evento::with(['oficio', 'recibo'])
+            ->whereBetween('fecha', [$desde->format('Y-m-d'), $hasta->format('Y-m-d')])
+            ->orderBy('fecha')
+            ->get();
+
+        $pdf = Pdf::loadView('eventos.reporte-pdf', compact('eventos', 'desde', 'hasta'))
+            ->setPaper('letter', 'landscape');
+
+        return $pdf->stream('reporte-teatro-' . $desde->format('Y-m-d') . '-al-' . $hasta->format('Y-m-d') . '.pdf');
     }
 }

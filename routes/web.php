@@ -64,6 +64,7 @@ Route::middleware('auth')->group(function () {
 Route::middleware(['auth', 'permiso:calendario,ver'])->group(function () {
     Route::get('/calendario', [EventoController::class, 'index'])->name('calendario');
     Route::get('/eventos/get', [EventoController::class, 'getEventos'])->name('eventos.get');
+    Route::get('/calendario/reporte', [EventoController::class, 'reporte'])->name('calendario.reporte');
     Route::middleware('permiso:calendario,crear')->post('/eventos', [EventoController::class, 'store'])->name('eventos.store');
     Route::middleware('permiso:calendario,editar')->put('/eventos/{evento}', [EventoController::class, 'update'])->name('eventos.update');
     Route::middleware('permiso:calendario,eliminar')->delete('/eventos/{evento}', [EventoController::class, 'destroy'])->name('eventos.destroy');
@@ -145,6 +146,7 @@ Route::middleware(['auth'])->group(function () {
 Route::middleware(['auth', 'permiso:agora,ver'])->group(function () {
     Route::get('/agora', [AgoraController::class, 'index'])->name('agora.index');
     Route::get('/agora/reservas', [AgoraController::class, 'getReservas'])->name('agora.reservas.get');
+    Route::get('/agora/reporte', [AgoraController::class, 'reporte'])->name('agora.reporte');
 
     Route::middleware('permiso:agora,crear')->group(function () {
         Route::post('/agora/reservas', [AgoraController::class, 'store'])->name('agora.reservas.store');

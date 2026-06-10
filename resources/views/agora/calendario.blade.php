@@ -100,6 +100,9 @@
                 <i class="bi bi-grid-3x3-gap me-1"></i>Gestionar Áreas
             </a>
             @endif
+            <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="modal" data-bs-target="#modalReporteAgora">
+                <i class="bi bi-file-earmark-pdf me-1"></i>Reporte PDF
+            </button>
             @if(auth()->user()->puede('agora','crear'))
             <button class="btn btn-primary btn-sm px-3" id="btnNuevaReserva">
                 <i class="bi bi-plus-lg me-1"></i>Nueva Reserva
@@ -696,6 +699,48 @@
         document.getElementById('statsmes').innerHTML = html;
     }
 
+})();
+</script>
+
+{{-- Modal rango de fechas para reporte Ágora --}}
+<div class="modal fade" id="modalReporteAgora" tabindex="-1">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header py-3">
+        <h6 class="modal-title"><i class="bi bi-file-earmark-pdf me-2"></i>Reporte PDF — Ágora</h6>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form action="{{ route('agora.reporte') }}" method="GET" target="_blank">
+        <div class="modal-body py-3">
+          <div class="mb-3">
+            <label class="form-label small fw-semibold">Desde</label>
+            <input type="date" name="desde" class="form-control form-control-sm" required id="agoraDesde">
+          </div>
+          <div class="mb-1">
+            <label class="form-label small fw-semibold">Hasta</label>
+            <input type="date" name="hasta" class="form-control form-control-sm" required id="agoraHasta">
+          </div>
+        </div>
+        <div class="modal-footer py-2">
+          <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-sm btn-danger">
+            <i class="bi bi-file-earmark-pdf me-1"></i>Generar PDF
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<script>
+(function(){
+  var today = new Date().toISOString().slice(0,10);
+  var firstDay = today.slice(0,8) + '01';
+  document.addEventListener('DOMContentLoaded', function(){
+    var d = document.getElementById('agoraDesde');
+    var h = document.getElementById('agoraHasta');
+    if (d) d.value = firstDay;
+    if (h) h.value = today;
+  });
 })();
 </script>
 @endsection
