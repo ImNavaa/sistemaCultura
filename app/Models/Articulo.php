@@ -27,7 +27,14 @@ class Articulo extends Model
 
     public function entregas()
     {
-        return $this->hasMany(Entrega::class, 'articulo_id');
+        return $this->hasManyThrough(
+            Entrega::class,
+            EntregaDetalle::class,
+            'articulo_id', // FK en entrega_detalles → articulos
+            'id',          // PK en entregas
+            'id',          // PK en articulos
+            'entrega_id'   // FK en entrega_detalles → entregas
+        );
     }
 
     // Verifica si hay suficiente stock

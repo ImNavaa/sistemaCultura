@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Articulo;
+use App\Models\Entrega;
 use App\Models\User;
 use App\Services\AlmacenService;
 use Illuminate\Http\Request;
@@ -45,8 +46,13 @@ class AlmacenController extends Controller
 
     public function show(Articulo $almacen)
     {
-        $entregas = $almacen->entregas()->with('responsable')
-            ->orderBy('fecha_entrega', 'desc')->get();
+        $entregas = Entrega::whereHas('detalles', fn($q) => $q->where('articulo_id', $almacen->id))
+            ->with([
+                'responsable',
+                'detalles' => fn($q) => $q->where('articulo_id', $almacen->id),
+            ])
+            ->orderBy('fecha_entrega', 'desc')
+            ->get();
         return view('almacen.show', compact('almacen', 'entregas'));
     }
 
