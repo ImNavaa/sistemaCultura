@@ -818,8 +818,6 @@
     })();
     </script>
 
-    @yield('scripts')
-
     {{-- ── initListView: vista tabla/tarjetas + ordenamiento ── --}}
     <script>
     function initListView(pageKey, defaultBy, defaultDir) {
@@ -916,6 +914,8 @@
         });
     }
     </script>
+
+    @yield('scripts')
 
 </body>
 </html>
