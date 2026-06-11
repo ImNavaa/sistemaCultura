@@ -60,7 +60,7 @@ class User extends Authenticatable
 
     public static function recintos(): array
     {
-        return ['Teatro', 'Ágora', 'Oficinas Administrativas', 'Biblioteca', 'Museo', 'Otro'];
+        return ['Teatro', 'Ágora'];
     }
 
     public function proximoCumpleanos(): ?\Carbon\Carbon
@@ -121,7 +121,7 @@ class User extends Authenticatable
         return $this->hasMany(DiaEconomico::class, 'user_id');
     }
 
-    public function diasEconomicosAnio(int $anio = null)
+    public function diasEconomicosAnio(?int $anio = null)
     {
         return $this->hasOne(DiaEconomico::class, 'user_id')
             ->where('anio', $anio ?? now()->year);
