@@ -239,8 +239,8 @@
             @foreach($empleados as $u)
             @php
                 $saldo     = $u->saldoTiempo;
-                $diasEcon  = $u->diasEconomicosAnio->first();
-                $vacAnio   = $u->vacaciones->first();
+                $diasEcon  = $u->diasEconomicosAnio;   // hasOne → modelo o null directamente
+                $vacAnio   = $u->vacaciones->first();  // hasMany con where → colección
                 $pendCount = $u->diasPendientesPendientes->count();
                 $cumpleDias = $u->dias_para_cumple;
 
