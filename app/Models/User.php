@@ -25,6 +25,8 @@ class User extends Authenticatable
         'password',
         'telefono',
         'cargo',
+        'fecha_nacimiento',
+        'recinto',
         'horario',
         'dias_laborales',
         'tiene_acceso',
@@ -51,8 +53,35 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
-            'password' => 'hashed',
+            'password'          => 'hashed',
+            'fecha_nacimiento'  => 'date',
         ];
+    }
+
+    public static function recintos(): array
+    {
+        return ['Teatro', 'Ágora', 'Oficinas Administrativas', 'Biblioteca', 'Museo', 'Otro'];
+    }
+
+    public function proximoCumpleanos(): ?\Carbon\Carbon
+    {
+        if (!$this->fecha_nacimiento) return null;
+        $hoy    = now()->startOfDay();
+        $cumple = \Carbon\Carbon::create(null, $this->fecha_nacimiento->month, $this->fecha_nacimiento->day)->startOfDay();
+        if ($cumple->lt($hoy)) $cumple->addYear();
+        return $cumple;
+    }
+
+    public function diasParaCumpleanos(): ?int
+    {
+        $cumple = $this->proximoCumpleanos();
+        if (!$cumple) return null;
+        return (int) now()->startOfDay()->diffInDays($cumple, false);
+    }
+
+    public function edad(): ?int
+    {
+        return $this->fecha_nacimiento?->age;
     }
 
     /**
@@ -96,6 +125,21 @@ class User extends Authenticatable
     {
         return $this->hasOne(DiaEconomico::class, 'user_id')
             ->where('anio', $anio ?? now()->year);
+    }
+
+    public function vacaciones()
+    {
+        return $this->hasMany(Vacacion::class, 'user_id');
+    }
+
+    public function diasPendientes()
+    {
+        return $this->hasMany(DiaPendiente::class, 'user_id');
+    }
+
+    public function diasPendientesPendientes()
+    {
+        return $this->hasMany(DiaPendiente::class, 'user_id')->where('estado', 'pendiente');
     }
     public function rol()
     {

@@ -62,6 +62,22 @@
                                 value="{{ old('cargo', $usuario->cargo) }}">
                         </div>
 
+                        <div class="col-md-6">
+                            <label class="form-label">Recinto</label>
+                            <select name="recinto" class="form-select">
+                                <option value="">Sin recinto asignado</option>
+                                @foreach(\App\Models\User::recintos() as $r)
+                                <option value="{{ $r }}" {{ old('recinto', $usuario->recinto) == $r ? 'selected' : '' }}>{{ $r }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Fecha de nacimiento</label>
+                            <input type="date" name="fecha_nacimiento" class="form-control"
+                                   value="{{ old('fecha_nacimiento', $usuario->fecha_nacimiento?->format('Y-m-d')) }}">
+                        </div>
+
                         {{-- Horario --}}
                         @php
                             $horarioActual = old('horario', $usuario->horario ?? '');

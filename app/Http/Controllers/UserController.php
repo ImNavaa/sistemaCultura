@@ -31,43 +31,46 @@ class UserController extends Controller
 
     public function store(Request $request)
     {
+        $camposComunes = [
+            'name'             => 'required|string|max:255',
+            'telefono'         => 'nullable|string|max:20',
+            'cargo'            => 'nullable|string|max:100',
+            'horario'          => 'nullable|string|max:100',
+            'dias_laborales'   => 'nullable|string|max:255',
+            'fecha_nacimiento' => 'nullable|date',
+            'recinto'          => 'nullable|string|max:100',
+        ];
+
         if ($request->tiene_acceso) {
-            $request->validate([
-                'name'           => 'required|string|max:255',
-                'email'          => 'required|email|unique:users,email',
-                'password'       => 'required|string|min:8|confirmed',
-                'telefono'       => 'nullable|string|max:20',
-                'cargo'          => 'nullable|string|max:100',
-                'horario'        => 'nullable|string|max:100',
-                'dias_laborales' => 'nullable|string|max:255',
-            ]);
+            $request->validate(array_merge($camposComunes, [
+                'email'    => 'required|email|unique:users,email',
+                'password' => 'required|string|min:8|confirmed',
+            ]));
 
             User::create([
-                'name'           => $request->name,
-                'email'          => $request->email,
-                'password'       => Hash::make($request->password),
-                'telefono'       => $request->telefono,
-                'cargo'          => $request->cargo,
-                'horario'        => $request->horario,
-                'dias_laborales' => $request->dias_laborales,
-                'tiene_acceso'   => true,
+                'name'             => $request->name,
+                'email'            => $request->email,
+                'password'         => Hash::make($request->password),
+                'telefono'         => $request->telefono,
+                'cargo'            => $request->cargo,
+                'horario'          => $request->horario,
+                'dias_laborales'   => $request->dias_laborales,
+                'fecha_nacimiento' => $request->fecha_nacimiento ?: null,
+                'recinto'          => $request->recinto ?: null,
+                'tiene_acceso'     => true,
             ]);
         } else {
-            $request->validate([
-                'name'           => 'required|string|max:255',
-                'telefono'       => 'nullable|string|max:20',
-                'cargo'          => 'nullable|string|max:100',
-                'horario'        => 'nullable|string|max:100',
-                'dias_laborales' => 'nullable|string|max:255',
-            ]);
+            $request->validate($camposComunes);
 
             User::create([
-                'name'           => $request->name,
-                'telefono'       => $request->telefono,
-                'cargo'          => $request->cargo,
-                'horario'        => $request->horario,
-                'dias_laborales' => $request->dias_laborales,
-                'tiene_acceso'   => false,
+                'name'             => $request->name,
+                'telefono'         => $request->telefono,
+                'cargo'            => $request->cargo,
+                'horario'          => $request->horario,
+                'dias_laborales'   => $request->dias_laborales,
+                'fecha_nacimiento' => $request->fecha_nacimiento ?: null,
+                'recinto'          => $request->recinto ?: null,
+                'tiene_acceso'     => false,
             ]);
         }
 
@@ -78,7 +81,13 @@ class UserController extends Controller
     public function show(User $usuario)
     {
         $this->denegarAccesoSuperAdmin($usuario);
-        return view('usuarios.show', compact('usuario'));
+        $anio           = now()->year;
+        $saldo          = $usuario->saldoTiempo;
+        $diasEcon       = $usuario->diasEconomicosAnio($anio)->first();
+        $vacaciones     = $usuario->vacaciones()->where('anio', $anio)->first();
+        $diasPendientes = $usuario->diasPendientes()->orderBy('fecha_generacion', 'desc')->get();
+        $ultimosRegistros = $usuario->registrosTiempo()->orderBy('fecha', 'desc')->take(8)->get();
+        return view('usuarios.show', compact('usuario', 'anio', 'saldo', 'diasEcon', 'vacaciones', 'diasPendientes', 'ultimosRegistros'));
     }
 
     public function edit(User $usuario)
@@ -104,11 +113,13 @@ class UserController extends Controller
         }
 
         $reglas = [
-            'name'           => 'required|string|max:255',
-            'telefono'       => 'nullable|string|max:20',
-            'cargo'          => 'nullable|string|max:100',
-            'horario'        => 'nullable|string|max:100',
-            'dias_laborales' => 'nullable|string|max:255',
+            'name'             => 'required|string|max:255',
+            'telefono'         => 'nullable|string|max:20',
+            'cargo'            => 'nullable|string|max:100',
+            'horario'          => 'nullable|string|max:100',
+            'dias_laborales'   => 'nullable|string|max:255',
+            'fecha_nacimiento' => 'nullable|date',
+            'recinto'          => 'nullable|string|max:100',
         ];
 
         if ($nuevoAcceso) {
@@ -121,12 +132,14 @@ class UserController extends Controller
         $request->validate($reglas);
 
         $datos = [
-            'name'           => $request->name,
-            'telefono'       => $request->telefono,
-            'cargo'          => $request->cargo,
-            'horario'        => $request->horario,
-            'dias_laborales' => $request->dias_laborales,
-            'tiene_acceso'   => $nuevoAcceso,
+            'name'             => $request->name,
+            'telefono'         => $request->telefono,
+            'cargo'            => $request->cargo,
+            'horario'          => $request->horario,
+            'dias_laborales'   => $request->dias_laborales,
+            'fecha_nacimiento' => $request->fecha_nacimiento ?: null,
+            'recinto'          => $request->recinto ?: null,
+            'tiene_acceso'     => $nuevoAcceso,
         ];
 
         if ($nuevoAcceso) {

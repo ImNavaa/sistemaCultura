@@ -18,6 +18,9 @@ use App\Http\Controllers\HerramientasController;
 use App\Http\Controllers\AgoraController;
 use App\Http\Controllers\ProyectoController;
 use App\Http\Controllers\TareaController;
+use App\Http\Controllers\RhController;
+use App\Http\Controllers\VacacionController;
+use App\Http\Controllers\DiaPendienteController;
 
 // ── SETUP INICIAL (eliminar después del primer uso) ───────
 Route::get('/setup-inicial-xyz123', function () {
@@ -190,6 +193,25 @@ Route::middleware(['auth', 'permiso:proyectos,ver'])->group(function () {
 
     // Cambio de estado accesible para admin O el usuario asignado (validado en el controller)
     Route::patch('/tareas/{tarea}/estado', [TareaController::class, 'updateEstado'])->name('tareas.estado');
+});
+
+// ── RECURSOS HUMANOS ──────────────────────────────────────
+Route::middleware(['auth', 'permiso:usuarios,ver'])->group(function () {
+    Route::get('/rh/dashboard', [RhController::class, 'dashboard'])->name('rh.dashboard');
+
+    Route::middleware('permiso:usuarios,editar')->group(function () {
+        // Vacaciones
+        Route::get('/vacaciones',                          [VacacionController::class, 'index'])->name('vacaciones.index');
+        Route::post('/vacaciones',                         [VacacionController::class, 'store'])->name('vacaciones.store');
+        Route::patch('/vacaciones/{vacacion}/usar',        [VacacionController::class, 'usarDias'])->name('vacaciones.usar');
+        Route::delete('/vacaciones/{vacacion}',            [VacacionController::class, 'destroy'])->name('vacaciones.destroy');
+
+        // Días pendientes
+        Route::get('/dias-pendientes',                     [DiaPendienteController::class, 'index'])->name('dias-pendientes.index');
+        Route::post('/dias-pendientes',                    [DiaPendienteController::class, 'store'])->name('dias-pendientes.store');
+        Route::patch('/dias-pendientes/{diaPendiente}/usar', [DiaPendienteController::class, 'usar'])->name('dias-pendientes.usar');
+        Route::delete('/dias-pendientes/{diaPendiente}',   [DiaPendienteController::class, 'destroy'])->name('dias-pendientes.destroy');
+    });
 });
 
 // ── PERMISOS ──────────────────────────────────────────────

@@ -52,6 +52,22 @@
                         value="{{ old('cargo') }}" placeholder="Ej: Técnico de sonido">
                 </div>
 
+                <div class="col-md-6">
+                    <label class="form-label">Recinto</label>
+                    <select name="recinto" class="form-select">
+                        <option value="">Sin recinto asignado</option>
+                        @foreach(\App\Models\User::recintos() as $r)
+                        <option value="{{ $r }}" {{ old('recinto') == $r ? 'selected' : '' }}>{{ $r }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Fecha de nacimiento</label>
+                    <input type="date" name="fecha_nacimiento" class="form-control"
+                           value="{{ old('fecha_nacimiento') }}">
+                </div>
+
                 {{-- HORARIO con selectores --}}
                 <div class="col-md-6">
                     <label class="form-label">Horario</label>

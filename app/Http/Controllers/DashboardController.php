@@ -112,6 +112,16 @@ class DashboardController extends Controller
                 'ruta'        => 'agora.index',
                 'params'      => [],
             ],
+            [
+                'modulo'      => 'usuarios',
+                'accion'      => 'ver',
+                'nombre'      => 'Dashboard RH',
+                'descripcion' => 'Vacaciones, días económicos, horas pendientes y cumpleaños del personal.',
+                'icono'       => 'bi-people-fill',
+                'color'       => 'navy',
+                'ruta'        => 'rh.dashboard',
+                'params'      => [],
+            ],
         ];
 
         // Filtrar solo los módulos a los que el usuario tiene acceso

@@ -641,11 +641,19 @@
 
                     @if(auth()->user()?->puede('asistencias', 'ver') || auth()->user()?->puede('usuarios', 'ver') || auth()->user()?->puede('tiempo', 'ver'))
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle {{ request()->is('asistencias*') || request()->is('usuarios*') || request()->is('tiempo*') ? 'active' : '' }}"
+                        <a class="nav-link dropdown-toggle {{ request()->is('asistencias*') || request()->is('usuarios*') || request()->is('tiempo*') || request()->is('rh*') || request()->is('vacaciones*') || request()->is('dias-pendientes*') ? 'active' : '' }}"
                            href="#" data-bs-toggle="dropdown">
                             <i class="bi bi-people me-1"></i>Personal
                         </a>
                         <ul class="dropdown-menu">
+                            @if(auth()->user()?->puede('usuarios', 'ver'))
+                            <li>
+                                <a class="dropdown-item {{ request()->is('rh*') ? 'active' : '' }}" href="{{ route('rh.dashboard') }}">
+                                    <i class="bi bi-speedometer2 me-2"></i>Dashboard RH
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider my-1"></li>
+                            @endif
                             @if(auth()->user()?->puede('asistencias', 'ver'))
                             <li>
                                 <a class="dropdown-item {{ request()->is('asistencias*') ? 'active' : '' }}" href="{{ route('asistencias.index') }}">
@@ -664,6 +672,19 @@
                             <li>
                                 <a class="dropdown-item {{ request()->is('tiempo*') ? 'active' : '' }}" href="{{ route('tiempo.index') }}">
                                     <i class="bi bi-clock-history me-2"></i>Tiempo
+                                </a>
+                            </li>
+                            @endif
+                            @if(auth()->user()?->puede('usuarios', 'editar'))
+                            <li><hr class="dropdown-divider my-1"></li>
+                            <li>
+                                <a class="dropdown-item {{ request()->is('vacaciones*') ? 'active' : '' }}" href="{{ route('vacaciones.index') }}">
+                                    <i class="bi bi-umbrella me-2"></i>Vacaciones
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item {{ request()->is('dias-pendientes*') ? 'active' : '' }}" href="{{ route('dias-pendientes.index') }}">
+                                    <i class="bi bi-hourglass-split me-2"></i>Días Pendientes
                                 </a>
                             </li>
                             @endif
