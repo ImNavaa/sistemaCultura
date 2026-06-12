@@ -16,10 +16,10 @@ class RhController extends Controller
     {
         $anio = now()->year;
 
-        $totalPersonal = User::count();
+        $totalPersonal = User::visibles()->count();
 
         // Cumpleaños del mes
-        $cumpleMes = User::whereNotNull('fecha_nacimiento')
+        $cumpleMes = User::visibles()->whereNotNull('fecha_nacimiento')
             ->whereMonth('fecha_nacimiento', now()->month)
             ->orderByRaw('DAY(fecha_nacimiento)')
             ->get();
@@ -42,7 +42,7 @@ class RhController extends Controller
 
         // Próximos cumpleaños (30 días)
         $hoy    = now()->startOfDay();
-        $proximos = User::whereNotNull('fecha_nacimiento')
+        $proximos = User::visibles()->whereNotNull('fecha_nacimiento')
             ->orderBy('name')
             ->get()
             ->map(function ($u) use ($hoy) {
@@ -57,7 +57,7 @@ class RhController extends Controller
             ->values();
 
         // Empleados con sus datos RH del año actual
-        $empleados = User::with([
+        $empleados = User::visibles()->with([
             'saldoTiempo',
             'diasEconomicosAnio',
             'diasPendientesPendientes',

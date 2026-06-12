@@ -20,7 +20,7 @@ class DiaPendienteController extends Controller
         }
 
         $registros = $query->get();
-        $empleados = User::orderBy('name')->get();
+        $empleados = User::visibles()->orderBy('name')->get();
 
         // Conteo por empleado
         $pendientesPorEmpleado = DiaPendiente::where('estado', 'pendiente')

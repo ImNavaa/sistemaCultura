@@ -10,14 +10,8 @@ class UserController extends Controller
 {
     public function index()
     {
-        $esSuperAdmin = auth()->user()->rol?->nombre === 'super_admin';
-
-        $base = $esSuperAdmin
-            ? User::query()
-            : User::whereDoesntHave('rol', fn($q) => $q->where('nombre', 'super_admin'));
-
-        $conAcceso = (clone $base)->where('tiene_acceso', true)->orderBy('name')->get();
-        $sinAcceso = (clone $base)->where('tiene_acceso', false)->orderBy('name')->get();
+        $conAcceso = User::visibles()->where('tiene_acceso', true)->orderBy('name')->get();
+        $sinAcceso = User::visibles()->where('tiene_acceso', false)->orderBy('name')->get();
 
         return view('usuarios.index', compact('conAcceso', 'sinAcceso'));
     }

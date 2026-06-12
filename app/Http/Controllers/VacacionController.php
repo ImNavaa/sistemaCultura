@@ -13,7 +13,7 @@ class VacacionController extends Controller
         $anio = (int) $request->get('anio', now()->year);
         $anios = range(now()->year - 2, now()->year + 1);
 
-        $empleados = User::with([
+        $empleados = User::visibles()->with([
             'vacaciones' => fn($q) => $q->where('anio', $anio),
         ])->orderBy('name')->get();
 

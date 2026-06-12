@@ -63,6 +63,14 @@ class User extends Authenticatable
         return ['Teatro', 'Ágora'];
     }
 
+    /** Excluye super_admin de los resultados salvo que el usuario activo también lo sea. */
+    public function scopeVisibles($query)
+    {
+        if (auth()->user()?->rol?->nombre !== 'super_admin') {
+            $query->whereDoesntHave('rol', fn($q) => $q->where('nombre', 'super_admin'));
+        }
+    }
+
     public function proximoCumpleanos(): ?\Carbon\Carbon
     {
         if (!$this->fecha_nacimiento) return null;

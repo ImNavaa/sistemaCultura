@@ -23,6 +23,19 @@
     @endif
 </div>
 
+{{-- ── Buscador global ── --}}
+<div class="mb-3">
+    <div class="input-group" style="max-width:420px;">
+        <span class="input-group-text" style="background:var(--bg-card);border-color:var(--border-color);">
+            <i class="bi bi-search text-muted"></i>
+        </span>
+        <input type="search" id="buscarPersonal" class="form-control"
+               placeholder="Buscar por nombre, cargo o rol…"
+               style="background:var(--bg-card);border-color:var(--border-color);color:var(--text-main);"
+               autocomplete="off">
+    </div>
+</div>
+
 {{-- ── Con acceso ── --}}
 <div class="data-card mb-4">
     <div class="data-card-header">
@@ -247,5 +260,16 @@ function confirmarEliminar(e, nombre) {
 }
 initListView('usuarios_acceso', 'nombre', 'asc');
 initListView('usuarios_sin', 'nombre', 'asc');
+
+document.getElementById('buscarPersonal').addEventListener('input', function () {
+    const q = this.value.toLowerCase().trim();
+    document.querySelectorAll('.sort-row, .sort-card').forEach(el => {
+        const nombre = (el.dataset.nombre || '');
+        const cargo  = (el.dataset.cargo  || '');
+        const rol    = (el.dataset.rol    || '');
+        const match  = !q || nombre.includes(q) || cargo.includes(q) || rol.includes(q);
+        el.style.display = match ? '' : 'none';
+    });
+});
 </script>
 @endsection
