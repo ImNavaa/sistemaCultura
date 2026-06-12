@@ -21,6 +21,9 @@ use App\Http\Controllers\TareaController;
 use App\Http\Controllers\RhController;
 use App\Http\Controllers\VacacionController;
 use App\Http\Controllers\DiaPendienteController;
+use App\Http\Controllers\ActividadController;
+use App\Http\Controllers\AsistenteController;
+use App\Http\Controllers\InscripcionController;
 
 // ── SETUP INICIAL (eliminar después del primer uso) ───────
 Route::get('/setup-inicial-xyz123', function () {
@@ -212,6 +215,39 @@ Route::middleware(['auth', 'permiso:usuarios,ver'])->group(function () {
         Route::patch('/dias-pendientes/{diaPendiente}/usar', [DiaPendienteController::class, 'usar'])->name('dias-pendientes.usar');
         Route::delete('/dias-pendientes/{diaPendiente}',   [DiaPendienteController::class, 'destroy'])->name('dias-pendientes.destroy');
     });
+});
+
+// ── REGISTRO DE ASISTENTES ────────────────────────────────
+Route::middleware(['auth', 'permiso:act_asistentes,ver'])->group(function () {
+    Route::get('/actividades',              [ActividadController::class, 'index'])->name('actividades.index');
+    Route::get('/actividades/{actividad}/export-pdf', [ActividadController::class, 'exportPdf'])->name('actividades.export-pdf');
+    Route::get('/actividades/{actividad}/export-csv', [ActividadController::class, 'exportCsv'])->name('actividades.export-csv');
+
+    // Directorio de asistentes — buscar antes del wildcard
+    Route::get('/asistentes/buscar',        [AsistenteController::class, 'buscar'])->name('asistentes.buscar');
+    Route::get('/asistentes',               [AsistenteController::class, 'index'])->name('asistentes.index');
+    Route::get('/asistentes/{asistente}',   [AsistenteController::class, 'show'])->name('asistentes.show');
+
+    Route::middleware('permiso:act_asistentes,crear')->group(function () {
+        Route::get('/actividades/create',       [ActividadController::class, 'create'])->name('actividades.create');
+        Route::post('/actividades',             [ActividadController::class, 'store'])->name('actividades.store');
+        Route::post('/inscripciones',           [InscripcionController::class, 'store'])->name('inscripciones.store');
+    });
+
+    Route::middleware('permiso:act_asistentes,editar')->group(function () {
+        Route::get('/actividades/{actividad}/edit', [ActividadController::class, 'edit'])->name('actividades.edit');
+        Route::put('/actividades/{actividad}',       [ActividadController::class, 'update'])->name('actividades.update');
+        Route::put('/asistentes/{asistente}',        [AsistenteController::class, 'update'])->name('asistentes.update');
+        Route::patch('/inscripciones/{inscripcion}/checkin', [InscripcionController::class, 'checkin'])->name('inscripciones.checkin');
+    });
+
+    Route::middleware('permiso:act_asistentes,eliminar')->group(function () {
+        Route::delete('/actividades/{actividad}',       [ActividadController::class, 'destroy'])->name('actividades.destroy');
+        Route::delete('/asistentes/{asistente}',        [AsistenteController::class, 'destroy'])->name('asistentes.destroy');
+        Route::delete('/inscripciones/{inscripcion}',   [InscripcionController::class, 'destroy'])->name('inscripciones.destroy');
+    });
+
+    Route::get('/actividades/{actividad}',  [ActividadController::class, 'show'])->name('actividades.show');
 });
 
 // ── PERMISOS ──────────────────────────────────────────────

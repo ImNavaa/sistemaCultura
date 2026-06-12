@@ -722,6 +722,27 @@
                     </li>
                     @endif
 
+                    @if(auth()->user()?->puede('act_asistentes', 'ver'))
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle {{ request()->is('actividades*') || request()->is('asistentes*') ? 'active' : '' }}"
+                           href="#" data-bs-toggle="dropdown">
+                            <i class="bi bi-person-badge me-1"></i>Asistentes
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a class="dropdown-item {{ request()->is('actividades*') ? 'active' : '' }}" href="{{ route('actividades.index') }}">
+                                    <i class="bi bi-calendar-event me-2"></i>Actividades y Eventos
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item {{ request()->is('asistentes*') ? 'active' : '' }}" href="{{ route('asistentes.index') }}">
+                                    <i class="bi bi-people me-2"></i>Directorio de personas
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    @endif
+
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle {{ request()->is('herramientas*') ? 'active' : '' }}"
                            href="#" data-bs-toggle="dropdown">

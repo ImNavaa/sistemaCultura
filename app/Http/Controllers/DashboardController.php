@@ -113,6 +113,16 @@ class DashboardController extends Controller
                 'params'      => [],
             ],
             [
+                'modulo'      => 'act_asistentes',
+                'accion'      => 'ver',
+                'nombre'      => 'Registro de Asistentes',
+                'descripcion' => 'Gestiona actividades, cursos, talleres y registro de asistencia.',
+                'icono'       => 'bi-person-badge',
+                'color'       => 'teal',
+                'ruta'        => 'actividades.index',
+                'params'      => [],
+            ],
+            [
                 'modulo'      => 'usuarios',
                 'accion'      => 'ver',
                 'nombre'      => 'Dashboard RH',
