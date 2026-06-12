@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Actividad extends Model
 {
+    protected $table = 'actividades';
+
     protected $fillable = [
         'codigo', 'nombre', 'descripcion', 'tipo', 'instructor',
         'fecha_inicio', 'fecha_fin', 'hora_inicio', 'hora_fin',
