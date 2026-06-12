@@ -102,6 +102,8 @@
                     </select>
                 </div>
 
+                @include('actividades._form-builder')
+
                 <div class="col-12 d-flex gap-2 justify-content-end mt-2">
                     <a href="{{ route('actividades.index') }}" class="btn btn-outline-secondary">Cancelar</a>
                     <button type="submit" class="btn btn-navy"><i class="bi bi-check-lg me-1"></i>Guardar actividad</button>

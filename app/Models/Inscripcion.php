@@ -8,7 +8,9 @@ class Inscripcion extends Model
 {
     protected $table = 'inscripciones';
 
-    protected $fillable = ['folio', 'actividad_id', 'asistente_id', 'estado', 'notas'];
+    protected $fillable = ['folio', 'actividad_id', 'asistente_id', 'estado', 'notas', 'respuestas'];
+
+    protected $casts = ['respuestas' => 'array'];
 
     public function actividad()
     {

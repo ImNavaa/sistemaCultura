@@ -39,7 +39,7 @@ class RegistroPublicoController extends Controller
 
     public function store(Request $request, Actividad $actividad)
     {
-        if (! in_array($actividad->estado, ['activo'])) {
+        if ($actividad->estado !== 'activo') {
             return back()->withErrors(['error' => 'Esta actividad no está disponible.']);
         }
 
@@ -47,33 +47,68 @@ class RegistroPublicoController extends Controller
             return back()->withErrors(['error' => 'El cupo está lleno.']);
         }
 
-        $data = $request->validate([
-            'nombre'      => 'required|string|max:100',
-            'apellidos'   => 'required|string|max:100',
-            'email'       => 'nullable|email|max:255',
-            'telefono'    => 'nullable|string|max:20',
-            'institucion' => 'nullable|string|max:255',
-            'ocupacion'   => 'nullable|string|max:255',
-            'ciudad'      => 'nullable|string|max:100',
-            'edad'        => 'nullable|integer|min:1|max:120',
-            'genero'      => 'nullable|in:femenino,masculino,otro,prefiero_no_decir',
-            'curp'        => 'nullable|string|max:18',
-        ]);
+        $config = $actividad->configFormulario();
+        $campos = $config['campos'];
 
-        // Buscar asistente por email si lo proporcionó, si no crear uno nuevo
+        // Reglas dinámicas según configuración
+        $rules = [
+            'nombre'    => 'required|string|max:100',
+            'apellidos' => 'required|string|max:100',
+        ];
+
+        $campoRules = [
+            'email'       => ['nullable', 'email', 'max:255'],
+            'telefono'    => ['nullable', 'string', 'max:20'],
+            'edad'        => ['nullable', 'integer', 'min:1', 'max:120'],
+            'genero'      => ['nullable', 'in:femenino,masculino,otro,prefiero_no_decir'],
+            'institucion' => ['nullable', 'string', 'max:255'],
+            'ocupacion'   => ['nullable', 'string', 'max:255'],
+            'ciudad'      => ['nullable', 'string', 'max:100'],
+            'curp'        => ['nullable', 'string', 'max:18'],
+        ];
+
+        foreach ($campoRules as $campo => $baseRules) {
+            if (($campos[$campo] ?? 'opcional') === 'oculto') continue;
+            $reglas = $baseRules;
+            if (($campos[$campo] ?? 'opcional') === 'requerido') {
+                $reglas = array_map(fn($r) => $r === 'nullable' ? 'required' : $r, $reglas);
+            }
+            $rules[$campo] = $reglas;
+        }
+
+        // Preguntas extra
+        foreach ($config['preguntas_extra'] as $i => $pregunta) {
+            $rules["extra_{$i}"] = $pregunta['requerido'] ? 'required|string|max:500' : 'nullable|string|max:500';
+        }
+
+        $validated = $request->validate($rules);
+
+        // Separar datos del asistente de respuestas extra
+        $datosAsistente = array_intersect_key($validated, array_flip(
+            ['nombre', 'apellidos', 'email', 'telefono', 'edad', 'genero', 'institucion', 'ocupacion', 'ciudad', 'curp']
+        ));
+
+        $respuestas = [];
+        foreach ($config['preguntas_extra'] as $i => $pregunta) {
+            $respuestas[] = [
+                'pregunta' => $pregunta['label'],
+                'respuesta' => $validated["extra_{$i}"] ?? null,
+            ];
+        }
+
+        // Buscar o crear asistente
         $asistente = null;
-        if (! empty($data['email'])) {
-            $asistente = Asistente::where('email', $data['email'])->first();
+        if (! empty($datosAsistente['email'])) {
+            $asistente = Asistente::where('email', $datosAsistente['email'])->first();
         }
 
         if (! $asistente) {
-            $asistente = Asistente::create($data);
+            $asistente = Asistente::create($datosAsistente);
         } else {
-            // Actualizar datos si ya existe
-            $asistente->update(array_filter($data, fn($v) => $v !== null));
+            $asistente->update(array_filter($datosAsistente, fn($v) => $v !== null));
         }
 
-        // Verificar si ya está inscrito
+        // Verificar duplicado
         $yaInscrito = Inscripcion::where('actividad_id', $actividad->id)
             ->where('asistente_id', $asistente->id)
             ->exists();
@@ -90,6 +125,7 @@ class RegistroPublicoController extends Controller
             'actividad_id' => $actividad->id,
             'asistente_id' => $asistente->id,
             'estado'       => 'inscrito',
+            'respuestas'   => $respuestas ?: null,
         ]);
 
         return redirect()->route('registro.confirmacion', $actividad)

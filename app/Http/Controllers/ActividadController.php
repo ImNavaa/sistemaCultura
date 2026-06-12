@@ -11,9 +11,9 @@ class ActividadController extends Controller
 {
     public function index(Request $request)
     {
-        $tipo   = $request->get('tipo');
-        $estado = $request->get('estado');
-        $q      = $request->get('q');
+        $tipo   = $request->input('tipo');
+        $estado = $request->input('estado');
+        $q      = $request->input('q');
 
         $query = Actividad::with('creador')
             ->withCount(['inscripciones as inscritos_count' => fn($q) => $q->where('estado', 'inscrito')])
@@ -58,8 +58,9 @@ class ActividadController extends Controller
             'estado'       => 'required|in:borrador,activo,lleno,cancelado,finalizado',
         ]);
 
-        $data['codigo']     = Actividad::generarCodigo();
-        $data['creado_por'] = auth()->id();
+        $data['codigo']            = Actividad::generarCodigo();
+        $data['creado_por']        = auth()->id();
+        $data['campos_formulario'] = $this->parsearConfigFormulario($request);
 
         Actividad::create($data);
 
@@ -105,10 +106,54 @@ class ActividadController extends Controller
             'estado'       => 'required|in:borrador,activo,lleno,cancelado,finalizado',
         ]);
 
+        $data['campos_formulario'] = $this->parsearConfigFormulario($request);
+
         $actividad->update($data);
 
         return redirect()->route('actividades.show', $actividad)
             ->with('success', 'Actividad actualizada correctamente.');
+    }
+
+    private function parsearConfigFormulario(Request $request): array
+    {
+        $camposValidos  = ['email', 'telefono', 'edad', 'genero', 'institucion', 'ocupacion', 'ciudad', 'curp'];
+        $estadosValidos = ['requerido', 'opcional', 'oculto'];
+
+        $campos = [];
+        foreach ($camposValidos as $campo) {
+            $val = $request->input("campo_{$campo}", 'opcional');
+            $campos[$campo] = in_array($val, $estadosValidos) ? $val : 'opcional';
+        }
+
+        $preguntasExtra = [];
+        $labels   = $request->input('pregunta_label', []);
+        $tipos    = $request->input('pregunta_tipo', []);
+        $opciones = $request->input('pregunta_opciones', []);
+        $reqs     = $request->input('pregunta_requerido', []);
+
+        foreach ($labels as $i => $label) {
+            $label = trim($label);
+            if ($label === '') continue;
+
+            $tipo = in_array($tipos[$i] ?? '', ['texto', 'texto_largo', 'seleccion']) ? $tipos[$i] : 'texto';
+
+            $opcsArr = [];
+            if ($tipo === 'seleccion' && isset($opciones[$i])) {
+                $opcsArr = array_values(array_filter(array_map('trim', explode("\n", $opciones[$i]))));
+            }
+
+            $preguntasExtra[] = [
+                'label'     => $label,
+                'tipo'      => $tipo,
+                'opciones'  => $opcsArr,
+                'requerido' => isset($reqs[$i]),
+            ];
+        }
+
+        return [
+            'campos'          => $campos,
+            'preguntas_extra' => $preguntasExtra,
+        ];
     }
 
     public function destroy(Actividad $actividad)
