@@ -25,6 +25,15 @@ use App\Http\Controllers\RolController;
 use App\Http\Controllers\ActividadController;
 use App\Http\Controllers\AsistenteController;
 use App\Http\Controllers\InscripcionController;
+use App\Http\Controllers\RegistroPublicoController;
+
+// ── REGISTRO PÚBLICO (sin autenticación) ──────────────────
+Route::prefix('registro')->name('registro.')->group(function () {
+    Route::get('/',                         [RegistroPublicoController::class, 'index'])->name('index');
+    Route::get('/{actividad}',              [RegistroPublicoController::class, 'form'])->name('form');
+    Route::post('/{actividad}',             [RegistroPublicoController::class, 'store'])->name('store');
+    Route::get('/{actividad}/confirmacion', [RegistroPublicoController::class, 'confirmacion'])->name('confirmacion');
+});
 
 // ── SETUP INICIAL (eliminar después del primer uso) ───────
 Route::get('/setup-inicial-xyz123', function () {

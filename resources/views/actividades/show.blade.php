@@ -28,6 +28,10 @@ $estadoBadge = [
         </div>
     </div>
     <div class="d-flex gap-2 flex-wrap">
+        <button class="btn btn-sm btn-outline-success" title="Copiar enlace de registro público"
+                onclick="copiarEnlaceRegistro(this)">
+            <i class="bi bi-link-45deg me-1"></i>Enlace público
+        </button>
         <a href="{{ route('actividades.export-csv', $actividad) }}" class="btn btn-sm btn-outline-secondary" title="Exportar CSV">
             <i class="bi bi-filetype-csv me-1"></i>CSV
         </a>
@@ -400,6 +404,19 @@ document.getElementById('searchAsistente')?.addEventListener('input', function (
             });
     }, 300);
 });
+
+function copiarEnlaceRegistro(btn) {
+    const url = '{{ route('registro.form', $actividad) }}';
+    navigator.clipboard.writeText(url).then(() => {
+        const orig = btn.innerHTML;
+        btn.innerHTML = '<i class="bi bi-check me-1"></i>¡Copiado!';
+        btn.classList.replace('btn-outline-success', 'btn-success');
+        setTimeout(() => {
+            btn.innerHTML = orig;
+            btn.classList.replace('btn-success', 'btn-outline-success');
+        }, 2000);
+    });
+}
 
 document.getElementById('btnCambiarPerson')?.addEventListener('click', function () {
     document.getElementById('hiddenAsistenteId').value = '';
