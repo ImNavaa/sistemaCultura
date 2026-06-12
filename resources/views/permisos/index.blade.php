@@ -71,6 +71,7 @@
     </div>
 
     {{-- Matriz de permisos --}}
+    @php $moduloNombres = App\Http\Controllers\RolController::moduloNombres(); @endphp
     <div class="data-card mb-4">
         <div class="data-card-header">
             <div class="header-icon navy"><i class="bi bi-grid-3x3"></i></div>
@@ -81,27 +82,31 @@
             <table class="table perm-table mb-0">
                 <thead>
                     <tr>
-                        <th style="width:30%">Módulo</th>
-                        <th class="text-center"><i class="bi bi-eye me-1"></i>Ver</th>
-                        <th class="text-center"><i class="bi bi-plus-circle me-1"></i>Crear</th>
-                        <th class="text-center"><i class="bi bi-pencil me-1"></i>Editar</th>
-                        <th class="text-center"><i class="bi bi-trash me-1"></i>Eliminar</th>
+                        <th style="min-width:220px;">Módulo</th>
+                        <th class="text-center" style="width:90px;"><i class="bi bi-eye me-1"></i>Ver</th>
+                        <th class="text-center" style="width:90px;"><i class="bi bi-plus-circle me-1"></i>Crear</th>
+                        <th class="text-center" style="width:90px;"><i class="bi bi-pencil me-1"></i>Editar</th>
+                        <th class="text-center" style="width:90px;"><i class="bi bi-trash me-1"></i>Eliminar</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($permisos as $modulo => $accionesModulo)
+                    @foreach($moduloNombres as $moduloKey => [$moduloLabel, $moduloIcon])
+                    @php $accionesModulo = $permisos->get($moduloKey) ?? collect(); @endphp
                     <tr>
                         <td>
-                            <span class="fw-semibold text-capitalize" style="font-size:.9rem;">
-                                {{ str_replace('_', ' ', $modulo) }}
-                            </span>
+                            <div class="d-flex align-items-center gap-2">
+                                <span style="width:28px;height:28px;border-radius:7px;background:#e8eaf6;color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:.85rem;flex-shrink:0;">
+                                    <i class="bi {{ $moduloIcon }}"></i>
+                                </span>
+                                <span class="fw-semibold" style="font-size:.88rem;">{{ $moduloLabel }}</span>
+                            </div>
                         </td>
                         @foreach(['ver','crear','editar','eliminar'] as $accion)
                             @php
-                                $permiso    = $accionesModulo->firstWhere('accion', $accion);
-                                $extraEntry = $permisosExtra->get($permiso?->id);
+                                $permiso     = $accionesModulo->firstWhere('accion', $accion);
+                                $extraEntry  = $permisosExtra->get($permiso?->id);
                                 $tieneDelRol = in_array($permiso?->id, $permisosRol);
-                                $checked = $permiso
+                                $checked     = $permiso
                                     ? ($extraEntry ? (bool) $extraEntry->pivot->permitido : $tieneDelRol)
                                     : false;
                             @endphp
@@ -113,14 +118,37 @@
                                                name="permisos[]"
                                                value="{{ $permiso->id }}"
                                                {{ $checked ? 'checked' : '' }}
-                                               title="{{ $tieneDelRol ? 'Del rol' : 'Individual' }}">
+                                               title="{{ $tieneDelRol ? 'Heredado del rol' : 'Permiso individual' }}">
                                     </div>
                                 @else
-                                    <span class="text-muted">—</span>
+                                    <span class="text-muted small">—</span>
                                 @endif
                             </td>
                         @endforeach
                     </tr>
+                    @endforeach
+                    {{-- Módulos extra que existan en DB pero no en el mapa --}}
+                    @foreach($permisos as $modulo => $accionesModulo)
+                    @if(!array_key_exists($modulo, $moduloNombres))
+                    <tr>
+                        <td><span class="fw-semibold text-capitalize" style="font-size:.88rem;">{{ str_replace('_',' ',$modulo) }}</span></td>
+                        @foreach(['ver','crear','editar','eliminar'] as $accion)
+                            @php
+                                $permiso     = $accionesModulo->firstWhere('accion', $accion);
+                                $extraEntry  = $permisosExtra->get($permiso?->id);
+                                $tieneDelRol = in_array($permiso?->id, $permisosRol);
+                                $checked     = $permiso ? ($extraEntry ? (bool)$extraEntry->pivot->permitido : $tieneDelRol) : false;
+                            @endphp
+                            <td class="text-center">
+                                @if($permiso)
+                                <div class="form-check d-flex justify-content-center">
+                                    <input type="checkbox" class="form-check-input" name="permisos[]" value="{{ $permiso->id }}" {{ $checked ? 'checked' : '' }}>
+                                </div>
+                                @else <span class="text-muted small">—</span>@endif
+                            </td>
+                        @endforeach
+                    </tr>
+                    @endif
                     @endforeach
                 </tbody>
             </table>

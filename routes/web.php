@@ -21,6 +21,7 @@ use App\Http\Controllers\TareaController;
 use App\Http\Controllers\RhController;
 use App\Http\Controllers\VacacionController;
 use App\Http\Controllers\DiaPendienteController;
+use App\Http\Controllers\RolController;
 use App\Http\Controllers\ActividadController;
 use App\Http\Controllers\AsistenteController;
 use App\Http\Controllers\InscripcionController;
@@ -250,8 +251,10 @@ Route::middleware(['auth', 'permiso:act_asistentes,ver'])->group(function () {
     Route::get('/actividades/{actividad}',  [ActividadController::class, 'show'])->name('actividades.show');
 });
 
-// ── PERMISOS ──────────────────────────────────────────────
+// ── ROLES Y PERMISOS ──────────────────────────────────────
 Route::middleware(['auth', 'permiso:usuarios,editar'])->group(function () {
+    Route::get('/roles',              [RolController::class, 'index'])->name('roles.index');
+    Route::put('/roles/{rol}',        [RolController::class, 'update'])->name('roles.update');
     Route::get('/permisos/{usuario}', [PermisoController::class, 'index'])->name('permisos.index');
     Route::put('/permisos/{usuario}', [PermisoController::class, 'update'])->name('permisos.update');
 });

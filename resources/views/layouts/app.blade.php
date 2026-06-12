@@ -641,7 +641,7 @@
 
                     @if(auth()->user()?->puede('asistencias', 'ver') || auth()->user()?->puede('usuarios', 'ver') || auth()->user()?->puede('tiempo', 'ver'))
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle {{ request()->is('asistencias*') || request()->is('usuarios*') || request()->is('tiempo*') || request()->is('rh*') || request()->is('vacaciones*') || request()->is('dias-pendientes*') ? 'active' : '' }}"
+                        <a class="nav-link dropdown-toggle {{ request()->is('asistencias*') || request()->is('usuarios*') || request()->is('tiempo*') || request()->is('rh*') || request()->is('vacaciones*') || request()->is('dias-pendientes*') || request()->is('roles*') ? 'active' : '' }}"
                            href="#" data-bs-toggle="dropdown">
                             <i class="bi bi-people me-1"></i>Personal
                         </a>
@@ -685,6 +685,12 @@
                             <li>
                                 <a class="dropdown-item {{ request()->is('dias-pendientes*') ? 'active' : '' }}" href="{{ route('dias-pendientes.index') }}">
                                     <i class="bi bi-hourglass-split me-2"></i>Días Pendientes
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider my-1"></li>
+                            <li>
+                                <a class="dropdown-item {{ request()->is('roles*') ? 'active' : '' }}" href="{{ route('roles.index') }}">
+                                    <i class="bi bi-shield-shaded me-2"></i>Roles y Permisos
                                 </a>
                             </li>
                             @endif
