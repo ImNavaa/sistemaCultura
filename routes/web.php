@@ -260,10 +260,14 @@ Route::middleware(['auth', 'permiso:act_asistentes,ver'])->group(function () {
     Route::get('/actividades/{actividad}',  [ActividadController::class, 'show'])->name('actividades.show');
 });
 
-// ── ROLES Y PERMISOS ──────────────────────────────────────
+// ── ROLES (solo super_admin) ──────────────────────────────
+Route::middleware(['auth'])->group(function () {
+    Route::get('/roles',     [RolController::class, 'index'])->name('roles.index');
+    Route::put('/roles/{rol}', [RolController::class, 'update'])->name('roles.update');
+});
+
+// ── PERMISOS ──────────────────────────────────────────────
 Route::middleware(['auth', 'permiso:usuarios,editar'])->group(function () {
-    Route::get('/roles',              [RolController::class, 'index'])->name('roles.index');
-    Route::put('/roles/{rol}',        [RolController::class, 'update'])->name('roles.update');
     Route::get('/permisos/{usuario}', [PermisoController::class, 'index'])->name('permisos.index');
     Route::put('/permisos/{usuario}', [PermisoController::class, 'update'])->name('permisos.update');
 });

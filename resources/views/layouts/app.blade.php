@@ -687,6 +687,8 @@
                                     <i class="bi bi-hourglass-split me-2"></i>Días Pendientes
                                 </a>
                             </li>
+                            @endif
+                            @if(auth()->user()?->rol?->nombre === 'super_admin')
                             <li><hr class="dropdown-divider my-1"></li>
                             <li>
                                 <a class="dropdown-item {{ request()->is('roles*') ? 'active' : '' }}" href="{{ route('roles.index') }}">

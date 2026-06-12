@@ -25,8 +25,17 @@ class RolController extends Controller
         ];
     }
 
+    private function soloSuperAdmin(): void
+    {
+        if (auth()->user()?->rol?->nombre !== 'super_admin') {
+            abort(403, 'Acceso restringido a Super Admin.');
+        }
+    }
+
     public function index()
     {
+        $this->soloSuperAdmin();
+
         $roles        = Rol::with('permisos')->get();
         $permisos     = Permiso::all()->groupBy('modulo');
         $moduloNombres = static::moduloNombres();
@@ -36,6 +45,8 @@ class RolController extends Controller
 
     public function update(Request $request, Rol $rol)
     {
+        $this->soloSuperAdmin();
+
         if ($rol->nombre === 'super_admin') {
             return back()->withErrors(['error' => 'Los permisos del Super Admin no se pueden modificar.']);
         }
