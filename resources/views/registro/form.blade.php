@@ -58,6 +58,23 @@ $hayDatosProf = ! ($estaOculto('institucion') && $estaOculto('ocupacion') && $es
     </div>
 </div>
 
+{{-- Requisitos --}}
+@if(filled($actividad->requisitos))
+<div class="pub-card mb-4" style="border-left:5px solid #f59e0b;">
+    <div class="d-flex align-items-start gap-3 p-1">
+        <div style="font-size:1.5rem;flex-shrink:0;">📋</div>
+        <div>
+            <div class="fw-bold mb-1" style="color:#92400e;">Requisitos para participar</div>
+            <div class="text-muted small" style="white-space:pre-line;">{{ $actividad->requisitos }}</div>
+            <div class="mt-2 small" style="color:#b45309;">
+                <i class="bi bi-exclamation-circle me-1"></i>
+                Asegúrate de cumplir con estos requisitos antes de registrarte. Recibirás esta información también en tu correo de confirmación.
+            </div>
+        </div>
+    </div>
+</div>
+@endif
+
 {{-- Formulario --}}
 <div class="pub-card">
     <h5 class="fw-bold mb-1">Llena tus datos para inscribirte</h5>

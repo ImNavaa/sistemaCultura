@@ -68,6 +68,15 @@
     </div>
     @endif
 
+    @if(session('correoEnviado'))
+    <div class="alert alert-info py-2 px-3 mb-3" style="font-size:.85rem;">
+        <i class="bi bi-envelope-check me-1"></i>
+        Te enviamos un correo de confirmación
+        @if(filled($actividad->requisitos)) con los <strong>requisitos de la actividad</strong>@endif.
+        Revisa tu bandeja de entrada.
+    </div>
+    @endif
+
     <p class="text-muted small mb-4">
         Si tienes alguna duda, comunícate con nosotros.
     </p>

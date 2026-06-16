@@ -106,6 +106,14 @@ $estadoBadge = [
                 @if($actividad->descripcion)
                 <div class="small text-muted mt-3">{{ $actividad->descripcion }}</div>
                 @endif
+                @if($actividad->requisitos)
+                <div class="mt-3 p-2 rounded" style="background:#fffbeb;border:1px solid #fde68a;">
+                    <div class="small fw-semibold mb-1" style="color:#92400e;">
+                        <i class="bi bi-clipboard-check me-1"></i>Requisitos
+                    </div>
+                    <div class="small" style="color:#78350f;white-space:pre-line;">{{ $actividad->requisitos }}</div>
+                </div>
+                @endif
             </div>
         </div>
     </div>

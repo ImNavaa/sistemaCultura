@@ -56,6 +56,14 @@
                     <label class="form-label">Descripción</label>
                     <textarea name="descripcion" class="form-control" rows="3">{{ old('descripcion', $actividad->descripcion) }}</textarea>
                 </div>
+                <div class="col-12">
+                    <label class="form-label">
+                        <i class="bi bi-clipboard-check me-1 text-warning"></i>Requisitos para participar
+                        <span class="text-muted fw-normal" style="font-size:.8rem;">(opcional — se enviará por correo al registrarse)</span>
+                    </label>
+                    <textarea name="requisitos" class="form-control" rows="4"
+                              placeholder="Ej:&#10;- Traer identificación oficial&#10;- Laptop con software X instalado&#10;- Conocimientos básicos de...">{{ old('requisitos', $actividad->requisitos) }}</textarea>
+                </div>
 
                 <div class="col-12 mt-2"><div class="form-section-title">Fecha y hora</div></div>
                 <div class="col-md-3">

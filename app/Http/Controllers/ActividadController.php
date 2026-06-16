@@ -46,6 +46,7 @@ class ActividadController extends Controller
         $data = $request->validate([
             'nombre'       => 'required|string|max:255',
             'descripcion'  => 'nullable|string',
+            'requisitos'   => 'nullable|string',
             'tipo'         => 'required|in:evento,curso,taller,conferencia,capacitacion',
             'instructor'   => 'nullable|string|max:255',
             'fecha_inicio' => 'required|date',
@@ -94,6 +95,7 @@ class ActividadController extends Controller
         $data = $request->validate([
             'nombre'       => 'required|string|max:255',
             'descripcion'  => 'nullable|string',
+            'requisitos'   => 'nullable|string',
             'tipo'         => 'required|in:evento,curso,taller,conferencia,capacitacion',
             'instructor'   => 'nullable|string|max:255',
             'fecha_inicio' => 'required|date',

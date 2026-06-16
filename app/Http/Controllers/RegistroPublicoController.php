@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\ConfirmacionRegistroMail;
 use App\Models\Actividad;
 use App\Models\Asistente;
 use App\Models\Inscripcion;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 
 class RegistroPublicoController extends Controller
 {
@@ -121,7 +123,7 @@ class RegistroPublicoController extends Controller
         }
 
         $folio = Inscripcion::generarFolio();
-        Inscripcion::create([
+        $inscripcion = Inscripcion::create([
             'folio'        => $folio,
             'actividad_id' => $actividad->id,
             'asistente_id' => $asistente->id,
@@ -129,10 +131,21 @@ class RegistroPublicoController extends Controller
             'respuestas'   => $respuestas ?: null,
         ]);
 
+        // Enviar correo de confirmación si el asistente proporcionó email
+        if (filled($asistente->email)) {
+            try {
+                Mail::to($asistente->email)
+                    ->send(new ConfirmacionRegistroMail($asistente, $actividad, $inscripcion));
+            } catch (\Throwable) {
+                // Si el correo falla, el registro ya está guardado — no interrumpir al usuario
+            }
+        }
+
         return redirect()->route('registro.confirmacion', $actividad)
             ->with('success', '¡Registro exitoso!')
             ->with('folio', $folio)
-            ->with('nombre', $asistente->nombreCompleto());
+            ->with('nombre', $asistente->nombreCompleto())
+            ->with('correoEnviado', filled($asistente->email));
     }
 
     public function confirmacion(Actividad $actividad)
