@@ -28,7 +28,7 @@
         </div>
         @endif
 
-        <form action="{{ route('actividades.update', $actividad) }}" method="POST">
+        <form action="{{ route('actividades.update', $actividad) }}" method="POST" enctype="multipart/form-data">
             @csrf @method('PUT')
             <div class="row g-3">
                 <div class="col-12"><div class="form-section-title">Información general</div></div>
@@ -63,6 +63,36 @@
                     </label>
                     <textarea name="requisitos" class="form-control" rows="4"
                               placeholder="Ej:&#10;- Traer identificación oficial&#10;- Laptop con software X instalado&#10;- Conocimientos básicos de...">{{ old('requisitos', $actividad->requisitos) }}</textarea>
+                </div>
+                <div class="col-12">
+                    <label class="form-label">
+                        <i class="bi bi-file-earmark-pdf me-1 text-danger"></i>Documento PDF de requisitos
+                        <span class="text-muted fw-normal" style="font-size:.8rem;">(opcional — se adjuntará al correo de confirmación, máx. 10 MB)</span>
+                    </label>
+
+                    @if($actividad->documento_pdf)
+                    <div class="d-flex align-items-center gap-3 p-2 mb-2 rounded"
+                         style="background:#fff5f5;border:1px solid #fecaca;">
+                        <i class="bi bi-file-earmark-pdf text-danger" style="font-size:1.4rem;"></i>
+                        <div class="flex-grow-1 small">
+                            <div class="fw-semibold">PDF cargado actualmente</div>
+                            <div class="text-muted">{{ basename($actividad->documento_pdf) }}</div>
+                        </div>
+                        <div class="form-check mb-0">
+                            <input class="form-check-input" type="checkbox" name="eliminar_pdf"
+                                   value="1" id="eliminarPdf">
+                            <label class="form-check-label small text-danger" for="eliminarPdf">
+                                Eliminar PDF
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-text mb-1">Sube un nuevo PDF para reemplazar el actual.</div>
+                    @endif
+
+                    <input type="file" name="documento_pdf"
+                           class="form-control @error('documento_pdf') is-invalid @enderror"
+                           accept=".pdf">
+                    @error('documento_pdf')<div class="invalid-feedback">{{ $message }}</div>@enderror
                 </div>
 
                 <div class="col-12 mt-2"><div class="form-section-title">Fecha y hora</div></div>

@@ -7,9 +7,11 @@ use App\Models\Asistente;
 use App\Models\Inscripcion;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Storage;
 
 class ConfirmacionRegistroMail extends Mailable
 {
@@ -46,6 +48,22 @@ class ConfirmacionRegistroMail extends Mailable
 
     public function attachments(): array
     {
-        return [];
+        if (! $this->actividad->documento_pdf) {
+            return [];
+        }
+
+        $path = Storage::disk('local')->path($this->actividad->documento_pdf);
+
+        if (! file_exists($path)) {
+            return [];
+        }
+
+        $nombreActividad = preg_replace('/[^a-zA-Z0-9_-]/', '_', $this->actividad->nombre);
+
+        return [
+            Attachment::fromPath($path)
+                ->as("Requisitos_{$nombreActividad}.pdf")
+                ->withMime('application/pdf'),
+        ];
     }
 }

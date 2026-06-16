@@ -6,6 +6,7 @@ use App\Models\Actividad;
 use App\Models\Asistente;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class ActividadController extends Controller
 {
@@ -44,20 +45,26 @@ class ActividadController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'nombre'       => 'required|string|max:255',
-            'descripcion'  => 'nullable|string',
-            'requisitos'   => 'nullable|string',
-            'tipo'         => 'required|in:evento,curso,taller,conferencia,capacitacion',
-            'instructor'   => 'nullable|string|max:255',
-            'fecha_inicio' => 'required|date',
-            'fecha_fin'    => 'nullable|date|after_or_equal:fecha_inicio',
-            'hora_inicio'  => 'nullable',
-            'hora_fin'     => 'nullable',
-            'ubicacion'    => 'nullable|string|max:255',
-            'modalidad'    => 'required|in:presencial,virtual,hibrido',
-            'cupo_maximo'  => 'nullable|integer|min:1',
-            'estado'       => 'required|in:borrador,activo,lleno,cancelado,finalizado',
+            'nombre'        => 'required|string|max:255',
+            'descripcion'   => 'nullable|string',
+            'requisitos'    => 'nullable|string',
+            'documento_pdf' => 'nullable|file|mimes:pdf|max:10240',
+            'tipo'          => 'required|in:evento,curso,taller,conferencia,capacitacion',
+            'instructor'    => 'nullable|string|max:255',
+            'fecha_inicio'  => 'required|date',
+            'fecha_fin'     => 'nullable|date|after_or_equal:fecha_inicio',
+            'hora_inicio'   => 'nullable',
+            'hora_fin'      => 'nullable',
+            'ubicacion'     => 'nullable|string|max:255',
+            'modalidad'     => 'required|in:presencial,virtual,hibrido',
+            'cupo_maximo'   => 'nullable|integer|min:1',
+            'estado'        => 'required|in:borrador,activo,lleno,cancelado,finalizado',
         ]);
+
+        if ($request->hasFile('documento_pdf')) {
+            $data['documento_pdf'] = $request->file('documento_pdf')
+                ->store('actividades/documentos', 'local');
+        }
 
         $data['codigo']            = Actividad::generarCodigo();
         $data['creado_por']        = auth()->id();
@@ -93,20 +100,35 @@ class ActividadController extends Controller
     public function update(Request $request, Actividad $actividad)
     {
         $data = $request->validate([
-            'nombre'       => 'required|string|max:255',
-            'descripcion'  => 'nullable|string',
-            'requisitos'   => 'nullable|string',
-            'tipo'         => 'required|in:evento,curso,taller,conferencia,capacitacion',
-            'instructor'   => 'nullable|string|max:255',
-            'fecha_inicio' => 'required|date',
-            'fecha_fin'    => 'nullable|date|after_or_equal:fecha_inicio',
-            'hora_inicio'  => 'nullable',
-            'hora_fin'     => 'nullable',
-            'ubicacion'    => 'nullable|string|max:255',
-            'modalidad'    => 'required|in:presencial,virtual,hibrido',
-            'cupo_maximo'  => 'nullable|integer|min:1',
-            'estado'       => 'required|in:borrador,activo,lleno,cancelado,finalizado',
+            'nombre'        => 'required|string|max:255',
+            'descripcion'   => 'nullable|string',
+            'requisitos'    => 'nullable|string',
+            'documento_pdf' => 'nullable|file|mimes:pdf|max:10240',
+            'tipo'          => 'required|in:evento,curso,taller,conferencia,capacitacion',
+            'instructor'    => 'nullable|string|max:255',
+            'fecha_inicio'  => 'required|date',
+            'fecha_fin'     => 'nullable|date|after_or_equal:fecha_inicio',
+            'hora_inicio'   => 'nullable',
+            'hora_fin'      => 'nullable',
+            'ubicacion'     => 'nullable|string|max:255',
+            'modalidad'     => 'required|in:presencial,virtual,hibrido',
+            'cupo_maximo'   => 'nullable|integer|min:1',
+            'estado'        => 'required|in:borrador,activo,lleno,cancelado,finalizado',
         ]);
+
+        if ($request->hasFile('documento_pdf')) {
+            // Eliminar el PDF anterior si existía
+            if ($actividad->documento_pdf) {
+                Storage::disk('local')->delete($actividad->documento_pdf);
+            }
+            $data['documento_pdf'] = $request->file('documento_pdf')
+                ->store('actividades/documentos', 'local');
+        } elseif ($request->boolean('eliminar_pdf')) {
+            Storage::disk('local')->delete($actividad->documento_pdf ?? '');
+            $data['documento_pdf'] = null;
+        } else {
+            unset($data['documento_pdf']);
+        }
 
         $data['campos_formulario'] = $this->parsearConfigFormulario($request);
 

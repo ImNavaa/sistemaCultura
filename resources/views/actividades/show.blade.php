@@ -114,6 +114,14 @@ $estadoBadge = [
                     <div class="small" style="color:#78350f;white-space:pre-line;">{{ $actividad->requisitos }}</div>
                 </div>
                 @endif
+                @if($actividad->documento_pdf)
+                <div class="mt-2 p-2 rounded d-flex align-items-center gap-2"
+                     style="background:#fff5f5;border:1px solid #fecaca;">
+                    <i class="bi bi-file-earmark-pdf text-danger"></i>
+                    <span class="small fw-semibold" style="color:#991b1b;">PDF adjunto al correo</span>
+                    <span class="text-muted small ms-auto">se envía automáticamente al registrarse</span>
+                </div>
+                @endif
             </div>
         </div>
     </div>

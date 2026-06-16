@@ -9,7 +9,7 @@ class Actividad extends Model
     protected $table = 'actividades';
 
     protected $fillable = [
-        'codigo', 'nombre', 'descripcion', 'requisitos', 'tipo', 'instructor',
+        'codigo', 'nombre', 'descripcion', 'requisitos', 'documento_pdf', 'tipo', 'instructor',
         'fecha_inicio', 'fecha_fin', 'hora_inicio', 'hora_fin',
         'ubicacion', 'modalidad', 'cupo_maximo', 'estado', 'creado_por',
         'campos_formulario',

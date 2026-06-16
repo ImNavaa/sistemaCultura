@@ -27,7 +27,7 @@
         </div>
         @endif
 
-        <form action="{{ route('actividades.store') }}" method="POST">
+        <form action="{{ route('actividades.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
             <div class="row g-3">
                 <div class="col-12">
@@ -64,6 +64,15 @@
                     </label>
                     <textarea name="requisitos" class="form-control" rows="4"
                               placeholder="Ej:&#10;- Traer identificación oficial&#10;- Laptop con software X instalado&#10;- Conocimientos básicos de...">{{ old('requisitos') }}</textarea>
+                </div>
+                <div class="col-12">
+                    <label class="form-label">
+                        <i class="bi bi-file-earmark-pdf me-1 text-danger"></i>Documento PDF de requisitos
+                        <span class="text-muted fw-normal" style="font-size:.8rem;">(opcional — se adjuntará al correo de confirmación, máx. 10 MB)</span>
+                    </label>
+                    <input type="file" name="documento_pdf" class="form-control @error('documento_pdf') is-invalid @enderror"
+                           accept=".pdf">
+                    @error('documento_pdf')<div class="invalid-feedback">{{ $message }}</div>@enderror
                 </div>
 
                 <div class="col-12 mt-2">
