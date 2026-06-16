@@ -25,14 +25,15 @@ class Actividad extends Model
     {
         $default = [
             'campos' => [
-                'email'       => 'opcional',
-                'telefono'    => 'opcional',
-                'edad'        => 'opcional',
-                'genero'      => 'opcional',
-                'institucion' => 'opcional',
-                'ocupacion'   => 'opcional',
-                'ciudad'      => 'opcional',
-                'curp'        => 'oculto',
+                'email'          => 'opcional',
+                'telefono'       => 'opcional',
+                'edad'           => 'opcional',
+                'genero'         => 'opcional',
+                'institucion'    => 'opcional',
+                'ocupacion'      => 'opcional',
+                'ciudad'         => 'opcional',
+                'redes_sociales' => 'opcional',
+                'curp'           => 'oculto',
             ],
             'preguntas_extra' => [],
         ];

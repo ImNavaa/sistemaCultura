@@ -9,14 +9,15 @@ $config = isset($actividad) ? $actividad->configFormulario() : [
 ];
 
 $camposLabels = [
-    'email'       => ['Correo electrónico', 'bi-envelope'],
-    'telefono'    => ['Teléfono',           'bi-telephone'],
-    'edad'        => ['Edad',               'bi-person-badge'],
-    'genero'      => ['Género',             'bi-gender-ambiguous'],
-    'institucion' => ['Institución / Empresa', 'bi-building'],
-    'ocupacion'   => ['Ocupación',          'bi-briefcase'],
-    'ciudad'      => ['Ciudad',             'bi-geo-alt'],
-    'curp'        => ['CURP',               'bi-card-text'],
+    'email'          => ['Correo electrónico',   'bi-envelope'],
+    'telefono'       => ['Teléfono',             'bi-telephone'],
+    'edad'           => ['Edad',                 'bi-person-badge'],
+    'genero'         => ['Género',               'bi-gender-ambiguous'],
+    'institucion'    => ['Institución / Empresa','bi-building'],
+    'ocupacion'      => ['Ocupación',            'bi-briefcase'],
+    'ciudad'         => ['Ciudad',               'bi-geo-alt'],
+    'redes_sociales' => ['Redes sociales',       'bi-instagram'],
+    'curp'           => ['CURP',                 'bi-card-text'],
 ];
 @endphp
 

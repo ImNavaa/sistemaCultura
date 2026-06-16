@@ -116,7 +116,7 @@ class ActividadController extends Controller
 
     private function parsearConfigFormulario(Request $request): array
     {
-        $camposValidos  = ['email', 'telefono', 'edad', 'genero', 'institucion', 'ocupacion', 'ciudad', 'curp'];
+        $camposValidos  = ['email', 'telefono', 'edad', 'genero', 'institucion', 'ocupacion', 'ciudad', 'redes_sociales', 'curp'];
         $estadosValidos = ['requerido', 'opcional', 'oculto'];
 
         $campos = [];

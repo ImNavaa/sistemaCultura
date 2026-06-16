@@ -8,7 +8,7 @@ class Asistente extends Model
 {
     protected $fillable = [
         'nombre', 'apellidos', 'email', 'telefono', 'edad',
-        'genero', 'institucion', 'ocupacion', 'curp', 'ciudad', 'notas',
+        'genero', 'institucion', 'ocupacion', 'curp', 'ciudad', 'redes_sociales', 'notas',
     ];
 
     public function inscripciones()

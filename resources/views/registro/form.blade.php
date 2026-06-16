@@ -11,7 +11,7 @@ $esRequerido  = fn($c) => ($campos[$c] ?? 'opcional') === 'requerido';
 $starIf       = fn($c) => $esRequerido($c) ? '<span class="required-star">*</span>' : '';
 
 $hayDatosPers = ! ($estaOculto('email') && $estaOculto('telefono') && $estaOculto('edad') && $estaOculto('genero'));
-$hayDatosProf = ! ($estaOculto('institucion') && $estaOculto('ocupacion') && $estaOculto('ciudad') && $estaOculto('curp'));
+$hayDatosProf = ! ($estaOculto('institucion') && $estaOculto('ocupacion') && $estaOculto('ciudad') && $estaOculto('redes_sociales') && $estaOculto('curp'));
 @endphp
 
 @push('styles')
@@ -167,6 +167,21 @@ $hayDatosProf = ! ($estaOculto('institucion') && $estaOculto('ocupacion') && $es
                        value="{{ old('ciudad') }}" placeholder="Ej. Hermosillo"
                        {{ $esRequerido('ciudad') ? 'required' : '' }}>
                 @error('ciudad')<div class="invalid-feedback">{{ $message }}</div>@enderror
+            </div>
+            @endunless
+
+            @unless($estaOculto('redes_sociales'))
+            <div class="col-sm-6">
+                <label class="form-label">
+                    <i class="bi bi-instagram me-1" style="color:#e1306c;"></i>
+                    Redes sociales {!! $starIf('redes_sociales') !!}
+                </label>
+                <input type="text" name="redes_sociales"
+                       class="form-control @error('redes_sociales') is-invalid @enderror"
+                       value="{{ old('redes_sociales') }}"
+                       placeholder="Ej. @usuario o facebook.com/usuario"
+                       {{ $esRequerido('redes_sociales') ? 'required' : '' }}>
+                @error('redes_sociales')<div class="invalid-feedback">{{ $message }}</div>@enderror
             </div>
             @endunless
 

@@ -57,14 +57,15 @@ class RegistroPublicoController extends Controller
         ];
 
         $campoRules = [
-            'email'       => ['nullable', 'email', 'max:255'],
-            'telefono'    => ['nullable', 'string', 'max:20'],
-            'edad'        => ['nullable', 'integer', 'min:1', 'max:120'],
-            'genero'      => ['nullable', 'in:femenino,masculino,otro,prefiero_no_decir'],
-            'institucion' => ['nullable', 'string', 'max:255'],
-            'ocupacion'   => ['nullable', 'string', 'max:255'],
-            'ciudad'      => ['nullable', 'string', 'max:100'],
-            'curp'        => ['nullable', 'string', 'max:18'],
+            'email'          => ['nullable', 'email', 'max:255'],
+            'telefono'       => ['nullable', 'string', 'max:20'],
+            'edad'           => ['nullable', 'integer', 'min:1', 'max:120'],
+            'genero'         => ['nullable', 'in:femenino,masculino,otro,prefiero_no_decir'],
+            'institucion'    => ['nullable', 'string', 'max:255'],
+            'ocupacion'      => ['nullable', 'string', 'max:255'],
+            'ciudad'         => ['nullable', 'string', 'max:100'],
+            'redes_sociales' => ['nullable', 'string', 'max:255'],
+            'curp'           => ['nullable', 'string', 'max:18'],
         ];
 
         foreach ($campoRules as $campo => $baseRules) {
