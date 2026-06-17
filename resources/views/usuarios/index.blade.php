@@ -73,28 +73,31 @@
             <tbody>
                 @forelse($conAcceso as $usuario)
                 @php
-                    $diasStr = $usuario->dias_laborales ? implode(', ', array_map('trim', explode(',', $usuario->dias_laborales))) : null;
+                    $canEdit    = auth()->user()->puede('usuarios','editar');
+                    $canDelete  = auth()->user()->puede('usuarios','eliminar');
+                    $diasStr    = $usuario->dias_laborales ? implode(', ', array_map('trim', explode(',', $usuario->dias_laborales))) : null;
+                    $rowData    = [
+                        'id'          => $usuario->id,
+                        'nombre'      => $usuario->name,
+                        'inicial'     => strtoupper(substr($usuario->name, 0, 1)),
+                        'email'       => $usuario->email,
+                        'cargo'       => $usuario->cargo,
+                        'rol'         => optional($usuario->rol)->nombre,
+                        'horario'     => $usuario->horario,
+                        'dias'        => $diasStr,
+                        'telefono'    => $usuario->telefono,
+                        'con_acceso'  => true,
+                        'show_url'    => route('usuarios.show', $usuario),
+                        'edit_url'    => $canEdit   ? route('usuarios.edit', $usuario)   : null,
+                        'permisos_url'=> $canEdit   ? route('permisos.index', $usuario)  : null,
+                        'destroy_url' => $canDelete ? route('usuarios.destroy', $usuario): null,
+                    ];
                 @endphp
                 <tr class="fila-clickable sort-row"
                     data-nombre="{{ strtolower($usuario->name) }}"
                     data-cargo="{{ strtolower($usuario->cargo ?? '') }}"
                     data-rol="{{ strtolower($usuario->rol->nombre ?? '') }}"
-                    data-json='@json([
-                        "id"           => $usuario->id,
-                        "nombre"       => $usuario->name,
-                        "inicial"      => strtoupper(substr($usuario->name, 0, 1)),
-                        "email"        => $usuario->email,
-                        "cargo"        => $usuario->cargo,
-                        "rol"          => $usuario->rol?->nombre,
-                        "horario"      => $usuario->horario,
-                        "dias"         => $diasStr,
-                        "telefono"     => $usuario->telefono ?? null,
-                        "con_acceso"   => true,
-                        "show_url"     => route("usuarios.show", $usuario),
-                        "edit_url"     => auth()->user()->puede("usuarios","editar") ? route("usuarios.edit", $usuario) : null,
-                        "permisos_url" => auth()->user()->puede("usuarios","editar") ? route("permisos.index", $usuario) : null,
-                        "destroy_url"  => auth()->user()->puede("usuarios","eliminar") ? route("usuarios.destroy", $usuario) : null,
-                    ])'>
+                    data-json='@json($rowData)'>
                     <td>
                         <div class="d-flex align-items-center gap-2">
                             <span style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--navy),var(--navy3));color:#fff;display:flex;align-items:center;justify-content:center;font-size:.85rem;font-weight:700;flex-shrink:0;">{{ strtoupper(substr($usuario->name,0,1)) }}</span>
@@ -128,28 +131,31 @@
     <div class="view-tarjetas grid-cards">
         @foreach($conAcceso as $usuario)
         @php
-            $diasStr2 = $usuario->dias_laborales ? implode(', ', array_map('trim', explode(',', $usuario->dias_laborales))) : null;
+            $canEdit2   = auth()->user()->puede('usuarios','editar');
+            $canDelete2 = auth()->user()->puede('usuarios','eliminar');
+            $diasStr2   = $usuario->dias_laborales ? implode(', ', array_map('trim', explode(',', $usuario->dias_laborales))) : null;
+            $cardData   = [
+                'id'          => $usuario->id,
+                'nombre'      => $usuario->name,
+                'inicial'     => strtoupper(substr($usuario->name, 0, 1)),
+                'email'       => $usuario->email,
+                'cargo'       => $usuario->cargo,
+                'rol'         => optional($usuario->rol)->nombre,
+                'horario'     => $usuario->horario,
+                'dias'        => $diasStr2,
+                'telefono'    => $usuario->telefono,
+                'con_acceso'  => true,
+                'show_url'    => route('usuarios.show', $usuario),
+                'edit_url'    => $canEdit2   ? route('usuarios.edit', $usuario)   : null,
+                'permisos_url'=> $canEdit2   ? route('permisos.index', $usuario)  : null,
+                'destroy_url' => $canDelete2 ? route('usuarios.destroy', $usuario): null,
+            ];
         @endphp
         <div class="list-card sort-card fila-clickable"
              data-nombre="{{ strtolower($usuario->name) }}"
              data-cargo="{{ strtolower($usuario->cargo ?? '') }}"
              data-rol="{{ strtolower($usuario->rol->nombre ?? '') }}"
-             data-json='@json([
-                 "id"           => $usuario->id,
-                 "nombre"       => $usuario->name,
-                 "inicial"      => strtoupper(substr($usuario->name, 0, 1)),
-                 "email"        => $usuario->email,
-                 "cargo"        => $usuario->cargo,
-                 "rol"          => $usuario->rol?->nombre,
-                 "horario"      => $usuario->horario,
-                 "dias"         => $diasStr2,
-                 "telefono"     => $usuario->telefono ?? null,
-                 "con_acceso"   => true,
-                 "show_url"     => route("usuarios.show", $usuario),
-                 "edit_url"     => auth()->user()->puede("usuarios","editar") ? route("usuarios.edit", $usuario) : null,
-                 "permisos_url" => auth()->user()->puede("usuarios","editar") ? route("permisos.index", $usuario) : null,
-                 "destroy_url"  => auth()->user()->puede("usuarios","eliminar") ? route("usuarios.destroy", $usuario) : null,
-             ])'>
+             data-json='@json($cardData)'>
             <div class="d-flex align-items-center gap-3">
                 <span style="width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--navy),var(--navy3));color:#fff;display:flex;align-items:center;justify-content:center;font-size:1rem;font-weight:700;flex-shrink:0;">{{ strtoupper(substr($usuario->name,0,1)) }}</span>
                 <div style="min-width:0">
@@ -206,27 +212,30 @@
             <tbody>
                 @forelse($sinAcceso as $usuario)
                 @php
-                    $diasStr3 = $usuario->dias_laborales ? implode(', ', array_map('trim', explode(',', $usuario->dias_laborales))) : null;
+                    $canEdit3   = auth()->user()->puede('usuarios','editar');
+                    $canDelete3 = auth()->user()->puede('usuarios','eliminar');
+                    $diasStr3   = $usuario->dias_laborales ? implode(', ', array_map('trim', explode(',', $usuario->dias_laborales))) : null;
+                    $rowData3   = [
+                        'id'          => $usuario->id,
+                        'nombre'      => $usuario->name,
+                        'inicial'     => strtoupper(substr($usuario->name, 0, 1)),
+                        'email'       => null,
+                        'cargo'       => $usuario->cargo,
+                        'rol'         => null,
+                        'horario'     => $usuario->horario,
+                        'dias'        => $diasStr3,
+                        'telefono'    => $usuario->telefono,
+                        'con_acceso'  => false,
+                        'show_url'    => route('usuarios.show', $usuario),
+                        'edit_url'    => $canEdit3   ? route('usuarios.edit', $usuario)   : null,
+                        'permisos_url'=> null,
+                        'destroy_url' => $canDelete3 ? route('usuarios.destroy', $usuario): null,
+                    ];
                 @endphp
                 <tr class="fila-clickable sort-row"
                     data-nombre="{{ strtolower($usuario->name) }}"
                     data-cargo="{{ strtolower($usuario->cargo ?? '') }}"
-                    data-json='@json([
-                        "id"          => $usuario->id,
-                        "nombre"      => $usuario->name,
-                        "inicial"     => strtoupper(substr($usuario->name, 0, 1)),
-                        "email"       => null,
-                        "cargo"       => $usuario->cargo,
-                        "rol"         => null,
-                        "horario"     => $usuario->horario,
-                        "dias"        => $diasStr3,
-                        "telefono"    => $usuario->telefono ?? null,
-                        "con_acceso"  => false,
-                        "show_url"    => route("usuarios.show", $usuario),
-                        "edit_url"    => auth()->user()->puede("usuarios","editar") ? route("usuarios.edit", $usuario) : null,
-                        "permisos_url"=> null,
-                        "destroy_url" => auth()->user()->puede("usuarios","eliminar") ? route("usuarios.destroy", $usuario) : null,
-                    ])'>
+                    data-json='@json($rowData3)'>
                     <td>
                         <div class="d-flex align-items-center gap-2">
                             <span style="width:34px;height:34px;border-radius:50%;background:#e0e0e0;color:#616161;display:flex;align-items:center;justify-content:center;font-size:.85rem;font-weight:700;flex-shrink:0;">{{ strtoupper(substr($usuario->name,0,1)) }}</span>
@@ -254,27 +263,30 @@
     <div class="view-tarjetas grid-cards">
         @foreach($sinAcceso as $usuario)
         @php
-            $diasStr4 = $usuario->dias_laborales ? implode(', ', array_map('trim', explode(',', $usuario->dias_laborales))) : null;
+            $canEdit4   = auth()->user()->puede('usuarios','editar');
+            $canDelete4 = auth()->user()->puede('usuarios','eliminar');
+            $diasStr4   = $usuario->dias_laborales ? implode(', ', array_map('trim', explode(',', $usuario->dias_laborales))) : null;
+            $cardData4  = [
+                'id'          => $usuario->id,
+                'nombre'      => $usuario->name,
+                'inicial'     => strtoupper(substr($usuario->name, 0, 1)),
+                'email'       => null,
+                'cargo'       => $usuario->cargo,
+                'rol'         => null,
+                'horario'     => $usuario->horario,
+                'dias'        => $diasStr4,
+                'telefono'    => $usuario->telefono,
+                'con_acceso'  => false,
+                'show_url'    => route('usuarios.show', $usuario),
+                'edit_url'    => $canEdit4   ? route('usuarios.edit', $usuario)   : null,
+                'permisos_url'=> null,
+                'destroy_url' => $canDelete4 ? route('usuarios.destroy', $usuario): null,
+            ];
         @endphp
         <div class="list-card sort-card fila-clickable"
              data-nombre="{{ strtolower($usuario->name) }}"
              data-cargo="{{ strtolower($usuario->cargo ?? '') }}"
-             data-json='@json([
-                 "id"          => $usuario->id,
-                 "nombre"      => $usuario->name,
-                 "inicial"     => strtoupper(substr($usuario->name, 0, 1)),
-                 "email"       => null,
-                 "cargo"       => $usuario->cargo,
-                 "rol"         => null,
-                 "horario"     => $usuario->horario,
-                 "dias"        => $diasStr4,
-                 "telefono"    => $usuario->telefono ?? null,
-                 "con_acceso"  => false,
-                 "show_url"    => route("usuarios.show", $usuario),
-                 "edit_url"    => auth()->user()->puede("usuarios","editar") ? route("usuarios.edit", $usuario) : null,
-                 "permisos_url"=> null,
-                 "destroy_url" => auth()->user()->puede("usuarios","eliminar") ? route("usuarios.destroy", $usuario) : null,
-             ])'>
+             data-json='@json($cardData4)'>
             <div class="d-flex align-items-center gap-3">
                 <span style="width:42px;height:42px;border-radius:50%;background:#e0e0e0;color:#616161;display:flex;align-items:center;justify-content:center;font-size:1rem;font-weight:700;flex-shrink:0;">{{ strtoupper(substr($usuario->name,0,1)) }}</span>
                 <div>
