@@ -174,6 +174,9 @@ $estadoBadge = [
         <div class="header-icon blue"><i class="bi bi-list-check"></i></div>
         Lista de inscritos
         <span class="badge ms-2" style="background:#e3f2fd;color:#1565c0;">{{ $totalInscritos }}</span>
+        <span class="ms-auto small text-muted d-none d-md-inline" style="font-weight:400;font-size:.73rem;">
+            <i class="bi bi-hand-index me-1"></i>Selecciona una fila para ver opciones
+        </span>
     </div>
 
     {{-- Buscador rápido --}}
@@ -183,7 +186,7 @@ $estadoBadge = [
     </div>
 
     <div class="table-responsive">
-        <table class="table" id="tablaInscritos">
+        <table class="table tabla-clickable" id="tablaInscritos">
             <thead>
                 <tr>
                     <th>#</th>
@@ -192,34 +195,47 @@ $estadoBadge = [
                     <th>Institución</th>
                     <th>Contacto</th>
                     <th class="text-center">Asistió</th>
-                    @if(auth()->user()->puede('act_asistentes','editar'))
-                    <th class="text-center">Check-in</th>
-                    @endif
-                    @if(auth()->user()->puede('act_asistentes','eliminar'))
-                    <th></th>
-                    @endif
+                    <th style="width:28px;"></th>
                 </tr>
             </thead>
             <tbody>
                 @forelse($inscripciones as $i => $insc)
                 @if($insc->estado === 'inscrito')
-                <tr class="insc-row"
-                    data-buscar="{{ strtolower($insc->asistente->nombre . ' ' . $insc->asistente->apellidos . ' ' . $insc->asistente->email . ' ' . $insc->asistente->institucion) }}">
+                @php
+                    $checkinHora = $insc->checkin ? $insc->checkin->hora_checkin->format('H:i') : null;
+                @endphp
+                <tr class="insc-row fila-clickable"
+                    data-buscar="{{ strtolower($insc->asistente->nombre . ' ' . $insc->asistente->apellidos . ' ' . $insc->asistente->email . ' ' . $insc->asistente->institucion) }}"
+                    data-json='@json([
+                        "insc_id"      => $insc->id,
+                        "folio"        => $insc->folio,
+                        "nombre"       => $insc->asistente->nombreCompleto(),
+                        "iniciales"    => $insc->asistente->iniciales(),
+                        "email"        => $insc->asistente->email,
+                        "telefono"     => $insc->asistente->telefono,
+                        "institucion"  => $insc->asistente->institucion,
+                        "ciudad"       => $insc->asistente->ciudad,
+                        "ocupacion"    => $insc->asistente->ocupacion,
+                        "checkin"      => (bool)$insc->checkin,
+                        "checkin_hora" => $checkinHora,
+                        "notas"        => $insc->notas ?? null,
+                        "show_ast_url" => route("asistentes.show", $insc->asistente),
+                        "checkin_url"  => auth()->user()->puede("act_asistentes","editar") && !$insc->checkin
+                                          ? route("inscripciones.checkin", $insc) : null,
+                        "destroy_url"  => auth()->user()->puede("act_asistentes","eliminar")
+                                          ? route("inscripciones.destroy", $insc) : null,
+                    ])'>
                     <td class="text-muted small">{{ $i + 1 }}</td>
                     <td><span class="font-monospace small">{{ $insc->folio }}</span></td>
                     <td>
-                        <a href="{{ route('asistentes.show', $insc->asistente) }}" class="fw-semibold text-decoration-none" style="color:var(--text-main);">
-                            {{ $insc->asistente->nombreCompleto() }}
-                        </a>
+                        <div class="fw-semibold" style="color:var(--text-main);">{{ $insc->asistente->nombreCompleto() }}</div>
                         @if($insc->asistente->email)
                         <div class="small text-muted">{{ $insc->asistente->email }}</div>
                         @endif
                     </td>
                     <td class="small text-muted">
                         {{ $insc->asistente->institucion ?? '—' }}
-                        @if($insc->asistente->ciudad)
-                        <div>{{ $insc->asistente->ciudad }}</div>
-                        @endif
+                        @if($insc->asistente->ciudad)<div>{{ $insc->asistente->ciudad }}</div>@endif
                     </td>
                     <td class="small">{{ $insc->asistente->telefono ?? '—' }}</td>
                     <td class="text-center">
@@ -231,36 +247,44 @@ $estadoBadge = [
                             <span class="badge" style="background:#f1f5f9;color:#64748b;font-size:.72rem;">Pendiente</span>
                         @endif
                     </td>
-                    @if(auth()->user()->puede('act_asistentes','editar'))
-                    <td class="text-center">
-                        @if(! $insc->checkin)
-                        <form action="{{ route('inscripciones.checkin', $insc) }}" method="POST" class="d-inline">
-                            @csrf @method('PATCH')
-                            <button class="btn btn-sm btn-outline-success" title="Registrar asistencia" style="font-size:.75rem;padding:2px 8px;">
-                                <i class="bi bi-check2-square me-1"></i>Check-in
-                            </button>
-                        </form>
-                        @else
-                        <span class="text-muted small">✓</span>
-                        @endif
-                    </td>
-                    @endif
-                    @if(auth()->user()->puede('act_asistentes','eliminar'))
-                    <td>
-                        <form action="{{ route('inscripciones.destroy', $insc) }}" method="POST" class="d-inline"
-                              onsubmit="return confirm('¿Eliminar la inscripción de {{ $insc->asistente->nombreCompleto() }}?')">
-                            @csrf @method('DELETE')
-                            <button class="btn btn-action btn-outline-danger"><i class="bi bi-x-lg"></i></button>
-                        </form>
-                    </td>
-                    @endif
+                    <td><i class="bi bi-chevron-right text-muted" style="font-size:.75rem;"></i></td>
                 </tr>
                 @endif
                 @empty
-                <tr><td colspan="8"><div class="empty-state"><i class="bi bi-person-plus"></i><p>Sin inscritos aún. Usa el botón "Inscribir persona".</p></div></td></tr>
+                <tr><td colspan="7"><div class="empty-state"><i class="bi bi-person-plus"></i><p>Sin inscritos aún. Usa el botón "Inscribir persona".</p></div></td></tr>
                 @endforelse
             </tbody>
         </table>
+    </div>
+</div>
+
+{{-- Forms ocultos para acciones desde el panel --}}
+<form id="formCheckin" method="POST" class="d-none">@csrf @method('PATCH')</form>
+<form id="formEliminarInsc" method="POST" class="d-none">@csrf @method('DELETE')</form>
+
+{{-- ══ PANEL LATERAL INSCRIPCIONES ════════════════════════ --}}
+<div class="offcanvas offcanvas-end d-flex flex-column" tabindex="-1" id="panelInscripcion" style="width:370px;max-width:95vw;">
+    <div class="offcanvas-header pb-3" style="background:linear-gradient(135deg,var(--navy),var(--navy3));">
+        <div class="d-flex align-items-center gap-3">
+            <span id="insc-avatar" style="width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.18);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1.1rem;flex-shrink:0;"></span>
+            <div>
+                <div class="text-white fw-bold lh-sm" id="insc-nombre" style="font-size:1rem;"></div>
+                <div id="insc-folio" style="color:rgba(255,255,255,.65);font-size:.75rem;font-family:monospace;"></div>
+            </div>
+        </div>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
+    </div>
+    <div class="offcanvas-body flex-grow-1 overflow-auto p-3" id="insc-cuerpo"></div>
+    <div class="p-3 border-top d-flex flex-column gap-2" style="background:var(--bg-card-alt);">
+        <a id="insc-btn-ver" href="#" class="btn btn-outline-primary">
+            <i class="bi bi-person-lines-fill me-1"></i>Ver perfil del asistente
+        </a>
+        <button id="insc-btn-checkin" class="btn btn-success d-none" onclick="hacerCheckin()">
+            <i class="bi bi-check2-square me-1"></i>Registrar asistencia (Check-in)
+        </button>
+        <button id="insc-btn-eliminar" class="btn btn-outline-danger d-none" onclick="eliminarInscripcion()">
+            <i class="bi bi-x-circle me-1"></i>Cancelar inscripción
+        </button>
     </div>
 </div>
 
@@ -441,5 +465,79 @@ document.getElementById('btnCambiarPerson')?.addEventListener('click', function 
     document.getElementById('searchAsistente').value = '';
     document.getElementById('searchAsistente').focus();
 });
+
+// ── Panel lateral de inscripciones ────────────────────────
+let _inscData = {};
+
+function campoPan(icon, label, val) {
+    if (!val && val !== 0) return '';
+    return `<div style="display:flex;gap:.65rem;align-items:flex-start;padding:.55rem 0;border-bottom:1px solid var(--border-color);">
+        <i class="bi ${icon}" style="color:var(--text-muted);font-size:.85rem;width:16px;flex-shrink:0;margin-top:2px;"></i>
+        <div>
+            <div style="font-size:.68rem;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);">${label}</div>
+            <div style="font-size:.875rem;color:var(--text-main);">${val}</div>
+        </div>
+    </div>`;
+}
+
+document.querySelectorAll('.fila-clickable').forEach(function (fila) {
+    fila.addEventListener('click', function () {
+        const d = JSON.parse(this.dataset.json);
+        _inscData = d;
+
+        document.querySelectorAll('.fila-clickable').forEach(f => f.classList.remove('fila-seleccionada'));
+        this.classList.add('fila-seleccionada');
+
+        document.getElementById('insc-avatar').textContent = d.iniciales || d.nombre.charAt(0).toUpperCase();
+        document.getElementById('insc-nombre').textContent = d.nombre;
+        document.getElementById('insc-folio').textContent  = 'Folio: ' + d.folio;
+        document.getElementById('insc-btn-ver').href       = d.show_ast_url;
+
+        const btnCi = document.getElementById('insc-btn-checkin');
+        const btnEl = document.getElementById('insc-btn-eliminar');
+
+        d.checkin_url ? btnCi.classList.remove('d-none') : btnCi.classList.add('d-none');
+        d.destroy_url ? btnEl.classList.remove('d-none') : btnEl.classList.add('d-none');
+
+        let checkinHtml = d.checkin
+            ? `<span class="badge" style="background:#dcfce7;color:#166534;"><i class="bi bi-check2 me-1"></i>Asistió a las ${d.checkin_hora}</span>`
+            : `<span class="badge" style="background:#f1f5f9;color:#64748b;">Pendiente</span>`;
+
+        let html = '';
+        html += campoPan('bi-envelope',    'Email',       d.email);
+        html += campoPan('bi-telephone',   'Teléfono',    d.telefono);
+        html += campoPan('bi-building',    'Institución', d.institucion);
+        html += campoPan('bi-briefcase',   'Ocupación',   d.ocupacion);
+        html += campoPan('bi-geo-alt',     'Ciudad',      d.ciudad);
+        html += campoPan('bi-check-circle','Asistencia',  checkinHtml);
+        if (d.notas) html += campoPan('bi-chat-text', 'Notas', d.notas);
+
+        document.getElementById('insc-cuerpo').innerHTML = html || '<p class="text-muted small mt-2">Sin datos adicionales.</p>';
+
+        bootstrap.Offcanvas.getOrCreateInstance(document.getElementById('panelInscripcion')).show();
+    });
+});
+
+function hacerCheckin() {
+    if (!_inscData.checkin_url) return;
+    if (!confirm(`¿Registrar asistencia de ${_inscData.nombre}?`)) return;
+    const form = document.getElementById('formCheckin');
+    form.action = _inscData.checkin_url;
+    form.submit();
+}
+
+function eliminarInscripcion() {
+    if (!_inscData.destroy_url) return;
+    if (!confirm(`¿Cancelar la inscripción de ${_inscData.nombre}?`)) return;
+    const form = document.getElementById('formEliminarInsc');
+    form.action = _inscData.destroy_url;
+    form.submit();
+}
 </script>
+<style>
+.fila-clickable { cursor: pointer; user-select: none; }
+.fila-clickable:hover td { background: var(--bg-row-hover) !important; }
+.fila-seleccionada td { background: #e8eaf620 !important; }
+[data-theme="dark"] .fila-seleccionada td { background: #1a237e15 !important; }
+</style>
 @endsection
