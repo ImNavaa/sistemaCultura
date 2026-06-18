@@ -51,18 +51,21 @@
             </thead>
             <tbody>
                 @forelse($asistentes as $ast)
-                <tr class="fila-clickable" data-json='@json([
-                    "nombre"         => $ast->nombreCompleto(),
-                    "iniciales"      => $ast->iniciales(),
-                    "email"          => $ast->email,
-                    "telefono"       => $ast->telefono,
-                    "institucion"    => $ast->institucion,
-                    "ciudad"         => $ast->ciudad,
-                    "ocupacion"      => $ast->ocupacion,
-                    "redes_sociales" => $ast->redes_sociales,
-                    "eventos"        => $ast->inscripciones_count,
-                    "show_url"       => route("asistentes.show", $ast),
-                ])'>
+                @php
+                    $astData = [
+                        'nombre'         => $ast->nombreCompleto(),
+                        'iniciales'      => $ast->iniciales(),
+                        'email'          => $ast->email,
+                        'telefono'       => $ast->telefono,
+                        'institucion'    => $ast->institucion,
+                        'ciudad'         => $ast->ciudad,
+                        'ocupacion'      => $ast->ocupacion,
+                        'redes_sociales' => $ast->redes_sociales,
+                        'eventos'        => $ast->inscripciones_count,
+                        'show_url'       => route('asistentes.show', $ast),
+                    ];
+                @endphp
+                <tr class="fila-clickable" data-json='@json($astData)'>
                     <td>
                         <div class="d-flex align-items-center gap-2">
                             <span style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#00695c,#00897b);color:#fff;display:flex;align-items:center;justify-content:center;font-size:.85rem;font-weight:700;flex-shrink:0;">{{ $ast->iniciales() }}</span>
