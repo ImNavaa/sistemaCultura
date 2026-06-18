@@ -115,31 +115,34 @@ $estadoBadge = [
                     [$bgEst, $colorEst, $labelEst]   = $estadoBadge[$act->estado] ?? ['#eee', '#333', $act->estado];
                     $cupoLabel = $act->cupo_maximo ? $act->inscritos_count . '/' . $act->cupo_maximo : $act->inscritos_count;
                     $pct = $act->cupo_maximo > 0 ? min(100, round(($act->inscritos_count / $act->cupo_maximo) * 100)) : 0;
+                    $canEditAct   = auth()->user()->puede('act_asistentes','editar');
+                    $canDeleteAct = auth()->user()->puede('act_asistentes','eliminar');
+                    $rowData = [
+                        'nombre'      => $act->nombre,
+                        'codigo'      => $act->codigo,
+                        'tipo'        => $labelTipo,
+                        'icon_tipo'   => $iconTipo,
+                        'estado'      => $labelEst,
+                        'bg_est'      => $bgEst,
+                        'color_est'   => $colorEst,
+                        'fecha'       => $act->fecha_inicio->format('d/m/Y'),
+                        'fecha_fin'   => ($act->fecha_fin && $act->fecha_fin != $act->fecha_inicio) ? $act->fecha_fin->format('d/m/Y') : null,
+                        'hora_inicio' => $act->hora_inicio ? substr($act->hora_inicio, 0, 5) : null,
+                        'hora_fin'    => $act->hora_fin ? substr($act->hora_fin, 0, 5) : null,
+                        'instructor'  => $act->instructor,
+                        'ubicacion'   => $act->ubicacion,
+                        'inscritos'   => $act->inscritos_count,
+                        'cupo'        => $act->cupo_maximo,
+                        'cupo_label'  => $cupoLabel,
+                        'pct'         => $pct,
+                        'modalidad'   => $act->modalidad,
+                        'show_url'    => route('actividades.show', $act),
+                        'registro_url'=> route('registro.form', $act),
+                        'edit_url'    => $canEditAct   ? route('actividades.edit', $act)    : null,
+                        'destroy_url' => $canDeleteAct ? route('actividades.destroy', $act) : null,
+                    ];
                 @endphp
-                <tr class="fila-clickable" data-json='@json([
-                    "nombre"      => $act->nombre,
-                    "codigo"      => $act->codigo,
-                    "tipo"        => $labelTipo,
-                    "icon_tipo"   => $iconTipo,
-                    "estado"      => $labelEst,
-                    "bg_est"      => $bgEst,
-                    "color_est"   => $colorEst,
-                    "fecha"       => $act->fecha_inicio->format("d/m/Y"),
-                    "fecha_fin"   => $act->fecha_fin && $act->fecha_fin != $act->fecha_inicio ? $act->fecha_fin->format("d/m/Y") : null,
-                    "hora_inicio" => $act->hora_inicio ? substr($act->hora_inicio, 0, 5) : null,
-                    "hora_fin"    => $act->hora_fin ? substr($act->hora_fin, 0, 5) : null,
-                    "instructor"  => $act->instructor,
-                    "ubicacion"   => $act->ubicacion,
-                    "inscritos"   => $act->inscritos_count,
-                    "cupo"        => $act->cupo_maximo,
-                    "cupo_label"  => $cupoLabel,
-                    "pct"         => $pct,
-                    "modalidad"   => $act->modalidad,
-                    "show_url"    => route("actividades.show", $act),
-                    "registro_url"=> route("registro.form", $act),
-                    "edit_url"    => auth()->user()->puede("act_asistentes","editar") ? route("actividades.edit", $act) : null,
-                    "destroy_url" => auth()->user()->puede("act_asistentes","eliminar") ? route("actividades.destroy", $act) : null,
-                ])'>
+                <tr class="fila-clickable" data-json='@json($rowData)'>
                     <td><span class="small text-muted font-monospace">{{ $act->codigo }}</span></td>
                     <td>
                         <div class="fw-semibold" style="color:var(--text-main);">{{ $act->nombre }}</div>

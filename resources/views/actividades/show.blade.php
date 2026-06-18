@@ -202,29 +202,30 @@ $estadoBadge = [
                 @forelse($inscripciones as $i => $insc)
                 @if($insc->estado === 'inscrito')
                 @php
-                    $checkinHora = $insc->checkin ? $insc->checkin->hora_checkin->format('H:i') : null;
+                    $checkinHora  = $insc->checkin ? $insc->checkin->hora_checkin->format('H:i') : null;
+                    $canEditInsc  = auth()->user()->puede('act_asistentes','editar');
+                    $canDelInsc   = auth()->user()->puede('act_asistentes','eliminar');
+                    $inscData = [
+                        'insc_id'      => $insc->id,
+                        'folio'        => $insc->folio,
+                        'nombre'       => $insc->asistente->nombreCompleto(),
+                        'iniciales'    => $insc->asistente->iniciales(),
+                        'email'        => $insc->asistente->email,
+                        'telefono'     => $insc->asistente->telefono,
+                        'institucion'  => $insc->asistente->institucion,
+                        'ciudad'       => $insc->asistente->ciudad,
+                        'ocupacion'    => $insc->asistente->ocupacion,
+                        'checkin'      => (bool) $insc->checkin,
+                        'checkin_hora' => $checkinHora,
+                        'notas'        => $insc->notas,
+                        'show_ast_url' => route('asistentes.show', $insc->asistente),
+                        'checkin_url'  => ($canEditInsc && ! $insc->checkin) ? route('inscripciones.checkin', $insc) : null,
+                        'destroy_url'  => $canDelInsc ? route('inscripciones.destroy', $insc) : null,
+                    ];
                 @endphp
                 <tr class="insc-row fila-clickable"
                     data-buscar="{{ strtolower($insc->asistente->nombre . ' ' . $insc->asistente->apellidos . ' ' . $insc->asistente->email . ' ' . $insc->asistente->institucion) }}"
-                    data-json='@json([
-                        "insc_id"      => $insc->id,
-                        "folio"        => $insc->folio,
-                        "nombre"       => $insc->asistente->nombreCompleto(),
-                        "iniciales"    => $insc->asistente->iniciales(),
-                        "email"        => $insc->asistente->email,
-                        "telefono"     => $insc->asistente->telefono,
-                        "institucion"  => $insc->asistente->institucion,
-                        "ciudad"       => $insc->asistente->ciudad,
-                        "ocupacion"    => $insc->asistente->ocupacion,
-                        "checkin"      => (bool)$insc->checkin,
-                        "checkin_hora" => $checkinHora,
-                        "notas"        => $insc->notas ?? null,
-                        "show_ast_url" => route("asistentes.show", $insc->asistente),
-                        "checkin_url"  => auth()->user()->puede("act_asistentes","editar") && !$insc->checkin
-                                          ? route("inscripciones.checkin", $insc) : null,
-                        "destroy_url"  => auth()->user()->puede("act_asistentes","eliminar")
-                                          ? route("inscripciones.destroy", $insc) : null,
-                    ])'>
+                    data-json='@json($inscData)'>
                     <td class="text-muted small">{{ $i + 1 }}</td>
                     <td><span class="font-monospace small">{{ $insc->folio }}</span></td>
                     <td>
