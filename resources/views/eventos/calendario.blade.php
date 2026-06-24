@@ -520,7 +520,6 @@ function abrirModal(fecha = '') {
     document.getElementById('modalTitulo').textContent = 'Nuevo Evento';
     document.getElementById('modalHeaderIcon').className = 'bi bi-calendar-plus';
     document.getElementById('btnEliminar').classList.add('d-none');
-    document.getElementById('panelVisualizacion').classList.add('d-none');
     document.getElementById('btnGuardar').innerHTML = '<i class="bi bi-save me-1"></i>Guardar evento';
     document.getElementById('btnGuardar').onclick = guardarEvento;
     document.getElementById('btnGuardar').disabled = false;
