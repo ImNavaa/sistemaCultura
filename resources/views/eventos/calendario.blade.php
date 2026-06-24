@@ -52,19 +52,25 @@
             </button>
         </div>
 
-        {{-- Leyenda --}}
-        <div class="d-flex gap-3 flex-wrap align-items-center">
+        {{-- Leyenda / Filtros por tipo de documento --}}
+        <div class="d-flex gap-2 flex-wrap align-items-center">
+            <span class="small text-muted me-1 d-none d-md-inline">Filtrar:</span>
             @foreach([
-                ['#3a7bd5','bi-file-earmark-text','Oficio'],
-                ['#7b3ad5','bi-receipt','Recibo'],
-                ['#e8a020','bi-files','Oficio + Recibo'],
-                ['#64748b','bi-dash-circle','Sin documento'],
-            ] as [$color,$icon,$label])
-            <span class="d-flex align-items-center gap-1" style="font-size:.8rem;color:var(--text-muted);">
-                <span style="width:10px;height:10px;border-radius:3px;background:{{ $color }};display:inline-block;flex-shrink:0;"></span>
+                ['oficio',  '#3a7bd5', 'bi-file-earmark-text', 'Oficio'],
+                ['recibo',  '#7b3ad5', 'bi-receipt',           'Recibo'],
+                ['ambos',   '#e8a020', 'bi-files',              'Oficio + Recibo'],
+                ['ninguno', '#64748b', 'bi-dash-circle',        'Sin documento'],
+            ] as [$valor,$color,$icon,$label])
+            <button type="button" class="chip-filtro active" data-tipo="{{ $valor }}"
+                    style="--chip-color:{{ $color }};" onclick="toggleFiltro(this)">
+                <span class="chip-dot"></span>
+                <i class="bi {{ $icon }}"></i>
                 {{ $label }}
-            </span>
+            </button>
             @endforeach
+            <button type="button" class="btn btn-sm btn-link text-decoration-none p-0 ms-1" style="font-size:.78rem;" onclick="resetFiltros()">
+                <i class="bi bi-arrow-counterclockwise me-1"></i>Todos
+            </button>
         </div>
     </div>
 </div>
@@ -343,6 +349,37 @@
     text-decoration: none !important;
 }
 
+/* Chips de filtro por tipo de documento */
+.chip-filtro {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    border: 1px solid var(--border-color);
+    background: var(--bg-card);
+    color: var(--text-muted);
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: .78rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all .15s;
+}
+.chip-filtro .chip-dot {
+    width: 9px; height: 9px;
+    border-radius: 50%;
+    background: var(--chip-color);
+    flex-shrink: 0;
+    opacity: .35;
+    transition: opacity .15s;
+}
+.chip-filtro.active {
+    background: color-mix(in srgb, var(--chip-color) 14%, var(--bg-card));
+    border-color: var(--chip-color);
+    color: var(--text-main);
+}
+.chip-filtro.active .chip-dot { opacity: 1; }
+.chip-filtro:hover { border-color: var(--chip-color); }
+
 /* Secciones del formulario del modal */
 .form-section-title {
     font-size: .72rem;
@@ -358,6 +395,28 @@
 </style>
 
 <script>
+// ── Filtros por tipo de documento ─────────────────────────
+let _filtrosActivos = new Set(['oficio', 'recibo', 'ambos', 'ninguno']);
+let _todosLosEventos = [];
+
+function toggleFiltro(chip) {
+    const tipo = chip.dataset.tipo;
+    if (_filtrosActivos.has(tipo)) {
+        _filtrosActivos.delete(tipo);
+        chip.classList.remove('active');
+    } else {
+        _filtrosActivos.add(tipo);
+        chip.classList.add('active');
+    }
+    window._calendar?.refetchEvents();
+}
+
+function resetFiltros() {
+    _filtrosActivos = new Set(['oficio', 'recibo', 'ambos', 'ninguno']);
+    document.querySelectorAll('.chip-filtro').forEach(c => c.classList.add('active'));
+    window._calendar?.refetchEvents();
+}
+
 // ── Inicializar fechas del modal de reporte ──────────────
 (function(){
     var today    = new Date().toISOString().slice(0,10);
@@ -388,7 +447,15 @@ document.addEventListener('DOMContentLoaded', function () {
             right:  'dayGridMonth,timeGridWeek,timeGridDay,listMonth'
         },
         buttonText: { today:'Hoy', month:'Mes', week:'Semana', day:'Día', list:'Lista' },
-        events: '{{ route("eventos.get") }}',
+        events: function (info, successCallback, failureCallback) {
+            fetch('{{ route("eventos.get") }}')
+                .then(r => r.json())
+                .then(data => {
+                    _todosLosEventos = data;
+                    successCallback(data.filter(e => _filtrosActivos.has(e.extendedProps.tipo)));
+                })
+                .catch(failureCallback);
+        },
 
         dateClick: function(info) { abrirModal(info.dateStr); },
         eventClick: function(info) { abrirModalEditar(info.event); },
