@@ -379,9 +379,18 @@
             selectable: puedeCrear,
 
             events: function (fetchInfo, success, failure) {
-                fetch('{{ route("agora.reservas.get") }}')
-                    .then(r => r.json())
+                fetch('{{ route("agora.reservas.get") }}', {
+                    headers: { 'Accept': 'application/json' }
+                })
+                    .then(function(r) {
+                        if (!r.ok) throw new Error('HTTP ' + r.status);
+                        return r.json();
+                    })
                     .then(function (data) {
+                        if (data && data.error) {
+                            failure(new Error(data.message || 'Error al cargar reservas'));
+                            return;
+                        }
                         // Filtrar por área si hay filtro activo
                         if (filtroAreaActivo) {
                             data = data.filter(function(e) {

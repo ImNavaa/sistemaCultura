@@ -20,49 +20,64 @@ class AgoraController extends Controller
     // ── API: eventos para FullCalendar ────────────────────────
     public function getReservas()
     {
-        $reservas = AgoraReserva::with('creadoPor')->get();
+        try {
+            $reservas = AgoraReserva::with('creadoPor')->get();
 
-        $eventos = $reservas->map(function ($r) {
-            $color = $r->getColorCalendario();
+            $eventos = $reservas->map(function ($r) {
+                $color = $r->getColorCalendario();
 
-            $horaInicio = $r->hora_inicio ? $r->fecha->format('Y-m-d') . 'T' . $r->hora_inicio : $r->fecha->format('Y-m-d');
-            $horaFin    = $r->hora_fin    ? $r->fecha->format('Y-m-d') . 'T' . $r->hora_fin    : null;
+                $fechaStr = $r->fecha instanceof \Carbon\Carbon
+                    ? $r->fecha->format('Y-m-d')
+                    : substr((string) $r->fecha, 0, 10);
 
-            $titulo = $r->titulo;
-            if ($r->estado === 'tentativo') $titulo = '(Tentativo) ' . $titulo;
-            if ($r->estado === 'cancelado') $titulo = '[Cancelado] ' . $titulo;
+                $horaInicio = $r->hora_inicio
+                    ? $fechaStr . 'T' . substr($r->hora_inicio, 0, 5)
+                    : $fechaStr;
+                $horaFin = $r->hora_fin
+                    ? $fechaStr . 'T' . substr($r->hora_fin, 0, 5)
+                    : null;
 
-            $areas = [];
-            if ($r->tipo === 'area' && !empty($r->areas_ids)) {
-                $areas = AgoraArea::whereIn('id', $r->areas_ids)->pluck('nombre')->toArray();
-            }
+                $titulo = $r->titulo;
+                if ($r->estado === 'tentativo') $titulo = '(Tentativo) ' . $titulo;
+                if ($r->estado === 'cancelado') $titulo = '[Cancelado] ' . $titulo;
 
-            return [
-                'id'            => $r->id,
-                'title'         => $titulo,
-                'start'         => $horaInicio,
-                'end'           => $horaFin,
-                'backgroundColor' => $color,
-                'borderColor'     => $color,
-                'textColor'       => '#fff',
-                'extendedProps'   => [
-                    'tipo'         => $r->tipo,
-                    'organizador'  => $r->organizador,
-                    'responsable'  => $r->responsable,
-                    'telefono'     => $r->telefono_contacto,
-                    'estado'       => $r->estado,
-                    'descripcion'  => $r->descripcion,
-                    'notas'        => $r->notas_internas,
-                    'areas'        => $areas,
-                    'hora_inicio'  => $r->hora_inicio,
-                    'hora_fin'     => $r->hora_fin,
-                    'fecha'        => $r->fecha->format('Y-m-d'),
-                    'areas_ids'    => $r->areas_ids ?? [],
-                ],
-            ];
-        });
+                $areas = [];
+                $areasIds = is_array($r->areas_ids) ? $r->areas_ids : [];
+                if ($r->tipo === 'area' && !empty($areasIds)) {
+                    $areas = AgoraArea::whereIn('id', $areasIds)->pluck('nombre')->toArray();
+                }
 
-        return response()->json($eventos);
+                return [
+                    'id'              => $r->id,
+                    'title'           => $titulo,
+                    'start'           => $horaInicio,
+                    'end'             => $horaFin,
+                    'backgroundColor' => $color,
+                    'borderColor'     => $color,
+                    'textColor'       => '#fff',
+                    'extendedProps'   => [
+                        'tipo'         => $r->tipo,
+                        'organizador'  => $r->organizador,
+                        'responsable'  => $r->responsable,
+                        'telefono'     => $r->telefono_contacto,
+                        'estado'       => $r->estado,
+                        'descripcion'  => $r->descripcion,
+                        'notas'        => $r->notas_internas,
+                        'areas'        => $areas,
+                        'hora_inicio'  => $r->hora_inicio ? substr($r->hora_inicio, 0, 5) : null,
+                        'hora_fin'     => $r->hora_fin    ? substr($r->hora_fin, 0, 5)    : null,
+                        'fecha'        => $fechaStr,
+                        'areas_ids'    => $areasIds,
+                    ],
+                ];
+            });
+
+            return response()->json($eventos);
+
+        } catch (\Exception $e) {
+            \Log::error('AgoraController::getReservas — ' . $e->getMessage());
+            return response()->json(['error' => true, 'message' => $e->getMessage()], 500);
+        }
     }
 
     // ── Crear reserva ─────────────────────────────────────────
