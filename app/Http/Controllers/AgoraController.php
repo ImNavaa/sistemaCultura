@@ -83,79 +83,112 @@ class AgoraController extends Controller
     // ── Crear reserva ─────────────────────────────────────────
     public function store(Request $request)
     {
-        $data = $request->validate([
-            'titulo'            => 'required|string|max:255',
-            'tipo'              => 'required|in:evento,fotografia,area',
-            'organizador'       => 'required|string|max:255',
-            'responsable'       => 'nullable|string|max:255',
-            'telefono_contacto' => 'nullable|string|max:30',
-            'fecha'             => 'required|date',
-            'hora_inicio'       => 'nullable|date_format:H:i',
-            'hora_fin'          => 'nullable|date_format:H:i|after:hora_inicio',
-            'areas_ids'         => 'nullable|array',
-            'areas_ids.*'       => 'exists:agora_areas,id',
-            'descripcion'       => 'nullable|string',
-            'notas_internas'    => 'nullable|string',
-            'estado'            => 'required|in:confirmado,tentativo,cancelado',
-        ]);
+        try {
+            $data = $request->validate([
+                'titulo'            => 'required|string|max:255',
+                'tipo'              => 'required|in:evento,fotografia,area',
+                'organizador'       => 'required|string|max:255',
+                'responsable'       => 'nullable|string|max:255',
+                'telefono_contacto' => 'nullable|string|max:30',
+                'fecha'             => 'required|date',
+                'hora_inicio'       => 'nullable|date_format:H:i',
+                'hora_fin'          => 'nullable|date_format:H:i',
+                'areas_ids'         => 'nullable|array',
+                'areas_ids.*'       => 'exists:agora_areas,id',
+                'descripcion'       => 'nullable|string',
+                'notas_internas'    => 'nullable|string',
+                'estado'            => 'required|in:confirmado,tentativo,cancelado',
+            ]);
 
-        $data['creado_por'] = Auth::id();
+            $data['creado_por'] = Auth::id();
 
-        if ($data['tipo'] !== 'area') {
-            $data['areas_ids'] = null;
+            if ($data['tipo'] !== 'area') {
+                $data['areas_ids'] = null;
+            }
+
+            AgoraReserva::create($data);
+
+            return response()->json(['success' => true]);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => implode(' ', collect($e->errors())->flatten()->toArray()),
+            ], 422);
+        } catch (\Exception $e) {
+            \Log::error('AgoraController::store — ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Error al guardar la reserva.'], 500);
         }
-
-        AgoraReserva::create($data);
-
-        return response()->json(['success' => true]);
     }
 
     // ── Actualizar reserva ────────────────────────────────────
     public function update(Request $request, AgoraReserva $reserva)
     {
-        $data = $request->validate([
-            'titulo'            => 'required|string|max:255',
-            'tipo'              => 'required|in:evento,fotografia,area',
-            'organizador'       => 'required|string|max:255',
-            'responsable'       => 'nullable|string|max:255',
-            'telefono_contacto' => 'nullable|string|max:30',
-            'fecha'             => 'required|date',
-            'hora_inicio'       => 'nullable|date_format:H:i',
-            'hora_fin'          => 'nullable|date_format:H:i',
-            'areas_ids'         => 'nullable|array',
-            'areas_ids.*'       => 'exists:agora_areas,id',
-            'descripcion'       => 'nullable|string',
-            'notas_internas'    => 'nullable|string',
-            'estado'            => 'required|in:confirmado,tentativo,cancelado',
-        ]);
+        try {
+            $data = $request->validate([
+                'titulo'            => 'required|string|max:255',
+                'tipo'              => 'required|in:evento,fotografia,area',
+                'organizador'       => 'required|string|max:255',
+                'responsable'       => 'nullable|string|max:255',
+                'telefono_contacto' => 'nullable|string|max:30',
+                'fecha'             => 'required|date',
+                'hora_inicio'       => 'nullable|date_format:H:i',
+                'hora_fin'          => 'nullable|date_format:H:i',
+                'areas_ids'         => 'nullable|array',
+                'areas_ids.*'       => 'exists:agora_areas,id',
+                'descripcion'       => 'nullable|string',
+                'notas_internas'    => 'nullable|string',
+                'estado'            => 'required|in:confirmado,tentativo,cancelado',
+            ]);
 
-        if ($data['tipo'] !== 'area') {
-            $data['areas_ids'] = null;
+            if ($data['tipo'] !== 'area') {
+                $data['areas_ids'] = null;
+            }
+
+            $reserva->update($data);
+
+            return response()->json(['success' => true]);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => implode(' ', collect($e->errors())->flatten()->toArray()),
+            ], 422);
+        } catch (\Exception $e) {
+            \Log::error('AgoraController::update — ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Error al actualizar la reserva.'], 500);
         }
-
-        $reserva->update($data);
-
-        return response()->json(['success' => true]);
     }
 
     // ── Eliminar reserva ──────────────────────────────────────
     public function destroy(AgoraReserva $reserva)
     {
-        $reserva->delete();
-        return response()->json(['success' => true]);
+        try {
+            $reserva->delete();
+            return response()->json(['success' => true]);
+        } catch (\Exception $e) {
+            \Log::error('AgoraController::destroy — ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Error al eliminar la reserva.'], 500);
+        }
     }
 
     // ── Drag & drop: mover fecha ──────────────────────────────
     public function moverFecha(Request $request, AgoraReserva $reserva)
     {
-        $data = $request->validate([
-            'fecha'      => 'required|date',
-            'hora_inicio'=> 'nullable|date_format:H:i',
-            'hora_fin'   => 'nullable|date_format:H:i',
-        ]);
+        try {
+            $data = $request->validate([
+                'fecha'       => 'required|date',
+                'hora_inicio' => 'nullable|date_format:H:i',
+                'hora_fin'    => 'nullable|date_format:H:i',
+            ]);
 
-        $reserva->update($data);
-        return response()->json(['success' => true]);
+            $reserva->update($data);
+            return response()->json(['success' => true]);
+
+        } catch (\Exception $e) {
+            \Log::error('AgoraController::moverFecha — ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Error al mover la reserva.'], 500);
+        }
     }
 
     // ══ GESTIÓN DE ÁREAS ════════════════════════════════════

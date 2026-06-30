@@ -578,20 +578,28 @@
 
         fetch(url, {
             method: method,
-            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf },
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': csrf,
+            },
             body: JSON.stringify(payload),
         })
-        .then(r => r.json())
+        .then(function(r) { return r.json(); })
         .then(function (d) {
             btn.disabled = false;
             if (d.success) {
                 bootstrap.Modal.getInstance(document.getElementById('modalReserva'))?.hide();
                 calendarioFC.refetchEvents();
             } else {
-                alert(d.message || 'Error al guardar.');
+                alert(d.message || 'Error al guardar la reserva.');
             }
         })
-        .catch(function () { btn.disabled = false; alert('Error de red.'); });
+        .catch(function (err) {
+            btn.disabled = false;
+            alert('Error de conexión al guardar. Intenta de nuevo.');
+            console.error(err);
+        });
     }
 
     // ── Popup de detalle ─────────────────────────────────────
