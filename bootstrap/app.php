@@ -11,6 +11,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        // Render terminates TLS in front of the container and proxies
+        // plain HTTP to it, so trust its proxy to read X-Forwarded-* headers.
+        $middleware->trustProxies(at: '*');
+
         $middleware->redirectGuestsTo('/login');
         $middleware->redirectUsersTo('/inicio');
 
